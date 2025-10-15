@@ -7,6 +7,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
+@inject('impersonationManager', \App\Support\ImpersonationManager::class)
+
 <body class="min-h-screen bg-transparent text-slate-100">
     <div class="relative isolate flex min-h-screen flex-col">
         <div class="pointer-events-none absolute inset-x-0 top-[-200px] z-[-1] blur-3xl">
@@ -55,6 +57,30 @@
         </header>
 
         <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
+            @if ($impersonationManager->isImpersonating() && auth()->check())
+                <div class="mb-6 flex flex-col gap-3 rounded-3xl border border-amber-400/60 bg-amber-500/10 px-4 py-4 text-amber-50 shadow-lg shadow-amber-500/10 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">
+                            {{ __('ui.impersonation.banner_title', ['name' => auth()->user()->name]) }}
+                        </p>
+                        <p class="mt-2 text-sm text-amber-100/80">
+                            {{ __('ui.impersonation.banner_help') }}
+                        </p>
+                    </div>
+                    <form method="POST" action="{{ route('impersonation.stop') }}" class="flex-shrink-0">
+                        @csrf
+                        @method('DELETE')
+
+                        <button
+                            type="submit"
+                            class="rounded-full border border-amber-400/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-amber-50 transition hover:bg-amber-500/20"
+                        >
+                            {{ __('ui.impersonation.stop') }}
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             @isset($header)
                 <div class="mb-8 text-center">
                     <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">{{ $header }}</h1>

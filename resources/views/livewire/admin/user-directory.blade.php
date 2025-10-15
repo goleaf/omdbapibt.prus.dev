@@ -29,21 +29,20 @@
             <button
                 type="button"
                 wire:click="exportCsv"
-                class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200"
+                wire:loading.attr="disabled"
+                wire:target="exportCsv"
+                class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
                 Export CSV
             </button>
-            @if ($this->impersonating)
-                <button
-                    type="button"
-                    wire:click="stopImpersonating"
-                    class="rounded-full border border-emerald-400/70 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
-                >
-                    Stop impersonating
-                </button>
-            @endif
         </div>
     </div>
+
+    @error('impersonation')
+        <div class="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+            {{ $message }}
+        </div>
+    @enderror
 
     <div class="overflow-hidden rounded-3xl border border-slate-800/60 bg-slate-900/70">
         <table class="min-w-full divide-y divide-slate-800 text-sm">
@@ -77,13 +76,19 @@
                         <td class="px-6 py-4">{{ optional($user->created_at)->toDateTimeString() }}</td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button
-                                    type="button"
-                                    wire:click="impersonate({{ $user->id }})"
-                                    class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200"
-                                >
-                                    Impersonate
-                                </button>
+                                @if ($user->canBeImpersonated())
+                                    <button
+                                        type="button"
+                                        wire:click="impersonate({{ $user->id }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="impersonate({{ $user->id }})"
+                                        class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        Impersonate
+                                    </button>
+                                @else
+                                    <span class="rounded-full border border-slate-800/80 px-3 py-1 text-xs text-slate-500">{{ $user->roleLabel() }}</span>
+                                @endif
                             </div>
                         </td>
                     </tr>
