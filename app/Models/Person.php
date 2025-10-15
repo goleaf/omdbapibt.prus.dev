@@ -16,6 +16,7 @@ class Person extends Model
         'slug',
         'name',
         'biography',
+        'biography_translations',
         'birthday',
         'deathday',
         'place_of_birth',
@@ -23,6 +24,7 @@ class Person extends Model
         'known_for_department',
         'popularity',
         'profile_path',
+        'poster_path',
     ];
 
     protected $casts = [
