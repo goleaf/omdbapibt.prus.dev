@@ -5,13 +5,15 @@ namespace App\Livewire\Admin;
 use App\Models\UiTranslation;
 use App\Support\UiTranslationRepository;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class UiTranslationManager extends Component
 {
+    use AuthorizesRequests;
+
     public array $locales = [];
 
     public array $form = [];
@@ -26,9 +28,8 @@ class UiTranslationManager extends Component
 
     public function mount(): void
     {
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorize('viewAny', UiTranslation::class);
+        $this->authorize('create', UiTranslation::class);
 
         $configuredLocales = (array) config('translatable.locales', [config('app.locale')]);
         $fallback = (string) config('translatable.fallback_locale', config('app.fallback_locale', 'en'));
@@ -56,6 +57,8 @@ class UiTranslationManager extends Component
 
     public function startCreate(): void
     {
+        $this->authorize('create', UiTranslation::class);
+
         $this->editingId = null;
         $this->pendingDeletionId = null;
         $this->statusMessage = '';
@@ -65,6 +68,8 @@ class UiTranslationManager extends Component
     public function edit(int $translationId): void
     {
         $translation = UiTranslation::query()->findOrFail($translationId);
+
+        $this->authorize('update', $translation);
 
         $this->editingId = $translation->id;
         $this->pendingDeletionId = null;
@@ -79,17 +84,25 @@ class UiTranslationManager extends Component
 
     public function confirmDeletion(int $translationId): void
     {
-        $this->pendingDeletionId = $translationId;
+        $translation = UiTranslation::query()->findOrFail($translationId);
+
+        $this->authorize('delete', $translation);
+
+        $this->pendingDeletionId = $translation->id;
         $this->statusMessage = '';
     }
 
     public function cancelDeletion(): void
     {
+        $this->authorize('delete', UiTranslation::class);
+
         $this->pendingDeletionId = null;
     }
 
     public function deleteConfirmed(): void
     {
+        $this->authorize('delete', UiTranslation::class);
+
         if (! $this->pendingDeletionId) {
             return;
         }
@@ -97,6 +110,7 @@ class UiTranslationManager extends Component
         $translation = UiTranslation::query()->find($this->pendingDeletionId);
 
         if ($translation) {
+            $this->authorize('delete', $translation);
             $translation->delete();
             $this->repository()->refreshAndRegister();
             $this->statusMessage = __('Translation deleted.');
@@ -111,12 +125,28 @@ class UiTranslationManager extends Component
 
     public function refreshCache(): void
     {
+        $this->authorize('refreshCache', UiTranslation::class);
+
         $this->repository()->refreshAndRegister();
         $this->statusMessage = __('Translation cache refreshed.');
     }
 
     public function save(): void
     {
+        $translation = null;
+
+        if ($this->editingId) {
+            $translation = UiTranslation::query()->find($this->editingId);
+
+            if ($translation) {
+                $this->authorize('update', $translation);
+            } else {
+                $this->authorize('create', UiTranslation::class);
+            }
+        } else {
+            $this->authorize('create', UiTranslation::class);
+        }
+
         $this->statusMessage = '';
 
         $rules = [
@@ -140,8 +170,6 @@ class UiTranslationManager extends Component
         $this->validate($rules);
 
         $payload = $this->cleanPayload();
-
-        $translation = UiTranslation::query()->find($this->editingId);
 
         if (! $translation) {
             $translation = new UiTranslation;
