@@ -2,29 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\ParserWorkload;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ParserTriggerRequest;
 use App\Jobs\Parsing\ExecuteParserPipeline;
-use App\Models\ParserEntry;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ParserTriggerController extends Controller
 {
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(ParserTriggerRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'workload' => [
-                'required',
-                'string',
-                Rule::enum(ParserWorkload::class),
-            ],
-        ]);
+        $request->validated();
 
-        $workload = ParserWorkload::from($validated['workload']);
-
-        $this->authorize('trigger', ParserEntry::class);
+        $workload = $request->workload();
 
         ExecuteParserPipeline::dispatch($workload);
 
