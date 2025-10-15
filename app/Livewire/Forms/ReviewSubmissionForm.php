@@ -2,6 +2,9 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\Review;
+use App\Support\HtmlSanitizer;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Livewire\Form;
 
 class ReviewSubmissionForm extends Form
@@ -34,5 +37,29 @@ class ReviewSubmissionForm extends Form
             'body.string' => __('reviews.validation.body.string'),
             'body.max' => __('reviews.validation.body.max'),
         ];
+    }
+
+    public function submitFor(Authenticatable $user): Review
+    {
+        $this->validate();
+
+        $sanitized = HtmlSanitizer::clean($this->body);
+
+        $review = Review::create([
+            'user_id' => $user->getAuthIdentifier(),
+            'movie_title' => $this->movieTitle,
+            'rating' => $this->rating,
+            'body' => $sanitized,
+        ]);
+
+        $this->resetForm();
+
+        return $review;
+    }
+
+    public function resetForm(): void
+    {
+        $this->reset('movieTitle', 'rating', 'body');
+        $this->rating = 5;
     }
 }
