@@ -7,6 +7,14 @@ use Tests\TestCase;
 
 class RedisSessionTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config()->set('session.driver', 'redis');
+        config()->set('session.connection', 'default');
+    }
+
     public function test_session_data_is_persisted_in_redis(): void
     {
         $session = app('session')->driver('redis');

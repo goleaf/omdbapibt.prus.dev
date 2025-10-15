@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Movie extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -26,6 +28,7 @@ class Movie extends Model
         'year',
         'runtime',
         'release_date',
+        'overview',
         'plot',
         'tagline',
         'homepage',
@@ -44,16 +47,17 @@ class Movie extends Model
     ];
 
     /**
-     * Cast definitions.
+     * The attributes that should be cast.
      *
      * @var array<string, string>
      */
     protected $casts = [
+        'overview' => 'array',
         'adult' => 'boolean',
         'video' => 'boolean',
         'release_date' => 'date',
-        'popularity' => 'decimal:3',
-        'vote_average' => 'decimal:1',
+        'popularity' => 'float',
+        'vote_average' => 'float',
     ];
 
     /**

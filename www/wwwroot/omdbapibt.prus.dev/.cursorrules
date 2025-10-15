@@ -1,0 +1,35 @@
+Project: Laravel 11 + SQLite (primary DB)
+
+Goals
+- Prefer SQLite-friendly schema and operations.
+- Optimize for read-heavy workloads; keep writes batched and transactional.
+- Keep production safe (no query log, WAL on, foreign keys on).
+
+Database Rules
+- Apply PRAGMA only when `config('database.default') === 'sqlite'`.
+- PRAGMAs to set at boot: `foreign_keys=ON`, `journal_mode=WAL`, `synchronous=NORMAL`, `temp_store=MEMORY`, `cache_size=-20000`, `busy_timeout=5000`. Allow tuning via env: `SQLITE_MMAP_SIZE`, `SQLITE_WAL_AUTOCHECKPOINT`.
+- In `config/database.php`, include `PDO::ATTR_TIMEOUT` (default 5s) for sqlite.
+- Never keep Laravel query log enabled in production.
+
+Migrations
+- For column changes, prefer: add new column -> migrate data -> drop old -> rename.
+- If complex rename/change is needed, allow `doctrine/dbal`.
+- Add indexes on fields used in WHERE/JOIN/ORDER BY. Consider partial indexes via `DB::statement`.
+- Declare foreign keys consistently, but ensure `PRAGMA foreign_keys=ON` at runtime.
+
+Performance
+- Use batch operations: `Model::insert()`, `upsert()`, wrap in `DB::transaction()`.
+- Avoid using SQLite for cache/queue/session in production; use Redis instead.
+- Provide maintenance tooling (e.g., `artisan db:optimize` running `PRAGMA optimize` and `wal_checkpoint(TRUNCATE)`).
+
+Search
+- If full-text search is needed, prefer Laravel Scout + TNTSearch; alternatively use SQLite FTS5 + triggers.
+
+Testing
+- Use `:memory:` for test DB; `RefreshDatabase` trait; keep migrations idempotent.
+
+Code Style / Structure
+- Keep changes minimal and focused; avoid unrelated refactors.
+- Do not introduce vendor changes unless explicitly required.
+- Favor simple raw SQL for SQLite-specific features (partial indexes, FTS, CHECK constraints).
+

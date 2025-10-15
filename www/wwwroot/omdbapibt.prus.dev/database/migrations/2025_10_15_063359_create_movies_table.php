@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('movies', function (Blueprint $table) {
+        $connection = Schema::getConnection()->getDriverName();
+
+        Schema::create('movies', function (Blueprint $table) use ($connection) {
             $table->id();
             $table->unsignedBigInteger('tmdb_id')->nullable();
             $table->string('imdb_id', 20)->nullable();
@@ -23,6 +25,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('year')->nullable();
             $table->unsignedSmallInteger('runtime')->nullable();
             $table->date('release_date')->nullable();
+            $table->text('plot')->nullable();
             $table->string('tagline')->nullable();
             $table->string('homepage')->nullable();
             $table->unsignedBigInteger('budget')->nullable();
@@ -40,7 +43,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->text('title_search_vector')->storedAs(<<<'SQL'
+            if ($connection !== 'sqlite') {
+                $table->text('title_search_vector')->storedAs(<<<'SQL'
 trim(
     concat_ws(
         ' ',
@@ -51,7 +55,7 @@ trim(
 )
 SQL);
 
-            $table->text('overview_search_vector')->storedAs(<<<'SQL'
+                $table->text('overview_search_vector')->storedAs(<<<'SQL'
 trim(
     concat_ws(
         ' ',
@@ -61,6 +65,10 @@ trim(
     )
 )
 SQL);
+            } else {
+                $table->text('title_search_vector')->nullable();
+                $table->text('overview_search_vector')->nullable();
+            }
 
             $table->index('tmdb_id');
             $table->index('imdb_id');
@@ -70,7 +78,10 @@ SQL);
             $table->unique('tmdb_id');
             $table->unique('imdb_id');
             $table->unique('slug');
-            $table->fullText(['title_search_vector', 'overview_search_vector'], 'movies_fulltext_translations');
+
+            if ($connection !== 'sqlite') {
+                $table->fullText(['title_search_vector', 'overview_search_vector'], 'movies_fulltext_translations');
+            }
         });
     }
 

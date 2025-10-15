@@ -44,14 +44,16 @@ return [
     ],
 
     'tmdb' => [
-        'base_url' => env('TMDB_BASE_URL', 'https://api.themoviedb.org/3'),
+        'key' => env('TMDB_API_KEY'),
+        'base_url' => rtrim(env('TMDB_BASE_URL', 'https://api.themoviedb.org/3'), '/').'/',
         'query' => [
             'api_key' => env('TMDB_API_KEY'),
         ],
     ],
 
     'omdb' => [
-        'base_url' => env('OMDB_BASE_URL', 'https://www.omdbapi.com'),
+        'key' => env('OMDB_API_KEY'),
+        'base_url' => rtrim(env('OMDB_BASE_URL', 'https://www.omdbapi.com'), '/').'/',
         'query' => [
             'apikey' => env('OMDB_API_KEY'),
         ],
