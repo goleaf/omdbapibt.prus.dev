@@ -22,11 +22,6 @@ class ExecuteParserPipeline implements ShouldQueue
     public string $workload;
 
     /**
-     * The queue that should process the job.
-     */
-    public string $queue = 'parsing';
-
-    /**
      * The number of times the job may be attempted.
      */
     public int $tries = 3;
@@ -34,8 +29,7 @@ class ExecuteParserPipeline implements ShouldQueue
     public function __construct(string $workload)
     {
         $this->workload = $workload;
-
-        $this->onQueue($this->queue);
+        $this->onQueue((string) config('parser.queue', 'parsing'));
     }
 
     /**
