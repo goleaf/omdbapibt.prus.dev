@@ -206,6 +206,176 @@ const setupSidebar = (root) => {
     handleResize();
 };
 
+const setupMobileNavigation = () => {
+    document.querySelectorAll('[data-mobile-nav]').forEach((root) => {
+        const panel = root.querySelector('[data-mobile-nav-panel]');
+
+        if (!panel) {
+            return;
+        }
+
+        root._mobileNavCleanup?.();
+
+        const openButtons = Array.from(root.querySelectorAll('[data-mobile-nav-open]'));
+        const closeButtons = Array.from(root.querySelectorAll('[data-mobile-nav-close]'));
+        const backdrop = root.querySelector('[data-mobile-nav-backdrop]');
+
+        const focusableSelector = [
+            'a[href]',
+            'button:not([disabled])',
+            'textarea:not([disabled])',
+            'input:not([disabled])',
+            'select:not([disabled])',
+            '[tabindex]:not([tabindex="-1"])',
+        ].join(',');
+
+        let lastFocusedElement = null;
+
+        const isDesktop = () => window.innerWidth >= 768;
+
+        const getFocusableElements = () =>
+            Array.from(panel.querySelectorAll(focusableSelector)).filter((element) => {
+                if (element.hasAttribute('disabled')) {
+                    return false;
+                }
+
+                if (element.getAttribute('aria-hidden') === 'true') {
+                    return false;
+                }
+
+                const style = window.getComputedStyle(element);
+                return style.display !== 'none' && style.visibility !== 'hidden';
+            });
+
+        const syncBodyScroll = (locked) => {
+            if (locked) {
+                document.body.classList.add('overflow-hidden');
+            } else {
+                document.body.classList.remove('overflow-hidden');
+            }
+        };
+
+        const setOpen = (open, { silent = false } = {}) => {
+            const desktop = isDesktop();
+            const resolved = desktop ? true : Boolean(open);
+
+            root.dataset.open = resolved ? 'true' : 'false';
+            panel.setAttribute('aria-hidden', resolved ? 'false' : 'true');
+            panel.setAttribute('aria-modal', !desktop && resolved ? 'true' : 'false');
+            openButtons.forEach((button) => button.setAttribute('aria-expanded', resolved ? 'true' : 'false'));
+
+            if (desktop) {
+                panel.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+                panel.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+                backdrop?.classList.add('opacity-0', 'pointer-events-none');
+                backdrop?.classList.remove('opacity-100', 'pointer-events-auto');
+                syncBodyScroll(false);
+                return;
+            }
+
+            if (resolved) {
+                panel.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+                panel.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+                backdrop?.classList.add('opacity-100', 'pointer-events-auto');
+                backdrop?.classList.remove('opacity-0', 'pointer-events-none');
+
+                if (!silent) {
+                    lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+                    const focusable = getFocusableElements();
+                    (focusable[0] ?? panel).focus({ preventScroll: true });
+                }
+
+                syncBodyScroll(true);
+            } else {
+                panel.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+                panel.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+                backdrop?.classList.remove('opacity-100', 'pointer-events-auto');
+                backdrop?.classList.add('opacity-0', 'pointer-events-none');
+
+                if (!silent && lastFocusedElement) {
+                    lastFocusedElement.focus({ preventScroll: true });
+                }
+
+                lastFocusedElement = null;
+                syncBodyScroll(false);
+            }
+        };
+
+        const handleOpen = (event) => {
+            event.preventDefault();
+            setOpen(true);
+        };
+
+        const handleClose = (event) => {
+            event.preventDefault();
+            setOpen(false);
+        };
+
+        const handleBackdrop = () => setOpen(false);
+
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') {
+                setOpen(false);
+                return;
+            }
+
+            if (event.key !== 'Tab' || root.dataset.open !== 'true' || isDesktop()) {
+                return;
+            }
+
+            const focusable = getFocusableElements();
+
+            if (focusable.length === 0) {
+                event.preventDefault();
+                panel.focus({ preventScroll: true });
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const active = document.activeElement;
+
+            if (event.shiftKey && active === first) {
+                event.preventDefault();
+                last.focus({ preventScroll: true });
+            } else if (!event.shiftKey && active === last) {
+                event.preventDefault();
+                first.focus({ preventScroll: true });
+            }
+        };
+
+        const handleResize = () => {
+            if (isDesktop()) {
+                setOpen(true, { silent: true });
+            } else {
+                const shouldStayOpen = root.dataset.open === 'true';
+                setOpen(shouldStayOpen, { silent: true });
+                syncBodyScroll(shouldStayOpen);
+            }
+        };
+
+        openButtons.forEach((button) => button.addEventListener('click', handleOpen));
+        closeButtons.forEach((button) => button.addEventListener('click', handleClose));
+        panel.addEventListener('keydown', handleKeydown);
+        backdrop?.addEventListener('click', handleBackdrop);
+        window.addEventListener('resize', handleResize);
+
+        root._mobileNavCleanup = () => {
+            openButtons.forEach((button) => button.removeEventListener('click', handleOpen));
+            closeButtons.forEach((button) => button.removeEventListener('click', handleClose));
+            panel.removeEventListener('keydown', handleKeydown);
+            backdrop?.removeEventListener('click', handleBackdrop);
+            window.removeEventListener('resize', handleResize);
+            syncBodyScroll(false);
+        };
+
+        const initialOpen = root.dataset.open === 'true';
+        setOpen(initialOpen, { silent: true });
+        handleResize();
+    });
+};
+
 const setupInfiniteScroll = (root) => {
     const sentinel = root.querySelector('[data-infinite-scroll-target]');
     const componentId = root.getAttribute('data-component-id');
@@ -255,6 +425,7 @@ const bootCatalogModules = () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupThemeToggle();
+    setupMobileNavigation();
     bootCatalogModules();
 });
 
@@ -270,7 +441,9 @@ document.addEventListener('livewire:init', () => {
 
         setupSidebar(root);
         setupInfiniteScroll(root);
+        setupMobileNavigation();
     });
 
     setupThemeToggle();
+    setupMobileNavigation();
 });
