@@ -16,6 +16,7 @@ return [
         'not_on_grace_period' => "Votre abonnement ne peut pas être repris car il n'est pas dans sa période de grâce.",
         'resume_failed' => "Nous n'avons pas pu reprendre votre abonnement. Veuillez réessayer.",
         'invoice_load_failed' => "Nous n'avons pas pu charger votre prochaine facture.",
+        'access_required' => "Vous devez disposer d'un abonnement actif pour accéder à cette zone.",
         'premium_required' => "Un abonnement premium est requis pour accéder à cette zone.",
     ],
 ];

@@ -2,7 +2,7 @@
     @if ($locked)
         <div class="mx-auto max-w-3xl space-y-8 rounded-3xl border border-slate-800/60 bg-slate-900/70 p-10 text-center">
             <div class="space-y-3">
-                <h2 class="text-2xl font-semibold text-white">{{ __('Premium membership required') }}</h2>
+                <h2 class="text-2xl font-semibold text-white">{{ __('subscriptions.errors.access_required') }}</h2>
                 <p class="text-sm text-slate-300">
                     {{ __('Access to advanced filters, watch history sync, and cinematic recommendations is reserved for subscribers.') }}
                 </p>

@@ -17,7 +17,7 @@ class SubscriptionAccessTest extends TestCase
     {
         $this->get(route('browse', ['locale' => 'en']))
             ->assertOk()
-            ->assertSee('Premium membership required')
+            ->assertSee(trans('subscriptions.errors.access_required'))
             ->assertSeeLivewire(BrowsePage::class);
     }
 
@@ -36,14 +36,14 @@ class SubscriptionAccessTest extends TestCase
             ->get(route('browse', ['locale' => 'en']))
             ->assertOk()
             ->assertSee('Trending right now')
-            ->assertDontSee('Premium membership required');
+            ->assertDontSee(trans('subscriptions.errors.access_required'));
     }
 
     public function test_livewire_component_marks_guest_as_locked(): void
     {
         Livewire::test(BrowsePage::class)
             ->assertSet('locked', true)
-            ->assertSee('Premium membership required');
+            ->assertSee(trans('subscriptions.errors.access_required'));
     }
 
     public function test_livewire_component_marks_subscriber_as_unlocked(): void
@@ -61,7 +61,7 @@ class SubscriptionAccessTest extends TestCase
             ->test(BrowsePage::class)
             ->assertSet('locked', false)
             ->assertSee('Trending right now')
-            ->assertDontSee('Premium membership required');
+            ->assertDontSee(trans('subscriptions.errors.access_required'));
     }
 
     public function test_non_subscriber_is_redirected_to_checkout(): void
@@ -71,7 +71,7 @@ class SubscriptionAccessTest extends TestCase
         $this->actingAs($user)
             ->get(route('account.watch-history', ['locale' => 'en']))
             ->assertRedirect(route('checkout', ['locale' => 'en']))
-            ->assertSessionHas('error');
+            ->assertSessionHas('error', trans('subscriptions.errors.access_required'));
     }
 
     public function test_checkout_redirects_subscribers_back_to_browse(): void

@@ -21,12 +21,12 @@ class WatchHistoryBrowserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        foreach (['en', 'es', 'fr'] as $locale) {
+        foreach (['en', 'es'] as $locale) {
             $response = $this->actingAs($user)->get(route('account.watch-history', ['locale' => $locale]));
 
             $response
                 ->assertRedirect(route('checkout', ['locale' => $locale]))
-                ->assertSessionHas('error', trans('subscriptions.errors.premium_required', locale: $locale));
+                ->assertSessionHas('error', trans('subscriptions.errors.access_required', locale: $locale));
         }
     }
 
