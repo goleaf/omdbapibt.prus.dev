@@ -1,322 +1,197 @@
-<laravel-boost-guidelines>
-=== foundation rules ===
+# Agent Handbook for omdbapibt.prus.dev
+
+This document captures the house rules for contributors working inside this repository.  Treat it as the single source of truth whenever you touch code, write documentation, or interact with project tooling.
+
+---
+
+## 1. Project Synopsis
+
+- **Application type:** Laravel 12 monolith with a Livewire 3 frontend that powers an OMDb/TMDb-backed media catalog and subscription platform.
+- **Primary runtime:** PHP 8.3.x (match `.tool-versions` or Docker image), Node 20+ for Vite/Tailwind.
+- **Key packages:** `laravel/cashier`, `laravel/horizon`, `livewire/livewire`, `livewire/flux`, `spatie/laravel-translatable`, `barryvdh/laravel-debugbar`, `ezyang/htmlpurifier`.
+- **Build tooling:** Vite 7 with Tailwind CSS 4 (via `@tailwindcss/vite`), npm scripts in `package.json`.
+- **Testing stack:** PHPUnit 11, Laravel test runner (`php artisan test`).
+
+Always check `composer.json` and `package.json` after pulling to spot new dependencies or scripts before you begin work.
+
+---
+
+## 2. Environment & Setup
+
+1. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+2. **Install Node dependencies**
+   ```bash
+   npm install
+   ```
+3. **Create environment file**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+4. **Configure database**
+   - Update the database credentials in `.env`.
+   - Run migrations with `php artisan migrate` (use `--force` in CI scripts only).
+   - Seeders live in `database/seeders`; run `php artisan db:seed` as needed.
+5. **Local development**
+   - Preferred: run `composer run dev` (spins up `php artisan serve`, queue listener, Pail logs, Vite dev server).
+   - Alternative: run services individually (queue workers via `php artisan queue:listen --tries=1`).
+6. **Build assets**
+   - Production build: `npm run build`.
+   - Development: `npm run dev`.
+7. **Queues & Horizon**
+   - Horizon config in `config/horizon.php`.
+   - For local queue processing, use `php artisan horizon` or the queue listener from the `dev` script.
+
+Keep the `.env` file out of version control. Document new environment variables inside `README.md` if they impact project setup.
+
+---
+
+## 3. Directory Orientation
+
+- `app/`
+  - `App\Models` – Eloquent models (use factories in `database/factories`).
+  - `App\Http` – Controllers, middleware, requests; prefer Form Request validation.
+  - `App\Livewire` – Livewire 3 components. Keep components lean; push data work into services/models.
+  - `App\Services` – Place complex domain logic (API clients, data processors). Create the directory if absent but keep naming consistent.
+- `bootstrap/` – Laravel bootstrap cache and app initialization files.
+- `config/` – Configuration. When adding options, update the relevant config file and document defaults in the comments.
+- `database/`
+  - `migrations/` – Database schema changes. Follow timestamped naming conventions.
+  - `seeders/`, `factories/` – Populate sample data using faker types consistent with domain.
+- `public/` – Front-facing assets; do not manually modify `build/` output.
+- `resources/`
+  - `views/` – Blade templates; Livewire views live alongside components under `resources/views/livewire`.
+  - `js/` – JavaScript entry points for Vite (ES modules).
+  - `css/` – Tailwind entry file(s); configure theme via `tailwind.config.js` or the Tailwind 4 utilities API.
+  - `lang/` – Localization files; integrate with `spatie/laravel-translatable` for content translations.
+- `routes/` – HTTP routes (`web.php`, `api.php`). Group routes, apply middleware and route names consistently.
+- `tests/`
+  - `Feature/` – HTTP/Livewire/API level tests.
+  - `Unit/` – Model/service tests.
+- `scripts/` – Custom automation; ensure shell scripts are executable.
+
+When introducing new code, align with existing organization. If unsure, inspect neighboring files before adding to maintain coherence.
+
+---
+
+## 4. Coding Standards
+
+### 4.1 PHP
+
+- **Type Safety:** Use scalar/return type hints everywhere. Nullable parameters must be declared explicitly (e.g., `?int`).
+- **Constructor promotion:** Prefer property promotion for dependencies. Avoid empty constructors.
+- **Control structures:** Always use braces, even for single statements.
+- **Formatting:** Run `vendor/bin/pint --dirty` before committing. If Pint reports changes, re-run until clean.
+- **Naming:** Use descriptive names (e.g., `loadPopularMovies`, `syncTmdbMetadata`). Method names should be verbs; boolean getters should start with `is`, `has`, or `can`.
+- **Requests/Validation:** Use Form Requests to encapsulate validation where possible. Keep validation rules declarative and leverage enums/constants for allowed values.
+- **Policies/Gates:** Enforce authorization using Laravel policies; store in `app/Policies`.
+- **Services:** Centralize API calls or complex business logic under `App\Services`. Inject services into Livewire components/controllers using interfaces when practical.
+- **Error handling:** Throw domain-specific exceptions; convert to HTTP responses using exception handler when necessary.
+- **Translations:** Use translation keys instead of hard-coded strings in views. For translatable Eloquent attributes, keep JSON columns synchronized.
+
+### 4.2 Livewire & Frontend
+
+- Use Livewire v3 conventions (`wire:model.live`, `$this->dispatch`).
+- Each component view requires a single root element. Add `wire:key` when looping.
+- Manage state on the server; avoid storing canonical data purely in Alpine/JS.
+- Loading states: use `wire:loading`, `wire:target`, and `wire:dirty` for UX polish.
+- Events: rely on `$this->dispatch('event-name')`; document event payloads in the component class.
+- For Tailwind 4, define design tokens via `tailwind.config.js` or using the `@theme` directive in CSS entry files.
+- Bundle third-party libraries via ES modules; avoid CDN scripts in Blade templates.
+- Keep `resources/js/app.js` as the main entrypoint; register additional pages/components there if necessary.
 
-# Laravel Boost Guidelines
+### 4.3 JavaScript & CSS
 
-The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to enhance the user's satisfaction building Laravel applications.
+- Adhere to ESNext module syntax (import/export). Avoid `require`.
+- Prefer const/let; avoid var.
+- Keep logic minimal in Blade inline scripts; place JS modules under `resources/js`.
+- Tailwind-first styling. If you must write custom CSS, colocate with the component and use BEM-inspired naming to prevent collisions.
 
-## Foundational Context
-This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
+---
 
-- php - 8.3.25
-- laravel/cashier (CASHIER) - v16
-- laravel/framework (LARAVEL) - v12
-- laravel/horizon (HORIZON) - v5
-- laravel/mcp (MCP) - v0
-- laravel/prompts (PROMPTS) - v0
-- livewire/flux (FLUXUI_FREE) - v2
-- livewire/livewire (LIVEWIRE) - v3
-- laravel/pint (PINT) - v1
-- laravel/sail (SAIL) - v1
-- phpunit/phpunit (PHPUNIT) - v11
+## 5. Database Guidelines
 
+- Use Laravel migrations with descriptive names (`2024_01_01_000001_create_movies_table`).
+- Always include `down()` implementations that fully reverse `up()` actions.
+- Add indexes for lookup columns (IDs, slugs, foreign keys) using `->index()` or explicit index names.
+- Manage pivot tables with composite unique keys where applicable to prevent duplicates.
+- Keep seeders idempotent; wrap data creation in `updateOrCreate` when re-runnable.
+- If altering production-critical tables, include a comment section in the migration docstring describing the change rationale.
 
-## Conventions
-- You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, naming.
-- Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
-- Check for existing components to reuse before writing a new one.
+---
 
-## Verification Scripts
-- Do not create verification scripts or tinker when tests cover that functionality and prove it works. Unit and feature tests are more important.
+## 6. External Integrations
 
-## Application Structure & Architecture
-- Stick to existing directory structure - don't create new base folders without approval.
-- Do not change the application's dependencies without approval.
+- **OMDb/TMDb:** Store API keys in `.env`. Respect rate limits; implement caching via Laravel Cache (Redis) for read-heavy endpoints.
+- **Stripe (Cashier):** Sync webhook events; after updating subscription logic, run targeted feature tests covering `Cashier` flows.
+- **Horizon/Queues:** Place parsing jobs on dedicated queues (`parsing`, `emails`, etc.). Configure queue names in job classes via `public $queue`.
+- **Localization:** When storing translations via `spatie/laravel-translatable`, ensure fallback locales are set in `config/translatable.php`.
 
-## Frontend Bundling
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
+Document any new integration steps in `README.md` so other contributors can reproduce them.
 
-## Replies
-- Be concise in your explanations - focus on what's important rather than explaining obvious details.
+---
 
-## Documentation Files
-- You must only create documentation files if explicitly requested by the user.
+## 7. Testing Expectations
 
+- Every change must have test coverage (new test or updated existing test). No untested changes.
+- Scope tests appropriately:
+  - Feature tests for HTTP/Livewire flows under `tests/Feature`.
+  - Unit tests for service-layer logic under `tests/Unit`.
+- Use factories (`database/factories`) for test data. Seeders should not be called from tests unless absolutely necessary.
+- Prefer `RefreshDatabase` or `DatabaseTransactions` traits for isolation.
+- Run the smallest relevant test suite:
+  - `php artisan test tests/Feature/YourFeatureTest.php`
+  - `php artisan test --filter=YourTestMethod`
+- Coordinate with CI expectations; if you modify test helpers or base classes, run the full suite (`php artisan test`).
 
-=== boost rules ===
+Record command outputs in your work log when communicating with stakeholders.
 
-## Laravel Boost
-- Laravel Boost is an MCP server that comes with powerful tools designed specifically for this application. Use them.
+---
 
-## Artisan
-- Use the `list-artisan-commands` tool when you need to call an Artisan command to double check the available parameters.
+## 8. Code Review & Git Hygiene
 
-## URLs
-- Whenever you share a project URL with the user you should use the `get-absolute-url` tool to ensure you're using the correct scheme, domain / IP, and port.
+- **Branching:** Create feature branches from `main` (or the active default branch). Keep branches small and focused.
+- **Commits:** Write descriptive commit messages (`feat: add TMDb sync for TV shows`). One logical change per commit.
+- **Formatting:** Ensure Pint and ESLint-equivalent checks pass before committing.
+- **Diff audit:** Review `git diff` prior to commit; avoid accidental `.env` or compiled asset changes.
+- **Pull requests:** Summaries should state the problem, solution, and tests executed. Reference relevant tickets/issues.
+- **Rebasing:** Rebase onto the latest `main` before opening a PR to keep history linear.
 
-## Tinker / Debugging
-- You should use the `tinker` tool when you need to execute PHP to debug code or query Eloquent models directly.
-- Use the `database-query` tool when you only need to read from the database.
+---
 
-## Reading Browser Logs With the `browser-logs` Tool
-- You can read browser logs, errors, and exceptions using the `browser-logs` tool from Boost.
-- Only recent browser logs will be useful - ignore old logs.
+## 9. Documentation Rules
 
-## Searching Documentation (Critically Important)
-- Boost comes with a powerful `search-docs` tool you should use before any other approaches. This tool automatically passes a list of installed packages and their versions to the remote Boost API, so it returns only version-specific documentation specific for the user's circumstance. You should pass an array of packages to filter on if you know you need docs for particular packages.
-- The 'search-docs' tool is perfect for all Laravel related packages, including Laravel, Inertia, Livewire, Filament, Tailwind, Pest, Nova, Nightwatch, etc.
-- You must use this tool to search for Laravel-ecosystem documentation before falling back to other approaches.
-- Search the documentation before making code changes to ensure we are taking the correct approach.
-- Use multiple, broad, simple, topic based queries to start. For example: `['rate limiting', 'routing rate limiting', 'routing']`.
-- Do not add package names to queries - package information is already shared. For example, use `test resource table`, not `filament 4 test resource table`.
+- Only create or update documentation when explicitly asked or when introducing new developer-facing behavior that needs explanation.
+- Store high-level guides in `docs/`. Update `README.md` for setup-related changes.
+- Use Markdown with proper headings, fenced code blocks, and tables where clarity improves.
 
-### Available Search Syntax
-- You can and should pass multiple queries at once. The most relevant results will be returned first.
+---
 
-1. Simple Word Searches with auto-stemming - query=authentication - finds 'authenticate' and 'auth'
-2. Multiple Words (AND Logic) - query=rate limit - finds knowledge containing both "rate" AND "limit"
-3. Quoted Phrases (Exact Position) - query="infinite scroll" - Words must be adjacent and in that order
-4. Mixed Queries - query=middleware "rate limit" - "middleware" AND exact phrase "rate limit"
-5. Multiple Queries - queries=["authentication", "middleware"] - ANY of these terms
+## 10. Quality Assurance Checklist
 
+Before you finish any task:
 
-=== php rules ===
+1. Ensure code follows the conventions in this document.
+2. Run Pint (`vendor/bin/pint --dirty`).
+3. Execute the relevant PHPUnit tests.
+4. For frontend changes, run `npm run build` (or at least `npm run dev` locally) to catch build regressions.
+5. Update translations when adding user-facing copy.
+6. Provide screenshots for UI modifications (use the provided browser tooling).
+7. Document environment or migration steps in the PR description.
 
-## PHP
+Following this checklist keeps the project stable and makes review painless.
 
-- Always use curly braces for control structures, even if it has one line.
+---
 
-### Constructors
-- Use PHP 8 constructor property promotion in `__construct()`.
-    - <code-snippet>public function __construct(public GitHub $github) { }</code-snippet>
-- Do not allow empty `__construct()` methods with zero parameters.
+## 11. Support & Troubleshooting
 
-### Type Declarations
-- Always use explicit return type declarations for methods and functions.
-- Use appropriate PHP type hints for method parameters.
+- Use Laravel Telescope/Debugbar locally for request debugging (ensure it remains disabled in production).
+- Inspect Horizon dashboard for queue health.
+- Check storage logs (`storage/logs/laravel.log`) for runtime errors.
+- Run `php artisan config:clear`, `cache:clear`, `view:clear` if you encounter stale configuration issues during development.
+- When debugging Livewire, leverage `Livewire::test()` in PHPUnit and browser devtools for emitted network requests.
 
-<code-snippet name="Explicit Return Types and Method Params" lang="php">
-protected function isAccessible(User $user, ?string $path = null): bool
-{
-    ...
-}
-</code-snippet>
-
-## Comments
-- Prefer PHPDoc blocks over comments. Never use comments within the code itself unless there is something _very_ complex going on.
-
-## PHPDoc Blocks
-- Add useful array shape type definitions for arrays when appropriate.
-
-## Enums
-- Typically, keys in an Enum should be TitleCase. For example: `FavoritePerson`, `BestLake`, `Monthly`.
-
-
-=== laravel/core rules ===
-
-## Do Things the Laravel Way
-
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using the `list-artisan-commands` tool.
-- If you're creating a generic PHP class, use `artisan make:class`.
-- Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
-
-### Database
-- Always use proper Eloquent relationship methods with return type hints. Prefer relationship methods over raw queries or manual joins.
-- Use Eloquent models and relationships before suggesting raw database queries
-- Avoid `DB::`; prefer `Model::query()`. Generate code that leverages Laravel's ORM capabilities rather than bypassing them.
-- Generate code that prevents N+1 query problems by using eager loading.
-- Use Laravel's query builder for very complex database operations.
-
-### Model Creation
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `list-artisan-commands` to check the available options to `php artisan make:model`.
-
-### APIs & Eloquent Resources
-- For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
-
-### Controllers & Validation
-- Always create Form Request classes for validation rather than inline validation in controllers. Include both validation rules and custom error messages.
-- Check sibling Form Requests to see if the application uses array or string based validation rules.
-
-### Queues
-- Use queued jobs for time-consuming operations with the `ShouldQueue` interface.
-
-### Authentication & Authorization
-- Use Laravel's built-in authentication and authorization features (gates, policies, Sanctum, etc.).
-
-### URL Generation
-- When generating links to other pages, prefer named routes and the `route()` function.
-
-### Configuration
-- Use environment variables only in configuration files - never use the `env()` function directly outside of config files. Always use `config('app.name')`, not `env('APP_NAME')`.
-
-### Testing
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] <name>` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
-
-### Vite Error
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
-
-
-=== laravel/v12 rules ===
-
-## Laravel 12
-
-- Use the `search-docs` tool to get version specific documentation.
-- Since Laravel 11, Laravel has a new streamlined file structure which this project uses.
-
-### Laravel 12 Structure
-- No middleware files in `app/Http/Middleware/`.
-- `bootstrap/app.php` is the file to register middleware, exceptions, and routing files.
-- `bootstrap/providers.php` contains application specific service providers.
-- **No app\Console\Kernel.php** - use `bootstrap/app.php` or `routes/console.php` for console configuration.
-- **Commands auto-register** - files in `app/Console/Commands/` are automatically available and do not require manual registration.
-
-### Database
-- When modifying a column, the migration must include all of the attributes that were previously defined on the column. Otherwise, they will be dropped and lost.
-- Laravel 11 allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
-
-### Models
-- Casts can and likely should be set in a `casts()` method on a model rather than the `$casts` property. Follow existing conventions from other models.
-
-
-=== fluxui-free/core rules ===
-
-## Flux UI Free
-
-- This project is using the free edition of Flux UI. It has full access to the free components and variants, but does not have access to the Pro components.
-- Flux UI is a component library for Livewire. Flux is a robust, hand-crafted, UI component library for your Livewire applications. It's built using Tailwind CSS and provides a set of components that are easy to use and customize.
-- You should use Flux UI components when available.
-- Fallback to standard Blade components if Flux is unavailable.
-- If available, use Laravel Boost's `search-docs` tool to get the exact documentation and code snippets available for this project.
-- Flux UI components look like this:
-
-<code-snippet name="Flux UI Component Usage Example" lang="blade">
-    <flux:button variant="primary"/>
-</code-snippet>
-
-
-### Available Components
-This is correct as of Boost installation, but there may be additional components within the codebase.
-
-<available-flux-components>
-avatar, badge, brand, breadcrumbs, button, callout, checkbox, dropdown, field, heading, icon, input, modal, navbar, profile, radio, select, separator, switch, text, textarea, tooltip
-</available-flux-components>
-
-
-=== livewire/core rules ===
-
-## Livewire Core
-- Use the `search-docs` tool to find exact version specific documentation for how to write Livewire & Livewire tests.
-- Use the `php artisan make:livewire [Posts\\CreatePost]` artisan command to create new components
-- State should live on the server, with the UI reflecting it.
-- All Livewire requests hit the Laravel backend, they're like regular HTTP requests. Always validate form data, and run authorization checks in Livewire actions.
-
-## Livewire Best Practices
-- Livewire components require a single root element.
-- Use `wire:loading` and `wire:dirty` for delightful loading states.
-- Add `wire:key` in loops:
-
-    ```blade
-    @foreach ($items as $item)
-        <div wire:key="item-{{ $item->id }}">
-            {{ $item->name }}
-        </div>
-    @endforeach
-    ```
-
-- Prefer lifecycle hooks like `mount()`, `updatedFoo()` for initialization and reactive side effects:
-
-<code-snippet name="Lifecycle hook examples" lang="php">
-    public function mount(User $user) { $this->user = $user; }
-    public function updatedSearch() { $this->resetPage(); }
-</code-snippet>
-
-
-## Testing Livewire
-
-<code-snippet name="Example Livewire component test" lang="php">
-    Livewire::test(Counter::class)
-        ->assertSet('count', 0)
-        ->call('increment')
-        ->assertSet('count', 1)
-        ->assertSee(1)
-        ->assertStatus(200);
-</code-snippet>
-
-
-    <code-snippet name="Testing a Livewire component exists within a page" lang="php">
-        $this->get('/posts/create')
-        ->assertSeeLivewire(CreatePost::class);
-    </code-snippet>
-
-
-=== livewire/v3 rules ===
-
-## Livewire 3
-
-### Key Changes From Livewire 2
-- These things changed in Livewire 2, but may not have been updated in this application. Verify this application's setup to ensure you conform with application conventions.
-    - Use `wire:model.live` for real-time updates, `wire:model` is now deferred by default.
-    - Components now use the `App\Livewire` namespace (not `App\Http\Livewire`).
-    - Use `$this->dispatch()` to dispatch events (not `emit` or `dispatchBrowserEvent`).
-    - Use the `components.layouts.app` view as the typical layout path (not `layouts.app`).
-
-### New Directives
-- `wire:show`, `wire:transition`, `wire:cloak`, `wire:offline`, `wire:target` are available for use. Use the documentation to find usage examples.
-
-### Alpine
-- Alpine is now included with Livewire, don't manually include Alpine.js.
-- Plugins included with Alpine: persist, intersect, collapse, and focus.
-
-### Lifecycle Hooks
-- You can listen for `livewire:init` to hook into Livewire initialization, and `fail.status === 419` for the page expiring:
-
-<code-snippet name="livewire:load example" lang="js">
-document.addEventListener('livewire:init', function () {
-    Livewire.hook('request', ({ fail }) => {
-        if (fail && fail.status === 419) {
-            alert('Your session expired');
-        }
-    });
-
-    Livewire.hook('message.failed', (message, component) => {
-        console.error(message);
-    });
-});
-</code-snippet>
-
-
-=== pint/core rules ===
-
-## Laravel Pint Code Formatter
-
-- You must run `vendor/bin/pint --dirty` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test`, simply run `vendor/bin/pint` to fix any formatting issues.
-
-
-=== phpunit/core rules ===
-
-## PHPUnit Core
-
-- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `php artisan make:test --phpunit <name>` to create a new test.
-- If you see a test using "Pest", convert it to PHPUnit.
-- Every time a test has been updated, run that singular test.
-- When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
-- Tests should test all of the happy paths, failure paths, and weird paths.
-- You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files, these are core to the application.
-
-### Running Tests
-- Run the minimal number of tests, using an appropriate filter, before finalizing.
-- To run all tests: `php artisan test`.
-- To run all tests in a file: `php artisan test tests/Feature/ExampleTest.php`.
-- To filter on a particular test name: `php artisan test --filter=testName` (recommended after making a change to a related file).
-
-
-=== tests rules ===
-
-## Test Enforcement
-
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
-</laravel-boost-guidelines>
+Keep this document up to date. If you discover a new convention or pitfall, add it here so the next agent benefits.
