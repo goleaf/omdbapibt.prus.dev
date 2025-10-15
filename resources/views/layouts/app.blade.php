@@ -26,6 +26,14 @@
                 <div class="flex items-center gap-3 text-sm">
                     @auth
                         <span class="hidden text-slate-300 md:inline">{{ auth()->user()->name }}</span>
+                        @if (session()->has(\App\Models\User::IMPERSONATOR_SESSION_KEY))
+                            <form method="POST" action="{{ route('admin.impersonation.stop') }}">
+                                @csrf
+                                <button type="submit" class="rounded-full border border-indigo-500 px-4 py-1.5 text-indigo-200 transition hover:bg-indigo-500/10">
+                                    Return to admin
+                                </button>
+                            </form>
+                        @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="rounded-full border border-slate-700 px-4 py-1.5 text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200">Logout</button>

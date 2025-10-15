@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\AdminAuditLog;
+use App\Models\UserManagementLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -54,13 +54,11 @@ class HorizonMonitor extends Component
 
         Artisan::queue($command);
 
-        AdminAuditLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'queued_command',
-            'details' => [
+        if (Auth::user()) {
+            UserManagementLog::record(Auth::user(), null, 'horizon_command_queued', [
                 'command' => $command,
-            ],
-        ]);
+            ]);
+        }
 
         $this->queuedCommands[] = [
             'command' => $command,
@@ -162,19 +160,20 @@ class HorizonMonitor extends Component
 
     protected function loadAuditLogs(): void
     {
-        $this->auditLogEntries = AdminAuditLog::query()
-            ->with('user')
-            ->latest()
+        $this->auditLogEntries = UserManagementLog::query()
+            ->where('action', 'horizon_command_queued')
+            ->with('admin')
+            ->latest('performed_at')
             ->take(10)
             ->get()
-            ->map(fn (AdminAuditLog $log) => [
+            ->map(fn (UserManagementLog $log) => [
                 'id' => $log->id,
                 'action' => Str::headline($log->action),
-                'details' => $log->details,
-                'created_at' => optional($log->created_at)->toDateTimeString(),
-                'user' => $log->user ? [
-                    'name' => $log->user->name,
-                    'email' => $log->user->email,
+                'details' => $log->payload,
+                'created_at' => optional($log->performed_at)->toDateTimeString(),
+                'user' => $log->admin ? [
+                    'name' => $log->admin->name,
+                    'email' => $log->admin->email,
                 ] : null,
             ])
             ->all();
