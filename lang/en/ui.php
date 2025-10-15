@@ -10,7 +10,7 @@ return [
             'home' => 'Home',
             'browse' => 'Browse',
             'pricing' => 'Pricing',
-            'components' => 'Components',
+            'components' => 'UI components',
             'account' => 'Account',
             'admin' => 'Admin',
         ],

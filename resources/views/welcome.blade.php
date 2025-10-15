@@ -11,7 +11,7 @@
 
             <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
                 <div class="space-y-6">
-                    <p class="text-base text-slate-300">
+                    <p class="text-base flux-text-muted">
                         Power your watchlists with a design system tuned for rich imagery, live previews, and accessible motion.
                         Tailwind cinematic utilities keep every card, badge, and tab in sync across light and dark themes.
                     </p>
@@ -30,17 +30,17 @@
                             <x-flux.rating-badge :score="9.1" label="Rating" />
                             <span class="text-xs uppercase tracking-[0.35em] text-emerald-200">Flux motion presets</span>
                         </div>
-                        <p class="text-sm text-slate-300">
+                        <p class="text-sm flux-text-muted">
                             Theme-aware gradients, soft glow animations, and screen-reader safe badges let your catalogs shine
                             without sacrificing performance or clarity.
                         </p>
-                        <div class="grid grid-cols-2 gap-3 text-sm text-slate-200">
-                            <div class="rounded-2xl border border-slate-800/40 bg-slate-900/60 p-4">
-                                <p class="text-xs uppercase tracking-[0.35em] text-emerald-200">Design tokens</p>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl border border-[color:var(--flux-border-soft)] bg-[var(--flux-surface-card)] p-4">
+                                <p class="text-xs uppercase tracking-[0.35em] text-emerald-300">Design tokens</p>
                                 <p class="mt-2 text-lg font-semibold">Flux + Tailwind</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-800/40 bg-slate-900/60 p-4">
-                                <p class="text-xs uppercase tracking-[0.35em] text-emerald-200">Motion</p>
+                            <div class="rounded-2xl border border-[color:var(--flux-border-soft)] bg-[var(--flux-surface-card)] p-4">
+                                <p class="text-xs uppercase tracking-[0.35em] text-emerald-300">Motion</p>
                                 <p class="mt-2 text-lg font-semibold">Cosmic ease</p>
                             </div>
                         </div>
@@ -51,13 +51,13 @@
 
         <section class="cinematic-grid" data-compact="true">
             <x-flux.card heading="Reusable cards" subheading="Drop into dashboards, hero rails, and watchlists">
-                <p class="text-sm text-slate-300">
+                <p class="text-sm flux-text-muted">
                     Flux cards wrap tailwind primitives with gradient guardrails and interactive accents. Drop badges, buttons,
                     charts, or any Livewire component inside without restyling from scratch.
                 </p>
             </x-flux.card>
             <x-flux.card heading="Adaptive badges" subheading="Communicate ratings, runtimes, and languages">
-                <p class="text-sm text-slate-300">
+                <p class="text-sm flux-text-muted">
                     Rating badges render crisp numerics, label translations, and warm or cool variants so your UI always matches
                     the metadata context.
                 </p>
@@ -67,7 +67,7 @@
                 </div>
             </x-flux.card>
             <x-flux.card heading="Theme controls" subheading="Persisted across locales, tabs, and devices">
-                <p class="text-sm text-slate-300">
+                <p class="text-sm flux-text-muted">
                     The theme toggle persists user intent, respects system defaults, and updates transition-friendly gradients
                     without layout jank.
                 </p>

@@ -35,10 +35,12 @@ const getPreferredTheme = () => {
 
 const applyTheme = (theme) => {
     const root = document.documentElement;
-    const resolved = theme === 'light' ? 'light' : 'dark';
+    const fallback = theme === 'light' || theme === 'dark' ? theme : getPreferredTheme();
+    const resolved = fallback === 'light' ? 'light' : 'dark';
 
     root.dataset.theme = resolved;
     root.classList.toggle('dark', resolved === 'dark');
+    root.classList.toggle('light', resolved === 'light');
     document.body.classList.toggle('light', resolved === 'light');
 
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
@@ -68,6 +70,34 @@ const applyTheme = (theme) => {
 const setupThemeToggle = () => {
     const currentTheme = getPreferredTheme();
     applyTheme(currentTheme);
+
+    if (!window._fluxThemeListeners) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+        const handleSystemChange = (event) => {
+            if (getStoredTheme()) {
+                return;
+            }
+
+            applyTheme(event.matches ? 'light' : 'dark');
+        };
+
+        const handleStorage = (event) => {
+            if (event.key !== themeStorageKey) {
+                return;
+            }
+
+            applyTheme(event.newValue ?? undefined);
+        };
+
+        mediaQuery.addEventListener('change', handleSystemChange);
+        window.addEventListener('storage', handleStorage);
+
+        window._fluxThemeListeners = {
+            mediaQuery,
+            handleSystemChange,
+            handleStorage,
+        };
+    }
 
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
         if (button._themeHandler) {
