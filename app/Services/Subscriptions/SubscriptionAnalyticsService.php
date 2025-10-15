@@ -2,6 +2,8 @@
 
 namespace App\Services\Subscriptions;
 
+use App\Enums\BillingInterval;
+use App\Enums\SubscriptionStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -40,7 +42,7 @@ class SubscriptionAnalyticsService
                 'name' => Str::headline(str_replace('_', ' ', (string) $slug)),
                 'amount' => 0,
                 'currency' => $currency,
-                'interval' => 'month',
+                'interval' => BillingInterval::Month,
                 'interval_count' => 1,
                 'price_id' => null,
             ], $plan);
@@ -48,6 +50,8 @@ class SubscriptionAnalyticsService
             $priceId = $plan['price_id'] ?: $slug;
             $plan['price_id'] = $priceId;
             $plan['currency'] = strtoupper((string) $plan['currency']);
+            $interval = BillingInterval::tryFromValue($plan['interval']) ?? BillingInterval::Month;
+            $plan['interval'] = $interval->value;
 
             $indexed[$priceId] = $plan;
         }
@@ -57,7 +61,7 @@ class SubscriptionAnalyticsService
 
     protected function calculateMetrics(): array
     {
-        $activeStatuses = Config::get('subscriptions.active_statuses', ['active', 'trialing']);
+        $activeStatuses = $this->activeStatuses();
         $currency = strtoupper(Config::get('cashier.currency', 'usd'));
         $planCatalog = $this->planCatalog();
 
@@ -74,7 +78,7 @@ class SubscriptionAnalyticsService
 
         $trialingSubscriptions = DB::table('subscriptions')
             ->whereNull('ends_at')
-            ->where('stripe_status', 'trialing')
+            ->where('stripe_status', SubscriptionStatus::Trialing->value)
             ->count();
 
         $churnedLast30Days = DB::table('subscriptions')
@@ -206,26 +210,15 @@ class SubscriptionAnalyticsService
     protected function monthlyAmount(array $plan): float
     {
         $amount = (int) ($plan['amount'] ?? 0);
-        $interval = strtolower((string) ($plan['interval'] ?? 'month'));
+        $interval = BillingInterval::tryFromValue($plan['interval']) ?? BillingInterval::Month;
         $intervalCount = max(1, (int) ($plan['interval_count'] ?? 1));
-        $totalMonths = $this->monthsForInterval($interval) * $intervalCount;
+        $totalMonths = $interval->monthsEquivalent() * $intervalCount;
 
         if ($totalMonths <= 0) {
             return 0.0;
         }
 
         return round(($amount / 100) / $totalMonths, 2);
-    }
-
-    protected function monthsForInterval(string $interval): float
-    {
-        return match ($interval) {
-            'year' => 12.0,
-            'quarter' => 3.0,
-            'week' => 0.25,
-            'day' => 1 / 30,
-            default => 1.0,
-        };
     }
 
     protected function fallbackPlan(string $priceId, string $currency): array
@@ -236,8 +229,22 @@ class SubscriptionAnalyticsService
             'price_id' => $priceId,
             'amount' => 0,
             'currency' => $currency,
-            'interval' => 'month',
+            'interval' => BillingInterval::Month->value,
             'interval_count' => 1,
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function activeStatuses(): array
+    {
+        $configured = Config::get('subscriptions.active_statuses');
+
+        if (! is_array($configured) || $configured === []) {
+            return SubscriptionStatus::activeValues();
+        }
+
+        return SubscriptionStatus::values($configured);
     }
 }

@@ -1,18 +1,14 @@
 <?php
 
+use App\Enums\BillingInterval;
+use App\Enums\SubscriptionStatus;
+
 return [
     'cache' => [
         'metrics_ttl' => (int) env('SUBSCRIPTION_ANALYTICS_TTL', 300),
     ],
 
-    'active_statuses' => [
-        'active',
-        'trialing',
-        'past_due',
-        'incomplete',
-        'incomplete_expired',
-        'unpaid',
-    ],
+    'active_statuses' => SubscriptionStatus::activeValues(),
 
     'plans' => [
         'premium_monthly' => [
@@ -20,7 +16,7 @@ return [
             'price_id' => env('STRIPE_MONTHLY_PRICE'),
             'amount' => (int) env('STRIPE_MONTHLY_AMOUNT', 999),
             'currency' => env('CASHIER_CURRENCY', 'usd'),
-            'interval' => 'month',
+            'interval' => BillingInterval::Month,
             'interval_count' => 1,
             'features' => [
                 'Unlimited streaming access',
@@ -32,7 +28,7 @@ return [
             'price_id' => env('STRIPE_YEARLY_PRICE'),
             'amount' => (int) env('STRIPE_YEARLY_AMOUNT', 9999),
             'currency' => env('CASHIER_CURRENCY', 'usd'),
-            'interval' => 'year',
+            'interval' => BillingInterval::Year,
             'interval_count' => 1,
             'features' => [
                 'Two months free',

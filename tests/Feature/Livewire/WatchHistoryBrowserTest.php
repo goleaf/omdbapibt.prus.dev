@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Livewire;
 
+use App\Enums\SubscriptionStatus;
 use App\Livewire\WatchHistoryBrowser;
 use App\Models\Movie;
 use App\Models\TvShow;
@@ -38,7 +39,7 @@ class WatchHistoryBrowserTest extends TestCase
         $user->subscriptions()->create([
             'type' => 'default',
             'stripe_id' => 'sub_test_123',
-            'stripe_status' => 'active',
+            'stripe_status' => SubscriptionStatus::Active->value,
             'stripe_price' => 'price_basic',
             'quantity' => 1,
         ]);

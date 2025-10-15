@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\SubscriptionStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -33,7 +34,7 @@ class SubscriptionAccessTest extends TestCase
         $user->subscriptions()->create([
             'type' => 'default',
             'stripe_id' => 'sub_test',
-            'stripe_status' => 'active',
+            'stripe_status' => SubscriptionStatus::Active->value,
             'stripe_price' => 'price_monthly',
             'quantity' => 1,
         ]);
@@ -50,7 +51,7 @@ class SubscriptionAccessTest extends TestCase
         $user->subscriptions()->create([
             'type' => 'default',
             'stripe_id' => 'sub_live',
-            'stripe_status' => 'active',
+            'stripe_status' => SubscriptionStatus::Active->value,
             'stripe_price' => 'price_monthly',
             'quantity' => 1,
         ]);

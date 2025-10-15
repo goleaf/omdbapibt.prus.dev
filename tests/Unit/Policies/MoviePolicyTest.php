@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Policies;
 
+use App\Enums\SubscriptionStatus;
 use App\Models\Movie;
 use App\Models\User;
 use App\Policies\MoviePolicy;
@@ -39,7 +40,7 @@ class MoviePolicyTest extends TestCase
         $user->subscriptions()->create([
             'type' => 'default',
             'stripe_id' => 'sub_premium',
-            'stripe_status' => 'active',
+            'stripe_status' => SubscriptionStatus::Active->value,
             'stripe_price' => 'price_monthly',
             'quantity' => 1,
         ]);
