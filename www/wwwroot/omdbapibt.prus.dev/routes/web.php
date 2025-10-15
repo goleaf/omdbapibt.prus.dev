@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Livewire\Admin\ParsedEntriesReview;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
@@ -14,6 +15,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/billing/portal', BillingPortalController::class)
         ->name('billing.portal');
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/parsed-entries', ParsedEntriesReview::class)
+            ->name('parsed-entries');
+    });
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
