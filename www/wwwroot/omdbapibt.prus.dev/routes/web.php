@@ -7,9 +7,15 @@ use App\Livewire\TvShowDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'pages.home')->name('home');
+Route::view('/browse', 'pages.browse')->name('browse');
+Route::view('/pricing', 'pages.pricing')->name('pricing');
+
+Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
+    ->name('movies.show');
+
+Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))
+    ->name('shows.show');
 
 Route::get('/tv/{show}', TvShowDetail::class)
     ->name('tv.show');
@@ -20,6 +26,7 @@ Route::get('/{locale}/tv/{show}', TvShowDetail::class)
 
 Route::middleware('auth')->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::view('/account', 'pages.account')->name('account');
 
     Route::get('/billing/portal', BillingPortalController::class)
         ->name('billing.portal');
