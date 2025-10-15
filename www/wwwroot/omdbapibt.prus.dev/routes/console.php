@@ -6,6 +6,7 @@ use App\Jobs\System\WarmTrendingCache;
 use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -42,3 +43,13 @@ Artisan::command('emails:send-digest', function () {
 
     $this->info('Queued subscription digest emails.');
 })->purpose('Queue subscription digest emails for subscribers');
+
+Artisan::command('db:optimize', function () {
+    try {
+        DB::statement('PRAGMA optimize');
+        DB::statement('PRAGMA wal_checkpoint(TRUNCATE)');
+        $this->info('SQLite optimize + WAL checkpoint done.');
+    } catch (\Throwable $e) {
+        $this->error('DB optimize failed: ' . $e->getMessage());
+    }
+})->purpose('Run SQLite optimize and WAL checkpoint');
