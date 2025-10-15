@@ -9,6 +9,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::view('/ui/components', 'flux.docs')->name('ui.components');
+
 Route::middleware('auth')->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
 

@@ -9,3 +9,108 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer base {
+    :root {
+        color-scheme: light;
+    }
+
+    :root.dark {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply bg-surface-50 text-surface-900 antialiased transition-colors duration-500 ease-out dark:bg-surface-950 dark:text-surface-100;
+    }
+
+    a {
+        @apply text-brand-500 transition-colors hover:text-brand-400;
+    }
+}
+
+@layer components {
+    .flux-shell {
+        @apply relative isolate min-h-screen overflow-hidden bg-cinematic text-surface-50 dark:text-surface-100;
+    }
+
+    .flux-shell::before,
+    .flux-shell::after {
+        content: '';
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(70px);
+        opacity: 0.55;
+        pointer-events: none;
+        transform: translate3d(0, 0, 0);
+    }
+
+    .flux-shell::before {
+        width: 520px;
+        height: 520px;
+        top: -180px;
+        left: -120px;
+        background: radial-gradient(circle at center, rgba(240, 45, 57, 0.45), rgba(15, 23, 42, 0.15));
+    }
+
+    .flux-shell::after {
+        width: 420px;
+        height: 420px;
+        bottom: -140px;
+        right: -100px;
+        background: radial-gradient(circle at center, rgba(245, 197, 24, 0.4), rgba(15, 23, 42, 0.05));
+    }
+
+    .flux-grid {
+        background-image: linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+        background-size: 80px 80px;
+        mask-image: radial-gradient(circle at center, black 0%, transparent 70%);
+    }
+
+    .flux-story {
+        @apply glass-panel rounded-3xl border border-white/10 p-6 shadow-lg;
+    }
+
+    .flux-story__tabs {
+        @apply mb-4 flex items-center gap-3;
+    }
+
+    .flux-story__tabs button {
+        @apply flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-surface-200 transition hover:border-white/40 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400;
+    }
+
+    .flux-story__tabs button[data-active='true'] {
+        @apply border-brand-400/60 bg-brand-500/20 text-white shadow-lg;
+    }
+
+    .flux-story__panel {
+        @apply rounded-2xl bg-black/20 p-6 text-sm text-surface-200 shadow-inner backdrop-blur;
+    }
+
+    .flux-story__panel pre {
+        @apply overflow-x-auto text-xs leading-6 text-surface-100;
+    }
+
+    .flux-story__panel code {
+        @apply whitespace-pre;
+    }
+
+    .flux-rating svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .flux-rating[data-variant='highlight'] svg {
+        filter: drop-shadow(0 0 12px rgba(240, 45, 57, 0.55));
+    }
+}
+
+@layer utilities {
+    .text-shadow-glow {
+        text-shadow: 0 10px 35px rgba(15, 23, 42, 0.35);
+    }
+
+    .card-highlight {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 25px 65px rgba(15, 23, 42, 0.45);
+    }
+}
