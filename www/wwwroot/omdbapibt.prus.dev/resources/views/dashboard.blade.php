@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Laravel') }} &mdash; Dashboard</title>
     @vite('resources/css/app.css')
+    @livewireStyles
 </head>
 <body class="antialiased bg-gray-100 text-gray-900">
     <div class="min-h-screen">
@@ -28,7 +29,12 @@
                     or cancel your subscription at any time using the link above.
                 </p>
             </section>
+
+            <section class="rounded-lg bg-white p-6 shadow">
+                <livewire:watchlist />
+            </section>
         </main>
     </div>
+    @livewireScripts
 </body>
 </html>
