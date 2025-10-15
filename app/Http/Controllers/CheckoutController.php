@@ -17,7 +17,7 @@ class CheckoutController extends Controller
         }
 
         if ($user->hasPremiumAccess()) {
-            return redirect()->route('browse')->with('status', __('You already have an active subscription.'));
+            return redirect()->route('browse')->with('status', __('subscriptions.status.already_subscribed'));
         }
 
         $plans = array_filter([
