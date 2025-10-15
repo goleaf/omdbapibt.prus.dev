@@ -18,6 +18,7 @@ $registerAppRoutes = function (): void {
     Route::view('/', 'pages.home')->name('home');
     Route::view('/browse', 'pages.browse')->name('browse');
     Route::view('/pricing', 'pages.pricing')->name('pricing');
+    Route::view('/ui/components', 'ui.components')->name('ui.components');
 
     Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
         ->name('movies.show');
