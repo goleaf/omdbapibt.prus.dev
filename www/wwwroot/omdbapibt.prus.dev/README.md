@@ -25,10 +25,20 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 For local development, copy `.env.example` to `.env` and provide values for the following API keys:
 
+- `STRIPE_KEY` — Stripe publishable key used for the client-side integration.
+- `STRIPE_SECRET` — Stripe secret key used for server-side API calls.
+- `STRIPE_WEBHOOK_SECRET` — Stripe webhook signing secret used to validate incoming webhooks.
 - `OMDB_API_KEY` — OMDb credentials used by the parser service.
 - `TMDB_API_KEY` — TMDb credentials used by the parser service.
 
-These values are available to the application via the `config('services.omdb.key')` and `config('services.tmdb.key')` helper calls.
+### Obtaining Stripe test credentials
+
+1. Create (or sign in to) a [Stripe account](https://dashboard.stripe.com/register) and switch to **Test mode** in the dashboard.
+2. Navigate to **Developers → API keys** to copy the **Publishable key** and **Secret key** into `STRIPE_KEY` and `STRIPE_SECRET` respectively.
+3. Navigate to **Developers → Webhooks**, create an endpoint that targets your local webhook URL (for example `https://your-domain.test/stripe/webhook`), and copy the **Signing secret** into `STRIPE_WEBHOOK_SECRET`.
+4. If you rotate keys or regenerate the webhook secret, update the corresponding values in your `.env` file and clear the configuration cache (`php artisan config:clear`).
+
+The Stripe keys are consumed through the `config('cashier')` configuration, while the OMDb and TMDb keys are available via the `config('services.omdb.key')` and `config('services.tmdb.key')` helper calls.
 
 ## Learning Laravel
 
