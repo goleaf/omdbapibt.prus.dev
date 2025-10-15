@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Movie;
 use Illuminate\Support\Arr;
+use Illuminate\View\View;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -49,8 +50,10 @@ class MovieDetail extends Component
         $translations = $this->movie->translations ?? [];
 
         return collect($translations)
-            ->map(fn ($value) => array_keys(is_array($value) ? $value : []))
+            ->flatMap(fn ($value) => array_keys(is_array($value) ? $value : []))
             ->filter()
+            ->unique()
+            ->values()
             ->all();
     }
 
@@ -74,7 +77,7 @@ class MovieDetail extends Component
         return array_values($this->movie->trailers ?? []);
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.movie-detail');
     }
@@ -98,9 +101,9 @@ class MovieDetail extends Component
                     ];
                 }
 
-                return [];
+                return null;
             })
-            ->filter(fn ($entry) => ! empty($entry['name']))
+            ->filter(fn ($entry) => is_array($entry) && filled($entry['name'] ?? null))
             ->values()
             ->all();
     }
