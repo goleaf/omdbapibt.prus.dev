@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Livewire\Admin\UserDirectory;
 use App\Models\User;
 use App\Support\ImpersonationManager;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -38,6 +39,16 @@ class UserDirectoryTest extends TestCase
             ->call('updateRole', $user->id, UserRole::Subscriber->value);
 
         $this->assertSame(UserRole::Subscriber, $user->fresh()->role);
+    }
+
+    public function test_admin_cannot_update_their_own_role(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test(UserDirectory::class)
+            ->call('updateRole', $admin->id, UserRole::User->value)
+            ->assertForbidden();
     }
 
     public function test_non_admin_cannot_update_role(): void
@@ -139,5 +150,43 @@ class UserDirectoryTest extends TestCase
         $this->assertAuthenticatedAs($target);
 
         $manager->stop($target);
+    }
+
+    public function test_admin_cannot_impersonate_another_admin(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $otherAdmin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test(UserDirectory::class)
+            ->call('impersonate', $otherAdmin->id)
+            ->assertForbidden();
+    }
+
+    public function test_only_impersonator_or_target_can_end_impersonation_session(): void
+    {
+        $impersonator = User::factory()->admin()->create();
+        $target = User::factory()->create();
+        $bystander = User::factory()->create();
+
+        $manager = app(ImpersonationManager::class);
+
+        Livewire::actingAs($impersonator)
+            ->test(UserDirectory::class)
+            ->call('impersonate', $target->id);
+
+        $this->assertTrue($manager->isImpersonating());
+
+        try {
+            $manager->stop($bystander);
+            $this->fail('Expected AuthorizationException to be thrown.');
+        } catch (AuthorizationException $exception) {
+            $this->assertTrue($manager->isImpersonating());
+        }
+
+        $manager->stop($target);
+
+        $this->assertFalse($manager->isImpersonating());
+        $this->assertAuthenticatedAs($impersonator);
     }
 }

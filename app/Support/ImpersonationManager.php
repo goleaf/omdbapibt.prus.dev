@@ -52,10 +52,17 @@ class ImpersonationManager
             abort(403, 'This action is unauthorized.');
         }
 
+        /** @var User|null $impersonated */
+        $impersonated = $this->guard()->user();
+
+        if (! $impersonated instanceof User) {
+            abort(403, 'This action is unauthorized.');
+        }
+
         /** @var User|null $impersonatorForGate */
         $impersonatorForGate = User::find($impersonatorId);
 
-        Gate::forUser($requester)->authorize('endImpersonation', [$impersonatorForGate]);
+        Gate::forUser($requester)->authorize('endImpersonation', [$impersonatorForGate, $impersonated]);
 
         $impersonatorId = $this->session->pull(self::SESSION_KEY);
 
