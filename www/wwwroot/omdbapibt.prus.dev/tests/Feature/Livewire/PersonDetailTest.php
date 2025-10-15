@@ -86,4 +86,26 @@ class PersonDetailTest extends TestCase
         $this->get(route('people.show', ['person' => 'unknown-person']))
             ->assertNotFound();
     }
+
+    public function test_route_binds_person_by_slug(): void
+    {
+        $person = Person::factory()->create([
+            'name' => 'Bound Person',
+        ]);
+
+        $this->get(route('people.show', $person))
+            ->assertOk()
+            ->assertSee('Bound Person');
+    }
+
+    public function test_route_binds_person_by_numeric_identifier(): void
+    {
+        $person = Person::factory()->create([
+            'name' => 'Numeric Person',
+        ]);
+
+        $this->get(route('people.show', ['person' => $person->getKey()]))
+            ->assertOk()
+            ->assertSee('Numeric Person');
+    }
 }
