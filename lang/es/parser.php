@@ -24,4 +24,10 @@ return [
             ],
         ],
     ],
+    'trigger' => [
+        'workload_required' => 'Selecciona una carga de procesamiento para iniciar.',
+        'workload_string' => 'La carga de procesamiento debe enviarse como texto.',
+        'workload_enum' => 'La carga de procesamiento seleccionada no es válida.',
+        'workload_attribute' => 'carga de procesamiento',
+    ],
 ];
