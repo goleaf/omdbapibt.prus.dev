@@ -13,7 +13,7 @@ class ParserTriggerController extends Controller
 {
     public function __invoke(ParserTriggerRequest $request): JsonResponse
     {
-        $workload = $request->validatedWorkload();
+        $workload = $request->workload();
 
         $this->authorize('trigger', [ParserEntry::class, $workload]);
 

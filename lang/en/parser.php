@@ -24,4 +24,16 @@ return [
             ],
         ],
     ],
+    'trigger' => [
+        'validation' => [
+            'workload' => [
+                'required' => 'Please choose a parser workload before continuing.',
+                'string' => 'The parser workload must be provided as a string.',
+                'enum' => 'The selected parser workload is not supported.',
+            ],
+        ],
+        'attributes' => [
+            'workload' => 'parser workload',
+        ],
+    ],
 ];
