@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -61,5 +62,13 @@ class TvShow extends Model
     public function watchlistedBy(): MorphToMany
     {
         return $this->morphToMany(User::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+    }
+
+    /**
+     * Watch history entries that include this show.
+     */
+    public function watchHistories(): MorphMany
+    {
+        return $this->morphMany(WatchHistory::class, 'watchable');
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\CleanupExpiredTrials;
+use App\Http\Middleware\EnsureUserHasSubscription;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ValidateLocale;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'subscriber' => EnsureUserHasSubscription::class,
             'admin' => EnsureUserIsAdmin::class,
             'auth.basic' => AuthenticateWithBasicAuth::class,
             'validate-locale' => ValidateLocale::class,
