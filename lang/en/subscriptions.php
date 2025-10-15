@@ -17,5 +17,6 @@ return [
         'resume_failed' => 'We were unable to resume your subscription. Please try again.',
         'invoice_load_failed' => 'We were unable to load your upcoming invoice.',
         'premium_required' => 'A premium subscription is required to access this area.',
+        'access_required' => 'An active subscription is required to access this area.',
     ],
 ];

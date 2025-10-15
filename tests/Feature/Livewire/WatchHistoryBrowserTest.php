@@ -27,7 +27,13 @@ class WatchHistoryBrowserTest extends TestCase
 
         $response
             ->assertRedirect(route('checkout', ['locale' => $locale]))
-            ->assertSessionHas('error', 'A premium subscription is required to access this area.');
+            ->assertSessionHas('error', __('subscriptions.errors.access_required'));
+
+        $spanishResponse = $this->actingAs($user)->get(route('account.watch-history', ['locale' => 'es']));
+
+        $spanishResponse
+            ->assertRedirect(route('checkout', ['locale' => 'es']))
+            ->assertSessionHas('error', __('subscriptions.errors.access_required', [], 'es'));
     }
 
     public function test_subscriber_can_filter_and_search_watch_history(): void

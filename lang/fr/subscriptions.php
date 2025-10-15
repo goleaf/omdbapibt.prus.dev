@@ -17,5 +17,6 @@ return [
         'resume_failed' => 'Nous n'avons pas pu reprendre votre abonnement. Veuillez réessayer.',
         'invoice_load_failed' => 'Nous n'avons pas pu charger votre prochaine facture.',
         'premium_required' => 'Un abonnement premium est requis pour accéder à cette zone.',
+        'access_required' => 'Un abonnement actif est requis pour accéder à cette zone.',
     ],
 ];

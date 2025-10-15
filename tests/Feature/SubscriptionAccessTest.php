@@ -15,7 +15,7 @@ class SubscriptionAccessTest extends TestCase
     {
         $this->get(route('browse', ['locale' => 'en']))
             ->assertOk()
-            ->assertSee('Premium membership required');
+            ->assertSee(__('Premium membership required'));
     }
 
     public function test_non_subscriber_is_redirected_to_checkout(): void
@@ -25,7 +25,12 @@ class SubscriptionAccessTest extends TestCase
         $this->actingAs($user)
             ->get(route('account.watch-history', ['locale' => 'en']))
             ->assertRedirect(route('checkout', ['locale' => 'en']))
-            ->assertSessionHas('error');
+            ->assertSessionHas('error', __('subscriptions.errors.access_required'));
+
+        $this->actingAs($user)
+            ->get(route('account.watch-history', ['locale' => 'es']))
+            ->assertRedirect(route('checkout', ['locale' => 'es']))
+            ->assertSessionHas('error', __('subscriptions.errors.access_required', [], 'es'));
     }
 
     public function test_checkout_redirects_subscribers_back_to_browse(): void

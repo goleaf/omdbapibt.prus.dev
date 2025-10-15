@@ -27,6 +27,6 @@ class EnsureSubscriptionAccess
             return $next($request);
         }
 
-        return redirect()->route('checkout')->with('error', trans('subscriptions.errors.premium_required'));
+        return redirect()->route('checkout')->with('error', __('subscriptions.errors.access_required'));
     }
 }
