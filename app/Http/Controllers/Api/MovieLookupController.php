@@ -3,19 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\MovieLookupRequest;
+use App\Http\Responses\Api\MovieLookupResponse;
 use App\Models\Movie;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class MovieLookupController extends Controller
 {
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(MovieLookupRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'query' => ['required', 'string', 'min:2'],
-            'limit' => ['sometimes', 'integer', 'min:1', 'max:50'],
-        ]);
+        $validated = $request->validated();
 
         $term = $validated['query'];
         $limit = $validated['limit'] ?? 10;
@@ -42,8 +40,6 @@ class MovieLookupController extends Controller
                 'year',
             ]);
 
-        return response()->json([
-            'data' => $results,
-        ]);
+        return MovieLookupResponse::from($results);
     }
 }
