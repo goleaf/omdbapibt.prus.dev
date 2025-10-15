@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ParserWorkload;
 use App\Jobs\Emails\SendSubscriptionDigest;
 use App\Jobs\Parsing\ExecuteParserPipeline;
 use App\Jobs\System\WarmTrendingCache;
@@ -13,19 +14,19 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('movie:parse-new', function () {
-    ExecuteParserPipeline::dispatch('movies');
+    ExecuteParserPipeline::dispatch(ParserWorkload::Movies);
 
     $this->info('Dispatched movie parsing pipeline.');
 })->purpose('Dispatch a parsing workload for new movies');
 
 Artisan::command('tv:parse-new', function () {
-    ExecuteParserPipeline::dispatch('tv');
+    ExecuteParserPipeline::dispatch(ParserWorkload::Tv);
 
     $this->info('Dispatched TV parsing pipeline.');
 })->purpose('Dispatch a parsing workload for new TV shows');
 
 Artisan::command('people:parse-new', function () {
-    ExecuteParserPipeline::dispatch('people');
+    ExecuteParserPipeline::dispatch(ParserWorkload::People);
 
     $this->info('Dispatched people parsing pipeline.');
 })->purpose('Dispatch a parsing workload for new people profiles');

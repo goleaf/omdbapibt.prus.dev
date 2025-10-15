@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Parsing;
 
+use App\Enums\ParserWorkload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,14 +20,14 @@ class ExecuteParserPipeline implements ShouldQueue
     /**
      * The workload category this job represents.
      */
-    public string $workload;
+    public ParserWorkload $workload;
 
     /**
      * The number of times the job may be attempted.
      */
     public int $tries = 3;
 
-    public function __construct(string $workload)
+    public function __construct(ParserWorkload $workload)
     {
         $this->workload = $workload;
         $this->onQueue((string) config('parser.queue', 'parsing'));
@@ -45,7 +46,7 @@ class ExecuteParserPipeline implements ShouldQueue
     public function handle(): void
     {
         Log::info('Executing parser pipeline', [
-            'workload' => $this->workload,
+            'workload' => $this->workload->value,
             'queue' => $this->queue,
         ]);
     }
