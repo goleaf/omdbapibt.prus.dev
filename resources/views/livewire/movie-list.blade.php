@@ -163,7 +163,7 @@
                 <article class="group flex flex-col overflow-hidden rounded-3xl border border-zinc-200/70 bg-white/80 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-zinc-700/60 dark:bg-zinc-900/60">
                     <div class="relative aspect-[2/3] w-full overflow-hidden bg-zinc-200/80 dark:bg-zinc-800/80">
                         @if ($movie->poster_path)
-                            <img src="{{ $movie->poster_path }}" alt="{{ $movie->title }} poster" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy">
+                            <img src="{{ $movie->poster_path }}" alt="{{ $movie->localizedTitle() }} poster" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy">
                         @else
                             <div class="flex h-full items-center justify-center text-sm font-medium text-zinc-500 dark:text-zinc-400">
                                 No poster available
@@ -178,7 +178,7 @@
                     </div>
                     <div class="flex flex-1 flex-col gap-3 p-5">
                         <header>
-                            <h3 class="text-base font-semibold text-zinc-900 dark:text-white">{{ $movie->title }}</h3>
+                            <h3 class="text-base font-semibold text-zinc-900 dark:text-white">{{ $movie->localizedTitle() }}</h3>
                             <p class="text-sm text-zinc-600 dark:text-zinc-300">
                                 @if ($movie->year)
                                     <span>{{ $movie->year }}</span>

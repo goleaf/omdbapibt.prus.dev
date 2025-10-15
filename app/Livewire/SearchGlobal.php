@@ -188,7 +188,7 @@ class SearchGlobal extends Component
         return $movies->map(function (Movie $movie): array {
             return [
                 'id' => $movie->id,
-                'title' => $movie->title,
+                'title' => $movie->localizedTitle(),
                 'subtitle' => optional($movie->release_date)->format('Y'),
                 'poster' => $movie->poster_path,
                 'url' => $movie->slug ? url('/movies/' . $movie->slug) : null,

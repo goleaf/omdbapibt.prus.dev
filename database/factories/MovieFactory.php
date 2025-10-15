@@ -17,12 +17,18 @@ class MovieFactory extends Factory
     {
         $title = $this->faker->sentence(3);
 
+        $titles = [
+            'en' => $title,
+            'es' => $title.' (ES)',
+            'fr' => $title.' (FR)',
+        ];
+
         return [
             'tmdb_id' => $this->faker->unique()->numberBetween(1, 10_000_000),
             'imdb_id' => 'tt'.$this->faker->unique()->numerify('########'),
             'omdb_id' => $this->faker->optional()->uuid(),
             'slug' => Str::slug($title).'-'.$this->faker->unique()->numerify('####'),
-            'title' => $title,
+            'title' => $titles,
             'original_title' => $title,
             'year' => (int) $this->faker->year(),
             'runtime' => $this->faker->numberBetween(80, 180),
@@ -33,11 +39,7 @@ class MovieFactory extends Factory
                 'fr' => $this->faker->paragraph(),
             ],
             'translation_metadata' => [
-                'title' => [
-                    'en' => $title,
-                    'es' => $title.' (ES)',
-                    'fr' => $title.' (FR)',
-                ],
+                'title' => $titles,
                 'access' => [
                     'requires_subscription' => false,
                 ],

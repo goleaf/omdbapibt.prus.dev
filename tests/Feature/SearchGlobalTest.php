@@ -17,7 +17,7 @@ class SearchGlobalTest extends TestCase
     public function test_groups_results_by_category(): void
     {
         $movie = Movie::factory()->create([
-            'title' => 'Galactic Quest',
+            'title' => ['en' => 'Galactic Quest'],
             'slug' => 'galactic-quest',
             'popularity' => 99.5,
         ]);
@@ -34,10 +34,10 @@ class SearchGlobalTest extends TestCase
 
         Livewire::test(SearchGlobal::class)
             ->set('query', 'Galactic')
-            ->assertSet('results.movies.0.title', $movie->title)
+            ->assertSet('results.movies.0.title', $movie->localizedTitle())
             ->assertSet('results.tvShows.0.title', $show->name)
             ->assertSet('results.people.0.title', $person->name)
-            ->assertSet('flatResults.0.title', $movie->title)
+            ->assertSet('flatResults.0.title', $movie->localizedTitle())
             ->assertSet('flatResults.1.title', $show->name)
             ->assertSet('flatResults.2.title', $person->name)
             ->assertSet('isOpen', true);
@@ -46,7 +46,7 @@ class SearchGlobalTest extends TestCase
     public function test_clears_query_and_results(): void
     {
         Movie::factory()->create([
-            'title' => 'Nova Prime',
+            'title' => ['en' => 'Nova Prime'],
             'slug' => 'nova-prime',
         ]);
 
@@ -63,12 +63,12 @@ class SearchGlobalTest extends TestCase
     {
         Movie::factory()->createMany([
             [
-                'title' => 'Searchlight Alpha',
+                'title' => ['en' => 'Searchlight Alpha'],
                 'slug' => 'searchlight-alpha',
                 'popularity' => 90,
             ],
             [
-                'title' => 'Searchlight Beta',
+                'title' => ['en' => 'Searchlight Beta'],
                 'slug' => 'searchlight-beta',
                 'popularity' => 80,
             ],

@@ -53,7 +53,7 @@ class PersonDetail extends Component
             $pivot = $movie->pivot;
             $type = $pivot->credit_type ?? 'cast';
             $credits[$type]['movies'][] = [
-                'title' => $movie->title,
+                'title' => $movie->localizedTitle(),
                 'role' => $pivot->character ?? $pivot->job,
                 'year' => $movie->year,
                 'slug' => $movie->slug,

@@ -150,15 +150,9 @@ class Watchlist extends Component
 
         $this->items = [
             'movies' => $movies->map(function (Movie $movie): array {
-                $title = $movie->title;
-
-                if (is_array($title)) {
-                    $title = $title['en'] ?? reset($title) ?? 'Untitled';
-                }
-
                 return [
                     'id' => $movie->getKey(),
-                    'title' => $title,
+                    'title' => $movie->localizedTitle(),
                     'slug' => $movie->slug,
                     'poster' => $movie->poster_path,
                     'year' => $movie->release_date ? $movie->release_date->format('Y') : null,

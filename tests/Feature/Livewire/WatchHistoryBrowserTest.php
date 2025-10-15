@@ -44,7 +44,7 @@ class WatchHistoryBrowserTest extends TestCase
         ]);
 
         $movie = Movie::factory()->create([
-            'title' => 'The Testing Movie',
+            'title' => ['en' => 'The Testing Movie'],
         ]);
 
         $show = TvShow::factory()->create([
@@ -68,17 +68,17 @@ class WatchHistoryBrowserTest extends TestCase
         Livewire::actingAs($user)
             ->test(WatchHistoryBrowser::class)
             ->assertSee('Browse history')
-            ->assertSee($movie->title)
+            ->assertSee($movie->localizedTitle())
             ->assertSee($show->name)
             ->set('type', 'movie')
-            ->assertSee($movie->title)
+            ->assertSee($movie->localizedTitle())
             ->assertDontSee($show->name)
             ->set('type', 'tv')
             ->assertSee($show->name)
-            ->assertDontSee($movie->title)
+            ->assertDontSee($movie->localizedTitle())
             ->set('type', 'all')
             ->set('search', 'Testing Movie')
-            ->assertSee($movie->title)
+            ->assertSee($movie->localizedTitle())
             ->assertDontSee($show->name);
     }
 }

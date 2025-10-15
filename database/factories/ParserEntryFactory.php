@@ -16,8 +16,12 @@ class ParserEntryFactory extends Factory
 
     public function definition(): array
     {
+        $title = $this->faker->sentence(3);
+
         $payload = [
-            'title' => $this->faker->sentence(3),
+            'title' => [
+                'en' => $title,
+            ],
             'overview' => [
                 'en' => $this->faker->paragraph(),
             ],
@@ -31,7 +35,9 @@ class ParserEntryFactory extends Factory
             'parser' => $this->faker->randomElement(['tmdb', 'omdb']),
             'payload' => $payload,
             'baseline_snapshot' => [
-                'title' => $this->faker->sentence(3),
+                'title' => [
+                    'en' => $this->faker->sentence(3),
+                ],
                 'overview' => [
                     'en' => $this->faker->paragraph(),
                 ],

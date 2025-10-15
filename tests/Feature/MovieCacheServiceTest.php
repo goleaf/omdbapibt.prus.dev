@@ -73,7 +73,7 @@ class MovieCacheServiceTest extends TestCase
     {
         $movie = Movie::factory()->create([
             'tmdb_id' => 42,
-            'title' => 'Original',
+            'title' => ['en' => 'Original'],
             'popularity' => 10,
         ]);
 
@@ -85,7 +85,7 @@ class MovieCacheServiceTest extends TestCase
 
         $persister->persist([
             'tmdb_id' => 42,
-            'title' => 'Original',
+            'title' => ['en' => 'Original'],
             'popularity' => 500,
         ]);
 
@@ -100,7 +100,7 @@ class MovieCacheServiceTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $persister->persist([
-            'title' => 'Missing identifier',
+            'title' => ['en' => 'Missing identifier'],
         ]);
     }
 }

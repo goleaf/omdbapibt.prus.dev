@@ -27,7 +27,7 @@ class MovieDetailTest extends TestCase
         Livewire::test(MovieDetail::class, ['movie' => $movie->slug])
             ->assertOk()
             ->set('activeTab', 'credits')
-            ->assertSee($movie->title)
+            ->assertSee($movie->localizedTitle())
             ->assertSee('Captain Nova');
     }
 
@@ -37,7 +37,7 @@ class MovieDetailTest extends TestCase
 
         Livewire::test(MovieDetail::class, ['movie' => (string) $movie->id])
             ->assertOk()
-            ->assertSee($movie->title);
+            ->assertSee($movie->localizedTitle());
     }
 
     public function test_movie_detail_page_is_accessible_by_slug(): void
@@ -51,7 +51,7 @@ class MovieDetailTest extends TestCase
         ]))
             ->assertOk()
             ->assertSeeLivewire(MovieDetail::class)
-            ->assertSee($movie->title);
+            ->assertSee($movie->localizedTitle());
     }
 
     public function test_movie_detail_page_is_accessible_by_id(): void
@@ -65,6 +65,6 @@ class MovieDetailTest extends TestCase
         ]))
             ->assertOk()
             ->assertSeeLivewire(MovieDetail::class)
-            ->assertSee($movie->title);
+            ->assertSee($movie->localizedTitle());
     }
 }

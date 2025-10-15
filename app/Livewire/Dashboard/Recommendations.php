@@ -66,7 +66,7 @@ class Recommendations extends Component
             ->recommendFor($user)
             ->map(fn (Movie $movie) => [
                 'id' => $movie->getKey(),
-                'title' => $movie->title,
+                'title' => $movie->localizedTitle(),
                 'tagline' => $movie->tagline,
                 'poster_path' => $movie->poster_path,
                 'vote_average' => $movie->vote_average,

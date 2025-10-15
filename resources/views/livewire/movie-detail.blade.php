@@ -2,7 +2,7 @@
     <div class="rounded-[2.5rem] border border-slate-800/60 bg-slate-900/70 p-8 shadow-xl">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
             <div class="flex-1 space-y-4">
-                <h1 class="text-4xl font-semibold text-white">{{ $movieModel->title }}</h1>
+                <h1 class="text-4xl font-semibold text-white">{{ $movieModel->localizedTitle() }}</h1>
                 <div class="flex flex-wrap items-center gap-3 text-sm text-slate-300">
                     <x-flux.rating-badge :score="$movieModel->vote_average ?? 'N/A'" label="Rating" />
                     <span class="rounded-full border border-slate-700/60 px-3 py-1 text-xs uppercase tracking-[0.35em]">{{ $movieModel->year }}</span>
@@ -12,7 +12,7 @@
                 <p class="text-base text-slate-200">{{ $movieModel->tagline }}</p>
                 <p class="text-sm leading-relaxed text-slate-300">{{ $movieModel->overview['en'] ?? $movieModel->plot }}</p>
             </div>
-            <img src="{{ \App\Support\TmdbImage::poster($movieModel->poster_path) }}" alt="{{ $movieModel->title }} poster" class="w-56 rounded-3xl border border-slate-800/60 object-cover" />
+            <img src="{{ \App\Support\TmdbImage::poster($movieModel->poster_path) }}" alt="{{ $movieModel->localizedTitle() }} poster" class="w-56 rounded-3xl border border-slate-800/60 object-cover" />
         </div>
     </div>
 

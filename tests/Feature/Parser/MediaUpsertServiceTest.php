@@ -19,7 +19,7 @@ class MediaUpsertServiceTest extends TestCase
         $movie = $service->upsertMovie([
             'tmdb_id' => 123456,
             'imdb_id' => 'tt1234567',
-            'title' => 'The Original Title',
+            'title' => ['en' => 'The Original Title'],
             'slug' => 'the-original-title',
         ]);
 
@@ -34,13 +34,13 @@ class MediaUpsertServiceTest extends TestCase
         $updated = $service->upsertMovie([
             'tmdb_id' => 123456,
             'imdb_id' => 'tt1234567',
-            'title' => 'The Updated Title',
+            'title' => ['en' => 'The Updated Title'],
             'slug' => 'the-updated-title',
         ]);
 
         $this->assertSame($movie->id, $updated->id);
         $this->assertDatabaseCount('movies', 1);
-        $this->assertSame('The Updated Title', $updated->fresh()->title);
+        $this->assertSame(['en' => 'The Updated Title'], $updated->fresh()->title);
         $this->assertSame('the-updated-title', $updated->fresh()->slug);
     }
 
@@ -51,7 +51,7 @@ class MediaUpsertServiceTest extends TestCase
         $payload = [
             'tmdb_id' => 98765,
             'imdb_id' => 'tt0098765',
-            'title' => 'Primary Title',
+            'title' => ['en' => 'Primary Title'],
             'slug' => 'primary-title',
         ];
 
@@ -71,7 +71,7 @@ class MediaUpsertServiceTest extends TestCase
                     'tmdb_id' => $payload['tmdb_id'],
                     'imdb_id' => $payload['imdb_id'],
                     'dedup_hash' => $expectedHash,
-                    'title' => 'Conflicting Title',
+                    'title' => ['en' => 'Conflicting Title'],
                     'slug' => 'conflicting-slug',
                 ]);
             });
@@ -81,7 +81,7 @@ class MediaUpsertServiceTest extends TestCase
 
         $this->assertDatabaseCount('movies', 1);
         $this->assertSame($expectedHash, $result->dedup_hash);
-        $this->assertSame('Primary Title', $result->fresh()->title);
+        $this->assertSame(['en' => 'Primary Title'], $result->fresh()->title);
         $this->assertSame('primary-title', $result->fresh()->slug);
     }
 

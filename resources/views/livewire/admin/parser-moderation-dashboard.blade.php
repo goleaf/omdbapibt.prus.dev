@@ -28,8 +28,19 @@
                                 wire:click="selectEntry({{ $entry->id }})"
                                 class="w-full rounded-lg border px-3 py-2 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-500 {{ $selectedEntry && $selectedEntry->id === $entry->id ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-200 hover:text-indigo-600' }}"
                             >
+                                @php
+                                    $entryTitle = data_get($entry->payload, 'title');
+
+                                    if (is_array($entryTitle)) {
+                                        $entryTitle = $entryTitle[app()->getLocale()] ?? $entryTitle['en'] ?? reset($entryTitle) ?? 'Untitled entry';
+                                    }
+
+                                    if (! is_string($entryTitle) || $entryTitle === '') {
+                                        $entryTitle = 'Untitled entry';
+                                    }
+                                @endphp
                                 <div class="flex items-center justify-between">
-                                    <span class="font-medium">{{ data_get($entry->payload, 'title', 'Untitled entry') }}</span>
+                                    <span class="font-medium">{{ $entryTitle }}</span>
                                     <span class="text-xs text-gray-500">{{ ucfirst($entry->status->value) }}</span>
                                 </div>
                                 <p class="mt-1 text-xs text-gray-500">Parser: {{ $entry->parser }}</p>

@@ -24,7 +24,7 @@ class ApiRateLimitingTest extends TestCase
         ]);
 
         Movie::factory()->count(3)->create([
-            'title' => 'Lookup Sample',
+            'title' => ['en' => 'Lookup Sample'],
         ]);
 
         $this->assertSame(2, config('rate-limiting.movie_lookup.max_attempts'));
