@@ -4,7 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Laravel') }} &mdash; Dashboard</title>
-    @vite('resources/css/app.css')
+    @if (app()->environment('testing'))
+        <style>
+            body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        </style>
+    @else
+        @vite('resources/css/app.css')
+    @endif
 </head>
 <body class="antialiased bg-gray-100 text-gray-900">
     <div class="min-h-screen">
