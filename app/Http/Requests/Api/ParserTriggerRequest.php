@@ -3,17 +3,19 @@
 namespace App\Http\Requests\Api;
 
 use App\Enums\ParserWorkload;
-use Illuminate\Contracts\Validation\Validator;
+use App\Models\ParserEntry;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class ParserTriggerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $candidate = ParserWorkload::tryFrom((string) $this->input('workload'))
+            ?? ParserWorkload::Movies;
+
+        return Gate::allows('trigger', [ParserEntry::class, $candidate]);
     }
 
     /**
@@ -30,7 +32,7 @@ class ParserTriggerRequest extends FormRequest
         ];
     }
 
-    public function validatedWorkload(): ParserWorkload
+    public function workload(): ParserWorkload
     {
         /** @var string $workload */
         $workload = $this->validated('workload');
@@ -44,9 +46,9 @@ class ParserTriggerRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'workload.required' => __('validation.custom.workload.required'),
-            'workload.string' => __('validation.custom.workload.string'),
-            'workload.enum' => __('validation.custom.workload.enum'),
+            'workload.required' => __('parser.trigger.validation.workload.required'),
+            'workload.string' => __('parser.trigger.validation.workload.string'),
+            'workload.enum' => __('parser.trigger.validation.workload.enum'),
         ];
     }
 
@@ -56,24 +58,7 @@ class ParserTriggerRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'workload' => __('validation.attributes.workload'),
+            'workload' => __('parser.trigger.attributes.workload'),
         ];
-    }
-
-    protected function failedValidation(Validator $validator): void
-    {
-        $errors = $validator->errors();
-
-        throw new HttpResponseException(response()->json([
-            'message' => $errors->first(),
-            'errors' => $errors->toArray(),
-        ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
-    }
-
-    public function validatedWorkload(): ParserWorkload
-    {
-        $validated = $this->validated();
-
-        return ParserWorkload::from($validated['workload']);
     }
 }
