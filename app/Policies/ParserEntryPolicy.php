@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ParserWorkload;
 use App\Models\ParserEntry;
 use App\Models\User;
 
@@ -22,7 +23,7 @@ class ParserEntryPolicy
         return $this->canModerate($user);
     }
 
-    public function trigger(?User $user): bool
+    public function trigger(?User $user, ParserWorkload $workload): bool
     {
         return $this->canModerate($user);
     }

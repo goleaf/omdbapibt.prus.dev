@@ -7,6 +7,7 @@ use App\Jobs\Parsing\ExecuteParserPipeline;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class ParserTriggerTest extends TestCase
@@ -48,5 +49,37 @@ class ParserTriggerTest extends TestCase
         Queue::assertPushed(ExecuteParserPipeline::class, function (ExecuteParserPipeline $job): bool {
             return $job->workload === ParserWorkload::Movies && $job->queue === 'priority-parsing';
         });
+    }
+
+    #[DataProvider('invalidWorkloadLocaleProvider')]
+    public function test_validation_errors_are_translated(string $locale, string $expectedMessage): void
+    {
+        config(['parser.queue' => 'parsing']);
+        Queue::fake();
+
+        $admin = User::factory()->admin()->create();
+        $authHeader = 'Basic '.base64_encode($admin->email.':password');
+
+        app()->setLocale($locale);
+
+        $this->withHeader('Authorization', $authHeader)
+            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['workload'])
+            ->assertJsonPath('errors.workload.0', $expectedMessage);
+
+        Queue::assertNothingPushed();
+    }
+
+    /**
+     * @return array<int, array{0: string, 1: string}>
+     */
+    public static function invalidWorkloadLocaleProvider(): array
+    {
+        return [
+            ['en', 'The selected parser workload is invalid.'],
+            ['es', 'La carga de trabajo del parser seleccionada no es válida.'],
+            ['fr', "La charge de travail du parseur sélectionnée n'est pas valide."],
+        ];
     }
 }
