@@ -102,6 +102,8 @@ class UiTranslationController extends Controller
             'key' => $validated['key'],
         ]);
 
+        $translation->forgetTranslations('text');
+
         $translation->setTranslations('text', $this->filterTranslationInput($validated['text'] ?? [], $locales));
         $translation->save();
 

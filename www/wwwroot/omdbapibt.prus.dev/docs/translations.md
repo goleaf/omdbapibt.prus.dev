@@ -23,7 +23,9 @@ resources/lang/
     fr/
 ```
 
-Each directory mirrors the same PHP files (`navigation.php`, `dashboard.php`, `filters.php`, `admin.php`). When you add a new key, be sure to create it in every locale file so translators know what needs attention. Strings are referenced in Blade views using Laravel's `__()` helper, e.g. `__('navigation.dashboard')`.
+Each directory mirrors the same PHP files (`navigation.php`, `dashboard.php`, `filters.php`, `admin.php`, `auth.php`). When you add a new key, be sure to create it in every locale file so translators know what needs attention. Strings are referenced in Blade views using Laravel's `__()` helper, e.g. `__('navigation.dashboard')`.
+
+> **Note:** `auth.php` powers the placeholder login screen that protects the admin translation manager in non-interactive environments.
 
 ### Recommended workflow
 
