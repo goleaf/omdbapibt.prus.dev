@@ -4,7 +4,6 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\SignupController;
 use App\Http\Controllers\BillingPortalController;
-use App\Http\Controllers\BrowseController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Impersonation\StopImpersonationController;
 use App\Http\Controllers\SubscriptionController;
@@ -16,6 +15,7 @@ use App\Livewire\Admin\UiTranslationManager;
 use App\Livewire\Admin\UserDirectory;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
+use App\Livewire\Browse\BrowsePage;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -33,7 +33,7 @@ URL::defaults(['locale' => $defaultLocale]);
 
 $registerAppRoutes = function (): void {
     Route::view('/', 'pages.home')->name('home');
-    Route::get('/browse', BrowseController::class)->name('browse');
+    Route::get('/browse', BrowsePage::class)->name('browse');
     Route::view('/pricing', 'pages.pricing')->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
     Route::get('/checkout', CheckoutController::class)->name('checkout');
