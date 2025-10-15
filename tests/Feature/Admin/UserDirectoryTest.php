@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Livewire\Admin\UserDirectory;
 use App\Models\User;
 use App\Support\ImpersonationManager;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -172,5 +173,72 @@ class UserDirectoryTest extends TestCase
             ->test(UserDirectory::class)
             ->call('impersonate', $otherAdmin->id)
             ->assertForbidden();
+    }
+
+    public function test_impersonated_admin_loses_access_to_admin_actions(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $impersonated = User::factory()->create();
+        $target = User::factory()->create();
+
+        $manager = app(ImpersonationManager::class);
+
+        $this->actingAs($admin);
+
+        $component = Livewire::test(UserDirectory::class);
+
+        $manager->start($admin, $impersonated);
+
+        $this->assertTrue($manager->isImpersonating());
+        $this->assertAuthenticatedAs($impersonated);
+
+        Livewire::actingAs($impersonated);
+
+        $this->assertForbiddenLivewireCall($component, 'updateRole', [$target->id, UserRole::Subscriber->value]);
+
+        $this->assertForbiddenLivewireCall($component, 'exportCsv');
+
+        $component
+            ->call('impersonate', $target->id)
+            ->assertHasErrors(['impersonation']);
+
+        $manager->stop();
+
+        $this->assertFalse($manager->isImpersonating());
+        $this->assertAuthenticatedAs($admin);
+
+        $component = Livewire::actingAs($admin)->test(UserDirectory::class);
+
+        $component->call('updateRole', $target->id, UserRole::Subscriber->value);
+
+        $this->assertSame(UserRole::Subscriber, $target->fresh()->role);
+
+        $response = $component->instance()->exportCsv();
+
+        $this->assertInstanceOf(StreamedResponse::class, $response);
+
+        $component
+            ->call('impersonate', $impersonated->id);
+
+        $this->assertTrue($manager->isImpersonating());
+        $this->assertAuthenticatedAs($impersonated);
+
+        $manager->stop();
+
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    private function assertForbiddenLivewireCall($component, string $method, array $parameters = []): void
+    {
+        $instance = $component->instance();
+        $className = $instance ? $instance::class : UserDirectory::class;
+
+        try {
+            $component->instance()->{$method}(...$parameters);
+
+            $this->fail(sprintf('Expected %s::%s to be forbidden.', $className, $method));
+        } catch (AuthorizationException $exception) {
+            $this->assertSame(403, $exception->status() ?? 403);
+        }
     }
 }
