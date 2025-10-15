@@ -14,7 +14,7 @@
         </div>
 
         <header class="surface-shell border-b">
-            <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-5">
+            <div class="mx-auto flex w-full max-w-screen-2xl items-center justify-between px-6 py-5 2xl:px-12">
                 <a href="{{ route('home') }}" class="flex items-center gap-2 text-lg font-semibold tracking-wide">
                     <span class="text-emerald-400">◎</span>
                     <span>{{ __('ui.nav.brand.primary') }}<span class="text-emerald-400">{{ __('ui.nav.brand.secondary') }}</span></span>
@@ -56,7 +56,7 @@
 
         @isset($impersonationBannerContext)
             <div class="border-b border-amber-400/40 bg-amber-500/10 py-3">
-                <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-6 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between">
+                <div class="mx-auto flex w-full max-w-screen-2xl flex-col gap-3 px-6 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between 2xl:px-12">
                     <div class="space-y-1">
                         <p class="font-semibold tracking-wide uppercase text-amber-200">Impersonation Active</p>
                         <p>
@@ -80,7 +80,7 @@
             </div>
         @endisset
 
-        <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
+        <main class="mx-auto w-full max-w-screen-2xl flex-1 px-4 py-10 sm:px-6 lg:px-8 2xl:px-12">
             @isset($header)
                 <div class="mb-8 text-center">
                     <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{{ $header }}</h1>
@@ -96,7 +96,7 @@
         </main>
 
         <footer class="surface-shell border-t py-8">
-            <div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-6 text-sm flux-text-muted sm:flex-row sm:items-center sm:justify-between">
+            <div class="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-6 text-sm flux-text-muted sm:flex-row sm:items-center sm:justify-between 2xl:px-12">
                 <p>{{ __('ui.nav.footer.copyright', ['year' => now()->year]) }}</p>
                 <div class="flex items-center gap-4">
                     <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.terms') }}</a>

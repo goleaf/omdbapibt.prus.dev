@@ -125,14 +125,14 @@
         </div>
 
         <div class="mt-6 min-w-0 space-y-8 lg:mt-0">
-            <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" role="list" aria-live="polite">
+            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 xl:gap-6 3xl:gap-4" role="list" aria-live="polite">
                 @forelse ($lazyMovies as $index => $movie)
                     <article
                         role="listitem"
                         wire:key="catalog-card-{{ $movie['id'] }}-{{ $index }}"
                         class="group relative overflow-hidden rounded-3xl border border-slate-800/70 bg-slate-900/60 p-4 shadow-sm transition duration-200 hover:border-emerald-400/60 hover:shadow-lg"
                     >
-                        <div class="relative overflow-hidden rounded-2xl border border-slate-800/70 bg-slate-950/70">
+                        <div class="relative aspect-[2/3] overflow-hidden rounded-2xl border border-slate-800/70 bg-slate-950/70">
                             @if (! empty($movie['poster_path']))
                                 <img
                                     src="{{ $movie['poster_path'] }}"
@@ -141,7 +141,7 @@
                                     class="h-full w-full object-cover transition duration-300 ease-out group-hover:scale-105"
                                 >
                             @else
-                                <div class="flex h-64 items-center justify-center text-xs text-slate-400">
+                                <div class="flex h-full w-full items-center justify-center text-xs text-slate-400">
                                     Poster unavailable
                                 </div>
                             @endif

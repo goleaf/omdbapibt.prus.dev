@@ -15,6 +15,8 @@
     --flux-radius-card: 1.75rem;
     --flux-radius-badge: 999px;
 
+    --breakpoint-3xl: 1920px;
+
     --flux-shadow-cinematic: 0 30px 60px -25px rgba(45, 212, 191, 0.35);
     --flux-shadow-cosmic: 0 40px 95px -45px rgba(14, 165, 233, 0.45);
 
