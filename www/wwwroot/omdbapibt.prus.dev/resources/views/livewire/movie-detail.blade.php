@@ -98,7 +98,7 @@
                 <flux:navlist.item
                     wire:click="setTab('overview')"
                     type="button"
-                    @if($activeTab === 'overview') data-current @endif
+                    :data-current="$activeTab === 'overview' ? true : null"
                 >
                     Overview
                 </flux:navlist.item>
@@ -106,7 +106,7 @@
                 <flux:navlist.item
                     wire:click="setTab('cast')"
                     type="button"
-                    @if($activeTab === 'cast') data-current @endif
+                    :data-current="$activeTab === 'cast' ? true : null"
                 >
                     Cast
                 </flux:navlist.item>
@@ -114,7 +114,7 @@
                 <flux:navlist.item
                     wire:click="setTab('crew')"
                     type="button"
-                    @if($activeTab === 'crew') data-current @endif
+                    :data-current="$activeTab === 'crew' ? true : null"
                 >
                     Crew
                 </flux:navlist.item>
@@ -122,7 +122,7 @@
                 <flux:navlist.item
                     wire:click="setTab('streaming')"
                     type="button"
-                    @if($activeTab === 'streaming') data-current @endif
+                    :data-current="$activeTab === 'streaming' ? true : null"
                 >
                     Streaming
                 </flux:navlist.item>
@@ -130,7 +130,7 @@
                 <flux:navlist.item
                     wire:click="setTab('trailers')"
                     type="button"
-                    @if($activeTab === 'trailers') data-current @endif
+                    :data-current="$activeTab === 'trailers' ? true : null"
                 >
                     Trailers
                 </flux:navlist.item>
@@ -138,7 +138,7 @@
                 <flux:navlist.item
                     wire:click="setTab('reviews')"
                     type="button"
-                    @if($activeTab === 'reviews') data-current @endif
+                    :data-current="$activeTab === 'reviews' ? true : null"
                 >
                     Reviews
                 </flux:navlist.item>
@@ -146,7 +146,7 @@
                 <flux:navlist.item
                     wire:click="setTab('translations')"
                     type="button"
-                    @if($activeTab === 'translations') data-current @endif
+                    :data-current="$activeTab === 'translations' ? true : null"
                 >
                     Translations
                 </flux:navlist.item>

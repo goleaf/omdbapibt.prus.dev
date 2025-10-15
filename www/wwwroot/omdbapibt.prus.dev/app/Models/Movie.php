@@ -66,8 +66,10 @@ class Movie extends Model
         }
 
         return $query
-            ->where('slug', $value)
-            ->orWhereKey($value)
+            ->where(function ($query) use ($value) {
+                $query->where('slug', $value)
+                    ->orWhere($this->getKeyName(), $value);
+            })
             ->first();
     }
 
@@ -77,6 +79,18 @@ class Movie extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * Ensure route generation can gracefully fall back to the primary key when a slug is missing.
+     */
+    public function getRouteKey(): string
+    {
+        if (filled($this->slug)) {
+            return $this->slug;
+        }
+
+        return (string) $this->getKey();
     }
 
     /**
