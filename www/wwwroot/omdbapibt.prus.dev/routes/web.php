@@ -3,6 +3,7 @@
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\TvShowDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -33,6 +34,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/subscriptions', [SubscriptionController::class, 'store'])
         ->name('subscriptions.store');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/horizon-monitor', HorizonMonitor::class)
+        ->name('admin.horizon-monitor');
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
