@@ -19,7 +19,7 @@ class ParserTriggerController extends Controller
 
         ExecuteParserPipeline::dispatch($workload);
 
-        return ParserTriggerResponse::fromWorkload(
+        return ParserTriggerResponse::from(
             $workload,
             (string) config('parser.queue', 'parsing'),
         );

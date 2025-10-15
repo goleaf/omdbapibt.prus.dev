@@ -69,4 +69,11 @@ class ParserTriggerRequest extends FormRequest
             'errors' => $errors->toArray(),
         ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
     }
+
+    public function validatedWorkload(): ParserWorkload
+    {
+        $validated = $this->validated();
+
+        return ParserWorkload::from($validated['workload']);
+    }
 }
