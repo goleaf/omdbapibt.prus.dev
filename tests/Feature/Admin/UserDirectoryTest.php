@@ -40,6 +40,26 @@ class UserDirectoryTest extends TestCase
         $this->assertSame(UserRole::Subscriber, $user->fresh()->role);
     }
 
+    public function test_non_admin_cannot_update_role(): void
+    {
+        $moderator = User::factory()->create();
+        $target = User::factory()->create();
+
+        Livewire::actingAs($moderator)
+            ->test(UserDirectory::class)
+            ->assertForbidden();
+
+        $admin = User::factory()->admin()->create();
+
+        $component = Livewire::actingAs($admin)->test(UserDirectory::class);
+
+        $this->actingAs($moderator);
+
+        $component
+            ->call('updateRole', $target->id, UserRole::Subscriber->value)
+            ->assertForbidden();
+    }
+
     public function test_non_admin_cannot_access_directory(): void
     {
         $user = User::factory()->create();
@@ -82,5 +102,42 @@ class UserDirectoryTest extends TestCase
         $lines = array_values(array_filter(explode("\n", trim($csv))));
         $this->assertNotEmpty($lines);
         $this->assertSame(['Name', 'Email', 'Role', 'Watch Events', 'Joined'], str_getcsv($lines[0]));
+    }
+
+    public function test_non_admin_cannot_export_or_impersonate(): void
+    {
+        $moderator = User::factory()->create();
+        $target = User::factory()->create();
+
+        $admin = User::factory()->admin()->create();
+
+        $component = Livewire::actingAs($admin)->test(UserDirectory::class);
+
+        $this->actingAs($moderator);
+
+        $component->call('exportCsv')->assertForbidden();
+
+        $component = Livewire::actingAs($admin)->test(UserDirectory::class);
+
+        $this->actingAs($moderator);
+
+        $component->call('impersonate', $target->id)->assertForbidden();
+    }
+
+    public function test_admin_can_impersonate_user(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->create();
+
+        $manager = app(ImpersonationManager::class);
+
+        Livewire::actingAs($admin)
+            ->test(UserDirectory::class)
+            ->call('impersonate', $target->id);
+
+        $this->assertTrue($manager->isImpersonating());
+        $this->assertAuthenticatedAs($target);
+
+        $manager->stop($target);
     }
 }
