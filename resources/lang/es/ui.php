@@ -1,0 +1,80 @@
+<?php
+
+return [
+    'navigation' => [
+        'home' => 'Inicio',
+        'browse' => 'Explorar',
+        'pricing' => 'Precios',
+        'account' => 'Cuenta',
+        'logout' => 'Cerrar sesión',
+        'sign_in' => 'Iniciar sesión',
+        'join_now' => 'Únete ahora',
+    ],
+
+    'footer' => [
+        'terms' => 'Términos',
+        'privacy' => 'Privacidad',
+        'support' => 'Soporte',
+        'copyright' => 'Todos los derechos reservados.',
+    ],
+
+    'dashboard' => [
+        'title' => 'Panel',
+        'nav_overview' => 'Resumen',
+        'nav_manage_subscription' => 'Gestionar suscripción',
+        'welcome_heading' => '¡Bienvenido de nuevo!',
+        'welcome_copy' => 'Revisa los detalles de tu plan, gestiona la facturación y realiza cambios en tu suscripción en tiempo real.',
+        'trial_active_heading' => 'Tu prueba gratuita está activa.',
+        'trial_active_copy' => 'Disfruta de acceso completo hasta :date. Te enviaremos recordatorios antes de que comience la facturación.',
+        'trial_start_heading' => 'Activa tu prueba gratuita de :days días.',
+        'trial_start_copy' => 'Desbloquea cada detalle de las películas, filtros premium y recomendaciones seleccionadas mientras evalúas la plataforma.',
+        'trial_start_button' => 'Comenzar prueba de :days días',
+        'trial_price_required' => 'Agrega tu identificador de precio de Stripe en :env_key para habilitar las suscripciones.',
+        'trial_cancel_hint' => 'Cancela en cualquier momento antes de que finalice la prueba para evitar cargos.',
+        'subscriber_heading' => '¡Gracias por suscribirte!',
+        'subscriber_copy' => 'Disfruta de acceso ilimitado a datos detallados, listas y perspectivas personalizadas.',
+        'grace_heading' => 'Tu suscripción está programada para finalizar.',
+        'grace_copy' => 'El acceso permanecerá disponible hasta :date. Reactiva el plan en Stripe si cambias de opinión.',
+        'inactive_heading' => 'Suscripción inactiva.',
+        'inactive_copy' => 'Vuelve a suscribirte desde el portal de facturación cuando quieras para recuperar el acceso premium.',
+    ],
+
+    'filters' => [
+        'heading' => 'Filtros avanzados',
+        'description' => 'Ajusta tu feed de descubrimiento con géneros, idiomas y años de estreno.',
+        'type_label' => 'Tipo',
+        'types' => [
+            'movies' => 'Películas',
+            'shows' => 'Series',
+        ],
+        'genre_label' => 'Género',
+        'genres' => [
+            'action' => 'Acción',
+            'adventure' => 'Aventura',
+            'comedy' => 'Comedia',
+            'drama' => 'Drama',
+            'fantasy' => 'Fantasía',
+            'science_fiction' => 'Ciencia ficción',
+            'thriller' => 'Suspenso',
+        ],
+        'year_label' => 'Año',
+        'language_label' => 'Idioma',
+        'languages' => [
+            'en' => 'Inglés',
+            'es' => 'Español',
+            'fr' => 'Francés',
+            'de' => 'Alemán',
+            'ja' => 'Japonés',
+        ],
+        'sort_label' => 'Ordenar por',
+        'sorts' => [
+            'popularity' => 'Popularidad',
+            'rating' => 'Valoración',
+            'newest' => 'Más recientes',
+            'oldest' => 'Más antiguas',
+        ],
+        'results_heading' => 'Vista previa de resultados',
+        'results_copy' => 'Filtrando :type de :genre estrenados en :year.',
+        'apply' => 'Aplicar',
+    ],
+];

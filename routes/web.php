@@ -4,7 +4,9 @@ use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\HorizonMonitor;
+use App\Livewire\Admin\UiTranslationsManager;
 use App\Livewire\TvShowDetail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
@@ -37,11 +39,23 @@ $registerAppRoutes = function (): void {
 
         Route::post('/subscriptions', [SubscriptionController::class, 'store'])
             ->name('subscriptions.store');
+
+        Route::post('/logout', function () {
+            Auth::logout();
+
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+
+            return redirect()->route('home');
+        })->name('logout');
     });
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
         Route::get('/admin/horizon-monitor', HorizonMonitor::class)
             ->name('admin.horizon-monitor');
+
+        Route::get('/admin/ui-translations', UiTranslationsManager::class)
+            ->name('admin.ui-translations.index');
     });
 };
 

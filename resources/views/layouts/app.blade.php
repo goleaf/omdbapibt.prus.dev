@@ -16,11 +16,11 @@
                     <span class="text-emerald-400">Stream</span>
                 </a>
                 <nav class="hidden gap-8 text-sm font-medium md:flex">
-                    <a href="{{ route('home') }}" class="transition hover:text-emerald-300">Home</a>
-                    <a href="{{ route('browse') }}" class="transition hover:text-emerald-300">Browse</a>
-                    <a href="{{ route('pricing') }}" class="transition hover:text-emerald-300">Pricing</a>
+                    <a href="{{ route('home') }}" class="transition hover:text-emerald-300">{{ __('ui.navigation.home') }}</a>
+                    <a href="{{ route('browse') }}" class="transition hover:text-emerald-300">{{ __('ui.navigation.browse') }}</a>
+                    <a href="{{ route('pricing') }}" class="transition hover:text-emerald-300">{{ __('ui.navigation.pricing') }}</a>
                     @auth
-                        <a href="{{ route('account') }}" class="transition hover:text-emerald-300">Account</a>
+                        <a href="{{ route('account') }}" class="transition hover:text-emerald-300">{{ __('ui.navigation.account') }}</a>
                     @endauth
                 </nav>
                 <div class="flex items-center gap-3 text-sm">
@@ -28,11 +28,11 @@
                         <span class="hidden text-slate-300 md:inline">{{ auth()->user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="rounded-full border border-slate-700 px-4 py-1.5 text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200">Logout</button>
+                            <button type="submit" class="rounded-full border border-slate-700 px-4 py-1.5 text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.navigation.logout') }}</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="rounded-full border border-slate-700 px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">Sign in</a>
-                        <a href="{{ route('register') }}" class="hidden rounded-full bg-emerald-500 px-4 py-1.5 font-semibold text-emerald-950 transition hover:bg-emerald-400 md:inline">Join now</a>
+                        <a href="{{ route('login') }}" class="rounded-full border border-slate-700 px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.navigation.sign_in') }}</a>
+                        <a href="{{ route('register') }}" class="hidden rounded-full bg-emerald-500 px-4 py-1.5 font-semibold text-emerald-950 transition hover:bg-emerald-400 md:inline">{{ __('ui.navigation.join_now') }}</a>
                     @endauth
                 </div>
             </div>
@@ -55,11 +55,11 @@
 
         <footer class="border-t border-slate-800 bg-slate-900/70 py-8">
             <div class="mx-auto flex max-w-7xl flex-col gap-4 px-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-                <p>&copy; {{ now()->year }} OMDb Stream. All rights reserved.</p>
+                <p>&copy; {{ now()->year }} OMDb Stream. {{ __('ui.footer.copyright') }}</p>
                 <div class="flex items-center gap-4">
-                    <a href="#" class="transition hover:text-emerald-300">Terms</a>
-                    <a href="#" class="transition hover:text-emerald-300">Privacy</a>
-                    <a href="#" class="transition hover:text-emerald-300">Support</a>
+                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.footer.terms') }}</a>
+                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.footer.privacy') }}</a>
+                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.footer.support') }}</a>
                 </div>
             </div>
         </footer>

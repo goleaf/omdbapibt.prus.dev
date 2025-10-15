@@ -1,0 +1,80 @@
+<?php
+
+return [
+    'navigation' => [
+        'home' => 'Home',
+        'browse' => 'Browse',
+        'pricing' => 'Pricing',
+        'account' => 'Account',
+        'logout' => 'Logout',
+        'sign_in' => 'Sign in',
+        'join_now' => 'Join now',
+    ],
+
+    'footer' => [
+        'terms' => 'Terms',
+        'privacy' => 'Privacy',
+        'support' => 'Support',
+        'copyright' => 'All rights reserved.',
+    ],
+
+    'dashboard' => [
+        'title' => 'Dashboard',
+        'nav_overview' => 'Overview',
+        'nav_manage_subscription' => 'Manage Subscription',
+        'welcome_heading' => 'Welcome back!',
+        'welcome_copy' => 'Review your plan details, manage billing, and make changes to your subscription in real time.',
+        'trial_active_heading' => 'Your free trial is active.',
+        'trial_active_copy' => 'Enjoy full access until :date. We\'ll send reminders before billing begins.',
+        'trial_start_heading' => 'Start your :days-day free trial.',
+        'trial_start_copy' => 'Unlock every movie detail, premium filters, and curated recommendations while you evaluate the platform.',
+        'trial_start_button' => 'Start :days-day trial',
+        'trial_price_required' => 'Add your Stripe price identifier to :env_key to enable subscriptions.',
+        'trial_cancel_hint' => 'Cancel any time before the trial ends to avoid charges.',
+        'subscriber_heading' => 'Thanks for being a subscriber!',
+        'subscriber_copy' => 'Enjoy unlimited access to detailed data, watchlists, and personalized insights.',
+        'grace_heading' => 'Your subscription is scheduled to end.',
+        'grace_copy' => 'Access remains available until :date. Resume the plan in Stripe if you change your mind.',
+        'inactive_heading' => 'Subscription inactive.',
+        'inactive_copy' => 'Re-subscribe anytime from the billing portal to regain premium access.',
+    ],
+
+    'filters' => [
+        'heading' => 'Advanced filters',
+        'description' => 'Tune your discovery feed with genres, languages, and release years.',
+        'type_label' => 'Type',
+        'types' => [
+            'movies' => 'Movies',
+            'shows' => 'TV Shows',
+        ],
+        'genre_label' => 'Genre',
+        'genres' => [
+            'action' => 'Action',
+            'adventure' => 'Adventure',
+            'comedy' => 'Comedy',
+            'drama' => 'Drama',
+            'fantasy' => 'Fantasy',
+            'science_fiction' => 'Science Fiction',
+            'thriller' => 'Thriller',
+        ],
+        'year_label' => 'Year',
+        'language_label' => 'Language',
+        'languages' => [
+            'en' => 'English',
+            'es' => 'Spanish',
+            'fr' => 'French',
+            'de' => 'German',
+            'ja' => 'Japanese',
+        ],
+        'sort_label' => 'Sort by',
+        'sorts' => [
+            'popularity' => 'Popularity',
+            'rating' => 'Rating',
+            'newest' => 'Newest',
+            'oldest' => 'Oldest',
+        ],
+        'results_heading' => 'Results preview',
+        'results_copy' => 'Filtering :genre :type released in :year.',
+        'apply' => 'Apply',
+    ],
+];

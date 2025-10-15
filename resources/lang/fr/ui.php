@@ -1,0 +1,80 @@
+<?php
+
+return [
+    'navigation' => [
+        'home' => 'Accueil',
+        'browse' => 'Explorer',
+        'pricing' => 'Tarifs',
+        'account' => 'Compte',
+        'logout' => 'Se déconnecter',
+        'sign_in' => 'Se connecter',
+        'join_now' => 'Rejoindre maintenant',
+    ],
+
+    'footer' => [
+        'terms' => 'Conditions',
+        'privacy' => 'Confidentialité',
+        'support' => 'Assistance',
+        'copyright' => 'Tous droits réservés.',
+    ],
+
+    'dashboard' => [
+        'title' => 'Tableau de bord',
+        'nav_overview' => 'Vue d\'ensemble',
+        'nav_manage_subscription' => 'Gérer l\'abonnement',
+        'welcome_heading' => 'Bon retour !',
+        'welcome_copy' => 'Consultez les détails de votre offre, gérez la facturation et ajustez votre abonnement en temps réel.',
+        'trial_active_heading' => 'Votre essai gratuit est actif.',
+        'trial_active_copy' => 'Profitez d\'un accès complet jusqu\'au :date. Nous vous enverrons des rappels avant le début de la facturation.',
+        'trial_start_heading' => 'Activez votre essai gratuit de :days jours.',
+        'trial_start_copy' => 'Débloquez chaque détail de film, des filtres premium et des recommandations soignées pendant que vous testez la plateforme.',
+        'trial_start_button' => 'Démarrer l\'essai de :days jours',
+        'trial_price_required' => 'Ajoutez votre identifiant de prix Stripe dans :env_key pour activer les abonnements.',
+        'trial_cancel_hint' => 'Annulez à tout moment avant la fin de l\'essai pour éviter les frais.',
+        'subscriber_heading' => 'Merci d\'être abonné !',
+        'subscriber_copy' => 'Profitez d\'un accès illimité aux données détaillées, aux listes et aux analyses personnalisées.',
+        'grace_heading' => 'Votre abonnement est sur le point de se terminer.',
+        'grace_copy' => 'L\'accès reste disponible jusqu\'au :date. Reprenez le plan dans Stripe si vous changez d\'avis.',
+        'inactive_heading' => 'Abonnement inactif.',
+        'inactive_copy' => 'Réabonnez-vous à tout moment depuis le portail de facturation pour retrouver l\'accès premium.',
+    ],
+
+    'filters' => [
+        'heading' => 'Filtres avancés',
+        'description' => 'Ajustez votre flux de découverte avec des genres, langues et années de sortie.',
+        'type_label' => 'Type',
+        'types' => [
+            'movies' => 'Films',
+            'shows' => 'Séries',
+        ],
+        'genre_label' => 'Genre',
+        'genres' => [
+            'action' => 'Action',
+            'adventure' => 'Aventure',
+            'comedy' => 'Comédie',
+            'drama' => 'Drame',
+            'fantasy' => 'Fantastique',
+            'science_fiction' => 'Science-fiction',
+            'thriller' => 'Thriller',
+        ],
+        'year_label' => 'Année',
+        'language_label' => 'Langue',
+        'languages' => [
+            'en' => 'Anglais',
+            'es' => 'Espagnol',
+            'fr' => 'Français',
+            'de' => 'Allemand',
+            'ja' => 'Japonais',
+        ],
+        'sort_label' => 'Trier par',
+        'sorts' => [
+            'popularity' => 'Popularité',
+            'rating' => 'Note',
+            'newest' => 'Plus récent',
+            'oldest' => 'Plus ancien',
+        ],
+        'results_heading' => 'Aperçu des résultats',
+        'results_copy' => 'Filtrage des :type :genre sortis en :year.',
+        'apply' => 'Appliquer',
+    ],
+];
