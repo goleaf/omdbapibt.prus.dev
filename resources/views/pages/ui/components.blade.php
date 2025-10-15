@@ -9,13 +9,14 @@
         <x-flux.card heading="Flux card variations" subheading="Interactive containers with gradient motion">
             <div class="grid gap-6 md:grid-cols-2">
                 <x-flux.card heading="Default state" subheading="Lightweight border with hover gradient">
-                    <p class="text-sm text-slate-300">
-                        Combine with <code class="rounded bg-slate-900/60 px-1.5">cinematic-grid</code> to build responsive rails.
-                        The <code>elevated</code> attribute applies a subtle glow shadow for featured content.
+                    <p class="text-sm flux-text-muted">
+                        Combine with <code class="rounded border border-[color:var(--flux-border-soft)] bg-[var(--flux-surface-card)] px-1.5">cinematic-grid</code>
+                        to build responsive rails. The <code class="rounded border border-[color:var(--flux-border-soft)] bg-[var(--flux-surface-card)] px-1.5">elevated</code>
+                        attribute applies a subtle glow shadow for featured content.
                     </p>
                 </x-flux.card>
                 <x-flux.card heading="Elevated" subheading="Hero ready callout" elevated>
-                    <p class="text-sm text-slate-300">
+                    <p class="text-sm flux-text-muted">
                         Add <code>elevated</code> to surface important metrics or curated rows. Motion presets keep transitions
                         smooth while respecting reduced motion preferences.
                     </p>
@@ -32,9 +33,10 @@
         </x-flux.card>
 
         <x-flux.card heading="Theme controls" subheading="Persistent color scheme toggling">
-            <p class="text-sm text-slate-300">
+            <p class="text-sm flux-text-muted">
                 The toggle honors the user’s preferred scheme, falls back to system defaults, and stores overrides in
-                <code class="rounded bg-slate-900/60 px-1.5">localStorage</code>. Use anywhere in navigation, dashboards, or
+                <code class="rounded border border-[color:var(--flux-border-soft)] bg-[var(--flux-surface-card)] px-1.5">localStorage</code>.
+                Use anywhere in navigation, dashboards, or
                 modals.
             </p>
             <div class="mt-4 flex flex-wrap items-center gap-4">

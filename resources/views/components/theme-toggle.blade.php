@@ -5,8 +5,8 @@
 <button
     type="button"
     data-theme-toggle
-    class="theme-toggle"
     aria-live="polite"
+    {{ $attributes->class('theme-toggle') }}
 >
     <span class="flex items-center gap-2">
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-theme-icon="dark">
