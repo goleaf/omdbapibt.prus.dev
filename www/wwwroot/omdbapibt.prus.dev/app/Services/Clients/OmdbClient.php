@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\RateLimiter;
 
 class OmdbClient
 {
@@ -43,6 +44,8 @@ class OmdbClient
 
     protected function request(array $parameters): Response
     {
+        $this->enforceRateLimit();
+
         $payload = Arr::prepend($parameters, $this->apiKey, 'apikey');
 
         return $this->http
@@ -55,5 +58,23 @@ class OmdbClient
     protected function cacheKey(string $namespace, array $parameters): string
     {
         return sprintf('omdb.%s.%s', $namespace, md5(json_encode($parameters)));
+    }
+
+    protected function enforceRateLimit(): void
+    {
+        $maxPerMinute = (int) config('services.omdb.max_requests_per_minute', 60);
+
+        if ($maxPerMinute <= 0) {
+            return;
+        }
+
+        $key = 'services:omdb:global';
+
+        if (RateLimiter::tooManyAttempts($key, $maxPerMinute)) {
+            $waitSeconds = RateLimiter::availableIn($key);
+            usleep(max($waitSeconds, 1) * 1_000_000);
+        }
+
+        RateLimiter::hit($key, 60);
     }
 }

@@ -53,10 +53,11 @@ return [
 
     'omdb' => [
         'key' => env('OMDB_API_KEY'),
-        'base_url' => rtrim(env('OMDB_BASE_URL', 'https://www.omdbapi.com'), '/').'/',
+        'base_url' => rtrim(env('OMDB_BASE_URL', 'https://www.omdbapi.com'), '/').'/','
         'query' => [
             'apikey' => env('OMDB_API_KEY'),
         ],
+        'max_requests_per_minute' => (int) env('OMDB_MAX_REQUESTS_PER_MINUTE', 60),
     ],
 
     'justwatch' => [
