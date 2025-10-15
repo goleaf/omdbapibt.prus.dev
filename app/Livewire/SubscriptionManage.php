@@ -62,13 +62,13 @@ class SubscriptionManage extends Component
         $subscription = $this->getSubscription();
 
         if (! $subscription) {
-            session()->flash('error', 'You do not have an active subscription to cancel.');
+            session()->flash('error', __('subscriptions.errors.missing_subscription_cancel'));
 
             return;
         }
 
         if ($subscription->cancelled()) {
-            session()->flash('error', 'Your subscription is already cancelled.');
+            session()->flash('error', __('subscriptions.errors.already_cancelled'));
 
             return;
         }
@@ -78,7 +78,7 @@ class SubscriptionManage extends Component
         } catch (Throwable $exception) {
             report($exception);
 
-            session()->flash('error', 'We were unable to cancel your subscription. Please try again.');
+            session()->flash('error', __('subscriptions.errors.cancel_failed'));
 
             return;
         }
@@ -90,8 +90,8 @@ class SubscriptionManage extends Component
         session()->flash(
             'status',
             $endsAt
-                ? 'Your subscription has been cancelled and will remain active until '.$endsAt->toFormattedDateString().'.'
-                : 'Your subscription has been cancelled.'
+                ? __('subscriptions.status.cancellation_scheduled', ['date' => $endsAt->toFormattedDateString()])
+                : __('subscriptions.status.cancelled')
         );
     }
 
@@ -103,13 +103,13 @@ class SubscriptionManage extends Component
         $subscription = $this->getSubscription();
 
         if (! $subscription) {
-            session()->flash('error', 'You do not have an active subscription to resume.');
+            session()->flash('error', __('subscriptions.errors.missing_subscription_resume'));
 
             return;
         }
 
         if (! $subscription->onGracePeriod()) {
-            session()->flash('error', 'Your subscription cannot be resumed because it is not within the grace period.');
+            session()->flash('error', __('subscriptions.errors.not_on_grace_period'));
 
             return;
         }
@@ -119,14 +119,14 @@ class SubscriptionManage extends Component
         } catch (Throwable $exception) {
             report($exception);
 
-            session()->flash('error', 'We were unable to resume your subscription. Please try again.');
+            session()->flash('error', __('subscriptions.errors.resume_failed'));
 
             return;
         }
 
         $this->refreshSubscriptionState();
 
-        session()->flash('status', 'Your subscription has been resumed successfully.');
+        session()->flash('status', __('subscriptions.status.resumed'));
     }
 
     /**
@@ -182,7 +182,7 @@ class SubscriptionManage extends Component
         } catch (ApiErrorException $exception) {
             report($exception);
 
-            session()->flash('error', 'We were unable to load your upcoming invoice.');
+            session()->flash('error', __('subscriptions.errors.invoice_load_failed'));
 
             return null;
         }
