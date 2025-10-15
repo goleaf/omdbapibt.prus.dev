@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UiTranslationController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/billing/portal', BillingPortalController::class)
         ->name('billing.portal');
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('translations', UiTranslationController::class)->except(['show']);
+    });
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
