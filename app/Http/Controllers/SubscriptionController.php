@@ -18,7 +18,7 @@ class SubscriptionController extends Controller
         if ($user->subscribed('default')) {
             return redirect()
                 ->route('dashboard')
-                ->with('status', __('You already have an active subscription.'));
+                ->with('status', __('messages.subscription.already_active'));
         }
 
         $validated = $request->validate([
@@ -29,7 +29,7 @@ class SubscriptionController extends Controller
 
         if (empty($price)) {
             throw ValidationException::withMessages([
-                'price' => __('A Stripe price identifier is required to start your trial.'),
+                'price' => __('messages.subscription.price_required'),
             ]);
         }
 
@@ -38,7 +38,7 @@ class SubscriptionController extends Controller
         return $user->newSubscription('default', $price)
             ->trialDays(max($trialDays, 0))
             ->checkout([
-                'success_url' => route('dashboard') . '?checkout=success',
+                'success_url' => route('dashboard').'?checkout=success',
                 'cancel_url' => url()->previous() ?: route('dashboard'),
                 'metadata' => [
                     'type' => 'premium',
