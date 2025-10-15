@@ -49,4 +49,29 @@ class ParserTriggerTest extends TestCase
             return $job->workload === ParserWorkload::Movies && $job->queue === 'priority-parsing';
         });
     }
+
+    public function test_invalid_workload_returns_localized_error(): void
+    {
+        app()->setLocale('fr');
+        config(['parser.queue' => 'parsing']);
+        Queue::fake();
+
+        $admin = User::factory()->admin()->create();
+        $authHeader = 'Basic '.base64_encode($admin->email.':password');
+
+        $response = $this->withHeader('Authorization', $authHeader)
+            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid']);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['workload']);
+        $response->assertJsonFragment([
+            'message' => __('validation.enum', ['attribute' => __('validation.attributes.workload')]),
+        ]);
+        $this->assertSame(
+            [__('validation.enum', ['attribute' => __('validation.attributes.workload')])],
+            $response->json('errors.workload')
+        );
+
+        Queue::assertNothingPushed();
+    }
 }
