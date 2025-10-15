@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserManagementAction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,7 @@ class UserManagementLog extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'action' => UserManagementAction::class,
         'details' => 'array',
     ];
 

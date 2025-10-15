@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\UserManagementAction;
 use App\Models\User;
 use App\Models\UserManagementLog;
 use Illuminate\Contracts\Auth\StatefulGuard;
@@ -26,7 +27,7 @@ class ImpersonationManager
         UserManagementLog::create([
             'actor_id' => $actor->getKey(),
             'user_id' => $target->getKey(),
-            'action' => 'impersonation_started',
+            'action' => UserManagementAction::ImpersonationStarted,
             'details' => [
                 'actor_email' => $actor->email,
                 'target_email' => $target->email,
@@ -51,7 +52,7 @@ class ImpersonationManager
             UserManagementLog::create([
                 'actor_id' => $impersonatorId,
                 'user_id' => $impersonatorId,
-                'action' => 'impersonation_stopped',
+                'action' => UserManagementAction::ImpersonationStopped,
                 'details' => null,
             ]);
         } else {
