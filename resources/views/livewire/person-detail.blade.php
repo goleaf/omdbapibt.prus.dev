@@ -43,15 +43,8 @@
                 </div>
             </div>
 
-            @foreach ($credits as $type => $groups)
-                @php
-                    $typeKey = 'ui.people.credit_types.' . $type;
-                    $typeLabel = __($typeKey);
-                    if ($typeLabel === $typeKey) {
-                        $typeLabel = \Illuminate\Support\Str::headline($type);
-                    }
-                @endphp
-                <x-flux.card :heading="__('ui.people.credits_heading', ['type' => $typeLabel])">
+            @foreach ($credits as $groups)
+                <x-flux.card :heading="__('ui.people.credits_heading', ['type' => $groups['label']])">
                     <div class="space-y-4">
                         @if (! empty($groups['movies'] ?? []))
                             <div>

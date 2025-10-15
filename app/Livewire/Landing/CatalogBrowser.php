@@ -7,6 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -280,8 +281,23 @@ class CatalogBrowser extends Component
 
     public function render(): View
     {
+        $collections = collect($this->collections())
+            ->mapWithKeys(function ($collection, string $key): array {
+                $collection = (array) $collection;
+                $label = Arr::get($collection, 'label');
+                $tagline = Arr::get($collection, 'tagline');
+
+                return [
+                    $key => array_merge($collection, [
+                        'label' => $label ?? Str::headline($key),
+                        'tagline' => $tagline ?? 'Curated highlights',
+                    ]),
+                ];
+            })
+            ->all();
+
         return view('livewire.landing.catalog-browser', [
-            'collections' => $this->collections(),
+            'collections' => $collections,
             'perPage' => $this->perPage,
         ]);
     }

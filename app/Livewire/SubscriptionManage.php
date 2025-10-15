@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
@@ -210,14 +211,69 @@ class SubscriptionManage extends Component
     public function render()
     {
         $subscription = $this->getSubscription();
+        $planName = $subscription?->type ?? $subscription?->stripe_price;
+
+        $statusLabel = 'Inactive';
+
+        if ($subscription?->active()) {
+            $statusLabel = 'Active';
+        } elseif ($subscription?->onGracePeriod()) {
+            $statusLabel = 'Grace period';
+        } elseif ($subscription?->cancelled()) {
+            $statusLabel = 'Cancelled';
+        }
+
+        $trialLabel = 'No active trial';
+
+        if ($subscription?->onTrial()) {
+            $trialLabel = $subscription->trial_ends_at
+                ? 'Trial ends on '.$subscription->trial_ends_at->toFormattedDateString()
+                : 'Trial active';
+        }
+
+        $gracePeriodEnds = $subscription?->onGracePeriod() && $subscription->ends_at
+            ? $subscription->ends_at->toFormattedDateString()
+            : null;
+
+        $invoiceDetails = $this->formatUpcomingInvoiceDetails();
 
         return view('livewire.subscription-manage', [
             'subscription' => $subscription,
-            'planName' => $subscription?->type ?? $subscription?->stripe_price,
-            'onTrial' => (bool) $subscription?->onTrial(),
-            'trialEndsAt' => $subscription?->trial_ends_at,
+            'planDisplay' => $planName ?: 'Custom Plan',
+            'quantity' => $subscription?->items->first()?->quantity ?? $subscription?->quantity ?? 1,
+            'statusLabel' => $statusLabel,
+            'trialLabel' => $trialLabel,
+            'gracePeriodEnds' => $gracePeriodEnds,
+            'invoiceDetails' => $invoiceDetails,
             'isCancelled' => (bool) $subscription?->cancelled(),
             'isOnGracePeriod' => (bool) $subscription?->onGracePeriod(),
         ]);
+    }
+
+    protected function formatUpcomingInvoiceDetails(): ?array
+    {
+        if ($this->upcomingInvoice === null) {
+            return null;
+        }
+
+        $amount = number_format($this->upcomingInvoice['amount_due'] / 100, 2);
+        $currency = $this->upcomingInvoice['currency'] ?? 'USD';
+
+        $periodStart = $this->upcomingInvoice['period_start'] > 0
+            ? Carbon::createFromTimestamp($this->upcomingInvoice['period_start'])->toFormattedDateString()
+            : null;
+
+        $periodEnd = $this->upcomingInvoice['period_end'] > 0
+            ? Carbon::createFromTimestamp($this->upcomingInvoice['period_end'])->toFormattedDateString()
+            : null;
+
+        return [
+            'amount' => $amount,
+            'currency' => $currency,
+            'charge_date' => $periodEnd,
+            'period_start' => $periodStart,
+            'period_end' => $periodEnd,
+            'period_range' => ($periodStart && $periodEnd) ? $periodStart.' – '.$periodEnd : null,
+        ];
     }
 }

@@ -50,25 +50,6 @@
 
         <div class="mt-6 border-t border-gray-200 pt-6">
             @if ($subscription)
-                @php
-                    $statusLabel = $subscription->active()
-                        ? 'Active'
-                        : ($isOnGracePeriod
-                            ? 'Grace period'
-                            : ($isCancelled ? 'Cancelled' : 'Inactive'));
-
-                    $trialLabel = $onTrial && $trialEndsAt
-                        ? 'Trial ends on '.\Illuminate\Support\Carbon::parse($trialEndsAt)->toFormattedDateString()
-                        : ($onTrial ? 'Trial active' : 'No active trial');
-
-                    $graceEnds = $subscription->ends_at
-                        ? \Illuminate\Support\Carbon::parse($subscription->ends_at)->toFormattedDateString()
-                        : null;
-
-                    $planDisplay = $planName ?: 'Custom Plan';
-                    $quantity = $subscription->items->first()?->quantity ?? $subscription->quantity;
-                @endphp
-
                 <dl class="grid gap-4 sm:grid-cols-2">
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Plan</dt>
@@ -81,8 +62,8 @@
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Status</dt>
                         <dd class="mt-1 text-base text-gray-900">{{ $statusLabel }}</dd>
-                        @if ($isOnGracePeriod && $graceEnds)
-                            <p class="text-xs text-gray-500">Access ends {{ $graceEnds }}</p>
+                        @if ($isOnGracePeriod && $gracePeriodEnds)
+                            <p class="text-xs text-gray-500">Access ends {{ $gracePeriodEnds }}</p>
                         @endif
                     </div>
 
@@ -100,26 +81,15 @@
                 <div class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <h3 class="text-sm font-semibold text-gray-800">Upcoming invoice</h3>
 
-                    @if ($upcomingInvoice)
-                        @php
-                            $amount = number_format($upcomingInvoice['amount_due'] / 100, 2);
-                            $currency = $upcomingInvoice['currency'];
-                            $periodStart = $upcomingInvoice['period_start'] > 0
-                                ? \Illuminate\Support\Carbon::createFromTimestamp($upcomingInvoice['period_start'])->toFormattedDateString()
-                                : null;
-                            $periodEnd = $upcomingInvoice['period_end'] > 0
-                                ? \Illuminate\Support\Carbon::createFromTimestamp($upcomingInvoice['period_end'])->toFormattedDateString()
-                                : null;
-                        @endphp
-
+                    @if ($invoiceDetails)
                         <p class="mt-2 text-sm text-gray-700">
                             Next charge of
-                            <span class="font-semibold">{{ $amount }} {{ strtoupper($currency) }}</span>
-                            {{ $periodEnd ? 'on '.$periodEnd : '' }}.
+                            <span class="font-semibold">{{ $invoiceDetails['amount'] }} {{ $invoiceDetails['currency'] }}</span>
+                            {{ $invoiceDetails['charge_date'] ? 'on '.$invoiceDetails['charge_date'] : '' }}.
                         </p>
 
-                        @if ($periodStart && $periodEnd)
-                            <p class="text-xs text-gray-500">Billing period: {{ $periodStart }} &ndash; {{ $periodEnd }}</p>
+                        @if ($invoiceDetails['period_range'])
+                            <p class="text-xs text-gray-500">Billing period: {{ $invoiceDetails['period_range'] }}</p>
                         @endif
                     @else
                         <p class="mt-2 text-sm text-gray-600">No upcoming invoices are scheduled right now.</p>

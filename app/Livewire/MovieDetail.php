@@ -3,8 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\Movie;
+use App\Support\TmdbImage;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class MovieDetail extends Component
@@ -54,7 +56,22 @@ class MovieDetail extends Component
 
     public function render(): View
     {
-        return view('livewire.movie-detail');
+        $tabs = collect(['overview', 'credits', 'streaming', 'trailers', 'translations', 'reviews'])
+            ->mapWithKeys(function (string $tab): array {
+                $label = __('ui.movies.tabs.'.$tab);
+
+                if ($label === 'ui.movies.tabs.'.$tab) {
+                    $label = Str::headline($tab);
+                }
+
+                return [$tab => $label];
+            })
+            ->all();
+
+        return view('livewire.movie-detail', [
+            'posterUrl' => TmdbImage::poster($this->movieModel->poster_path),
+            'tabs' => $tabs,
+        ]);
     }
 
     protected function resolveMovie(string $value): Movie
