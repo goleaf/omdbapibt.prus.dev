@@ -35,6 +35,14 @@ return [
         ],
     ],
 
+    'stripe' => [
+        'prices' => [
+            'monthly' => env('STRIPE_MONTHLY_PRICE'),
+            'yearly' => env('STRIPE_YEARLY_PRICE'),
+        ],
+        'trial_days' => (int) env('STRIPE_TRIAL_DAYS', 7),
+    ],
+
     'tmdb' => [
         'base_url' => env('TMDB_BASE_URL', 'https://api.themoviedb.org/3'),
         'query' => [
