@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\CleanupExpiredTrials;
+use App\Http\Middleware\CheckSubscription;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Console\Scheduling\Schedule;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'check-subscription' => CheckSubscription::class,
             'set-locale' => SetLocale::class,
         ]);
     })

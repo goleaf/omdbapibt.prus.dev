@@ -4,6 +4,7 @@ use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\HorizonMonitor;
+use App\Livewire\WatchHistory as WatchHistoryComponent;
 use App\Livewire\TvShowDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -37,6 +38,11 @@ $registerAppRoutes = function (): void {
 
         Route::post('/subscriptions', [SubscriptionController::class, 'store'])
             ->name('subscriptions.store');
+    });
+
+    Route::middleware(['auth', 'check-subscription'])->group(function (): void {
+        Route::get('/watch-history', WatchHistoryComponent::class)
+            ->name('watch-history');
     });
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
