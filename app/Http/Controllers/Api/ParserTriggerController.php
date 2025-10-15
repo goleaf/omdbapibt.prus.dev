@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\ParserWorkload;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ParserTriggerRequest;
 use App\Http\Responses\Api\ParserTriggerResponse;
@@ -14,9 +13,7 @@ class ParserTriggerController extends Controller
 {
     public function __invoke(ParserTriggerRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
-        $workload = ParserWorkload::from($validated['workload']);
+        $workload = $request->validatedWorkload();
 
         $this->authorize('trigger', [ParserEntry::class, $workload]);
 

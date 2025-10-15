@@ -7,6 +7,7 @@ use App\Jobs\Parsing\ExecuteParserPipeline;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class ParserTriggerTest extends TestCase
@@ -28,7 +29,7 @@ class ParserTriggerTest extends TestCase
         Queue::assertNothingPushed();
     }
 
-    public function test_admin_users_can_trigger_parser(): void
+    public function test_admin_users_receive_standardized_response_payload(): void
     {
         config(['parser.queue' => 'priority-parsing']);
         Queue::fake();
@@ -36,44 +37,18 @@ class ParserTriggerTest extends TestCase
         $admin = User::factory()->admin()->create();
         $authHeader = 'Basic '.base64_encode($admin->email.':password');
 
-        $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => ParserWorkload::Movies->value])
+        $response = $this->withHeader('Authorization', $authHeader)
+            ->postJson(route('api.parser.trigger'), ['workload' => ParserWorkload::Movies->value]);
+
+        $response
             ->assertAccepted()
-            ->assertJson([
-                'status' => 'queued',
-                'workload' => ParserWorkload::Movies->value,
-                'queue' => 'priority-parsing',
-            ]);
+            ->assertJsonPath('data.status', 'queued')
+            ->assertJsonPath('data.workload', ParserWorkload::Movies->value)
+            ->assertJsonPath('meta.queue', 'priority-parsing');
 
         Queue::assertPushed(ExecuteParserPipeline::class, function (ExecuteParserPipeline $job): bool {
             return $job->workload === ParserWorkload::Movies && $job->queue === 'priority-parsing';
         });
-    }
-
-    public function test_it_returns_localized_validation_errors_for_invalid_workload(): void
-    {
-        config(['parser.queue' => 'parsing']);
-        Queue::fake();
-
-        $admin = User::factory()->admin()->create();
-        $authHeader = 'Basic '.base64_encode($admin->email.':password');
-
-        app()->setLocale('es');
-
-        $response = $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid']);
-
-        $response
-            ->assertUnprocessable()
-            ->assertJson([
-                'message' => 'La carga de procesamiento seleccionada no es válida.',
-            ]);
-
-        $this->assertSame([
-            'workload' => ['La carga de procesamiento seleccionada no es válida.'],
-        ], $response->json('errors'));
-
-        Queue::assertNothingPushed();
     }
 
     public function test_admin_users_can_trigger_parser_in_alternate_locale(): void
@@ -86,17 +61,81 @@ class ParserTriggerTest extends TestCase
 
         app()->setLocale('fr');
 
-        $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => ParserWorkload::People->value])
+        $response = $this->withHeader('Authorization', $authHeader)
+            ->postJson(route('api.parser.trigger'), ['workload' => ParserWorkload::People->value]);
+
+        $response
             ->assertAccepted()
-            ->assertJson([
-                'status' => 'queued',
-                'workload' => ParserWorkload::People->value,
-                'queue' => 'french-parsing',
-            ]);
+            ->assertJsonPath('data.status', 'queued')
+            ->assertJsonPath('data.workload', ParserWorkload::People->value)
+            ->assertJsonPath('meta.queue', 'french-parsing');
 
         Queue::assertPushed(ExecuteParserPipeline::class, function (ExecuteParserPipeline $job): bool {
             return $job->workload === ParserWorkload::People && $job->queue === 'french-parsing';
         });
+    }
+
+    public function test_it_returns_english_validation_error_for_invalid_workload(): void
+    {
+        config(['parser.queue' => 'parsing']);
+        Queue::fake();
+
+        $admin = User::factory()->admin()->create();
+        $authHeader = 'Basic '.base64_encode($admin->email.':password');
+
+        app()->setLocale('en');
+
+        $expectedMessage = __('validation.custom.workload.enum', [], 'en');
+
+        $response = $this->withHeader('Authorization', $authHeader)
+            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid']);
+
+        $response->assertUnprocessable();
+        $response->assertExactJson([
+            'message' => $expectedMessage,
+            'errors' => [
+                'workload' => [$expectedMessage],
+            ],
+        ]);
+
+        Queue::assertNothingPushed();
+    }
+
+    #[DataProvider('localizedValidationErrorProvider')]
+    public function test_it_localizes_validation_error_messages(string $locale): void
+    {
+        config(['parser.queue' => 'parsing']);
+        Queue::fake();
+
+        $admin = User::factory()->admin()->create();
+        $authHeader = 'Basic '.base64_encode($admin->email.':password');
+
+        app()->setLocale($locale);
+
+        $expectedMessage = __('validation.custom.workload.enum');
+
+        $response = $this->withHeader('Authorization', $authHeader)
+            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid']);
+
+        $response->assertUnprocessable();
+        $response->assertExactJson([
+            'message' => $expectedMessage,
+            'errors' => [
+                'workload' => [$expectedMessage],
+            ],
+        ]);
+
+        Queue::assertNothingPushed();
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function localizedValidationErrorProvider(): array
+    {
+        return [
+            'spanish' => ['es'],
+            'french' => ['fr'],
+        ];
     }
 }

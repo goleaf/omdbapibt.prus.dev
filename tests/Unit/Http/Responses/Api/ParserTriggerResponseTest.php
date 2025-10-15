@@ -16,9 +16,13 @@ class ParserTriggerResponseTest extends TestCase
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertSame(JsonResponse::HTTP_ACCEPTED, $response->status());
         $this->assertSame([
-            'status' => 'queued',
-            'workload' => ParserWorkload::People->value,
-            'queue' => 'priority-parsing',
+            'data' => [
+                'status' => 'queued',
+                'workload' => ParserWorkload::People->value,
+            ],
+            'meta' => [
+                'queue' => 'priority-parsing',
+            ],
         ], $response->getData(true));
     }
 }

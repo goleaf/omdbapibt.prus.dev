@@ -5,6 +5,7 @@ namespace Tests\Unit\Http\Requests\Api;
 use App\Enums\ParserWorkload;
 use App\Http\Requests\Api\ParserTriggerRequest;
 use Illuminate\Validation\Rule;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class ParserTriggerRequestTest extends TestCase
@@ -30,10 +31,9 @@ class ParserTriggerRequestTest extends TestCase
     }
 
     /**
-     * @dataProvider localizedMessagesProvider
-     *
      * @param  array<string, string>  $expected
      */
+    #[DataProvider('localizedMessagesProvider')]
     public function test_it_returns_localized_messages(string $locale, array $expected): void
     {
         app()->setLocale($locale);
@@ -68,10 +68,9 @@ class ParserTriggerRequestTest extends TestCase
     }
 
     /**
-     * @dataProvider localizedAttributesProvider
-     *
      * @param  array<string, string>  $expected
      */
+    #[DataProvider('localizedAttributesProvider')]
     public function test_it_exposes_localized_attribute_names(string $locale, array $expected): void
     {
         app()->setLocale($locale);
@@ -91,5 +90,19 @@ class ParserTriggerRequestTest extends TestCase
             'spanish' => ['es', ['workload' => 'carga de procesamiento']],
             'french' => ['fr', ['workload' => 'charge de traitement']],
         ];
+    }
+
+    public function test_it_returns_validated_workload_enum(): void
+    {
+        $request = ParserTriggerRequest::create('/api/parser/trigger', 'POST', [
+            'workload' => ParserWorkload::People->value,
+        ]);
+
+        $request->setContainer(app());
+        $request->setRedirector(app('redirect'));
+
+        $request->validateResolved();
+
+        $this->assertSame(ParserWorkload::People, $request->validatedWorkload());
     }
 }
