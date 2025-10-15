@@ -11,4 +11,8 @@ return [
         'trending' => 60 * 60,
         'popular' => 60 * 60,
     ],
+
+    'analytics' => [
+        'subscription_metrics' => (int) env('SUBSCRIPTION_ANALYTICS_TTL', 300),
+    ],
 ];
