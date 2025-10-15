@@ -20,6 +20,8 @@
 
     --flux-motion-soft: cubic-bezier(0.19, 1, 0.22, 1);
     --flux-motion-cosmic: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --breakpoint-3xl: 1920px;
 }
 
 @layer base {
