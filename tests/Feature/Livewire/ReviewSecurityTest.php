@@ -31,12 +31,12 @@ class ReviewSecurityTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(ReviewForm::class)
-            ->set('movieTitle', 'Example Film')
-            ->set('rating', 4)
-            ->set('body', $malicious)
+            ->set('form.movieTitle', 'Example Film')
+            ->set('form.rating', 4)
+            ->set('form.body', $malicious)
             ->call('submit')
             ->assertHasNoErrors()
-            ->assertSet('statusMessage', 'Review submitted successfully.');
+            ->assertSet('statusMessage', __('reviews.messages.submitted'));
 
         $review = Review::first();
 
