@@ -14,9 +14,15 @@ return [
             'min' => 'El límite de resultados debe ser al menos :min.',
             'max' => 'El límite de resultados no puede ser mayor a :max.',
         ],
+        'workload' => [
+            'required' => 'Selecciona una carga de trabajo para ejecutar.',
+            'string' => 'El valor de la carga de trabajo debe ser una cadena.',
+            'enum' => 'La carga de trabajo seleccionada no es válida.',
+        ],
     ],
     'attributes' => [
         'query' => 'término de búsqueda',
         'limit' => 'límite de resultados',
+        'workload' => 'carga de trabajo',
     ],
 ];

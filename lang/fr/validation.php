@@ -14,9 +14,15 @@ return [
             'min' => 'La limite de résultats doit être au moins de :min.',
             'max' => 'La limite de résultats ne peut pas dépasser :max.',
         ],
+        'workload' => [
+            'required' => 'Veuillez sélectionner une charge de travail à lancer.',
+            'string' => 'La valeur de la charge de travail doit être une chaîne de caractères.',
+            'enum' => 'La charge de travail sélectionnée n\'est pas valide.',
+        ],
     ],
     'attributes' => [
         'query' => 'terme de recherche',
         'limit' => 'limite de résultats',
+        'workload' => 'charge de travail',
     ],
 ];

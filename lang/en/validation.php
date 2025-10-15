@@ -14,9 +14,15 @@ return [
             'min' => 'The result limit must be at least :min.',
             'max' => 'The result limit may not be greater than :max.',
         ],
+        'workload' => [
+            'required' => 'Please select a workload to trigger.',
+            'string' => 'The workload value must be a string.',
+            'enum' => 'The selected workload is invalid.',
+        ],
     ],
     'attributes' => [
         'query' => 'search query',
         'limit' => 'result limit',
+        'workload' => 'workload',
     ],
 ];
