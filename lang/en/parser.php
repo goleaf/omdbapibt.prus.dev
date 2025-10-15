@@ -2,8 +2,26 @@
 
 return [
     'moderation' => [
-        'notes_required' => 'Please provide a rejection note before continuing.',
-        'notes_string' => 'Rejection notes must be plain text.',
-        'notes_max' => 'Rejection notes may not be longer than :max characters.',
+        'decision' => [
+            'heading' => 'Decision',
+            'description' => 'Leave context for your decision. Notes are required when rejecting an entry.',
+            'fields' => [
+                'notes' => 'Notes',
+            ],
+            'placeholder' => [
+                'notes' => 'Summarize why this payload should be approved or rejected',
+            ],
+            'actions' => [
+                'approve' => 'Approve and persist',
+                'reject' => 'Reject entry',
+            ],
+        ],
+        'validation' => [
+            'notes' => [
+                'required' => 'Please provide a rejection note before continuing.',
+                'string' => 'Rejection notes must be plain text.',
+                'max' => 'Rejection notes may not be longer than :max characters.',
+            ],
+        ],
     ],
 ];
