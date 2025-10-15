@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\ImpersonationManager;
 use App\Support\RedisStubStore;
 use App\Support\UiTranslationRepository;
 use Illuminate\Cache\CacheManager;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -89,6 +91,8 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('testing')) {
             Vite::useBuildDirectory('../tests/fixtures/vite');
         }
+
+        $this->shareImpersonationContext();
     }
 
     protected function registerRedisStubDriver(): void
@@ -119,6 +123,30 @@ class AppServiceProvider extends ServiceProvider
                 report($exception);
             }
         }
+    }
+
+    protected function shareImpersonationContext(): void
+    {
+        View::composer(['layouts.app', 'layouts.dashboard'], function ($view): void {
+            /** @var ImpersonationManager $impersonationManager */
+            $impersonationManager = app(ImpersonationManager::class);
+
+            if (! $impersonationManager->isImpersonating()) {
+                return;
+            }
+
+            $impersonator = $impersonationManager->impersonator();
+            $actingAs = auth()->user();
+
+            if (! $impersonator || ! $actingAs) {
+                return;
+            }
+
+            $view->with('impersonationBannerContext', [
+                'impersonator' => $impersonator,
+                'actingAs' => $actingAs,
+            ]);
+        });
     }
 
     protected function configureRateLimiting(): void
