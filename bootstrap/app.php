@@ -1,6 +1,10 @@
 <?php
 
 use App\Console\Commands\CleanupExpiredTrials;
+use App\Console\Commands\ParseMoviesCommand;
+use App\Console\Commands\ParsePeopleCommand;
+use App\Console\Commands\ParseTvShowsCommand;
+use App\Http\Middleware\EnsureSubscriptionAccess;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Console\Scheduling\Schedule;
@@ -16,10 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         CleanupExpiredTrials::class,
+        ParseMoviesCommand::class,
+        ParseTvShowsCommand::class,
+        ParsePeopleCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'subscription.access' => EnsureSubscriptionAccess::class,
             'set-locale' => SetLocale::class,
         ]);
     })

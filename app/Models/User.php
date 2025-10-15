@@ -12,6 +12,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use Billable;
+
     use HasFactory, Notifiable;
 
     /**
@@ -46,6 +47,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'trial_ends_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -53,5 +55,22 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function hasSubscriptionAccess(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->subscribed('default')) {
+            return true;
+        }
+
+        if ($this->onTrial()) {
+            return true;
+        }
+
+        return false;
     }
 }

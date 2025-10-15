@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\BillingPortalController;
+use App\Http\Controllers\MovieController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\TvShowDetail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
@@ -16,21 +19,40 @@ if ($availableLocales === []) {
 
 $registerAppRoutes = function (): void {
     Route::view('/', 'pages.home')->name('home');
-    Route::view('/browse', 'pages.browse')->name('browse');
     Route::view('/pricing', 'pages.pricing')->name('pricing');
 
-    Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
-        ->name('movies.show');
+    Route::middleware('guest')->group(function (): void {
+        Route::view('/signup', 'pages.signup')->name('signup');
+    });
 
-    Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))
-        ->name('shows.show');
+    Route::middleware('subscription.access')->group(function (): void {
+        Route::view('/browse', 'pages.browse')->name('browse');
 
-    Route::get('/tv/{show}', TvShowDetail::class)
-        ->name('tv.show');
+        Route::get('/movies/{movie:slug}', [MovieController::class, 'show'])
+            ->name('movies.show');
+
+        Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))
+            ->name('shows.show');
+
+        Route::get('/tv/{show}', TvShowDetail::class)
+            ->name('tv.show');
+    });
+
+    Route::get('/subscriptions/checkout', [SubscriptionController::class, 'create'])
+        ->name('subscriptions.checkout');
 
     Route::middleware('auth')->group(function (): void {
         Route::view('/dashboard', 'dashboard')->name('dashboard');
         Route::view('/account', 'pages.account')->name('account');
+
+        Route::post('/logout', function (Request $request) {
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('home');
+        })->name('logout');
 
         Route::get('/billing/portal', BillingPortalController::class)
             ->name('billing.portal');
