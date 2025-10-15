@@ -29,6 +29,15 @@ class ParserModerationDashboardTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_policy_blocks_non_reviewers_from_livewire_component(): void
+    {
+        $user = User::factory()->create(['role' => 'subscriber']);
+
+        Livewire::actingAs($user)
+            ->test(ParserModerationDashboard::class)
+            ->assertForbidden();
+    }
+
     public function test_admin_can_view_pending_parser_entries(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -203,7 +212,7 @@ class ParserModerationDashboardTest extends TestCase
 
         $entry->refresh();
 
-        $this->assertSame(ParserEntry::STATUS_PENDING, $entry->status);
+        $this->assertSame(ParserEntryStatus::Pending, $entry->status);
         $this->assertNull($entry->reviewed_by);
         $this->assertNull($entry->reviewed_at);
     }
