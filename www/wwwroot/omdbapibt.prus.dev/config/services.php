@@ -36,11 +36,33 @@ return [
     ],
 
     'tmdb' => [
-        'key' => env('TMDB_API_KEY'),
+        'base_url' => env('TMDB_BASE_URL', 'https://api.themoviedb.org/3'),
+        'query' => [
+            'api_key' => env('TMDB_API_KEY'),
+        ],
     ],
 
     'omdb' => [
-        'key' => env('OMDB_API_KEY'),
+        'base_url' => env('OMDB_BASE_URL', 'https://www.omdbapi.com'),
+        'query' => [
+            'apikey' => env('OMDB_API_KEY'),
+        ],
+    ],
+
+    'justwatch' => [
+        'base_url' => env('JUSTWATCH_BASE_URL', 'https://apis.justwatch.com/content'),
+        'headers' => array_filter([
+            'Authorization' => env('JUSTWATCH_API_KEY')
+                ? 'Bearer '.env('JUSTWATCH_API_KEY')
+                : null,
+        ]),
+    ],
+
+    'audiodb' => [
+        'base_url' => env('AUDIODB_BASE_URL', 'https://theaudiodb.com/api/v1/json'),
+        'query' => array_filter([
+            'apikey' => env('AUDIODB_API_KEY'),
+        ]),
     ],
 
 ];
