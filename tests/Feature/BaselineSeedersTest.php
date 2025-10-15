@@ -56,8 +56,54 @@ class BaselineSeedersTest extends TestCase
         $this->assertSame(count(GenreSeeder::GENRES), Genre::query()->count());
     }
 
+    public function test_language_seeder_is_idempotent(): void
+    {
+        $this->seed(LanguageSeeder::class);
+        $this->seed(LanguageSeeder::class);
+
+        $this->assertSame(count(LanguageSeeder::LANGUAGES), Language::query()->count());
+        $this->assertSame(
+            Language::query()->pluck('code')->unique()->count(),
+            Language::query()->count(),
+        );
+    }
+
+    public function test_country_seeder_is_idempotent(): void
+    {
+        $this->seed(CountrySeeder::class);
+        $this->seed(CountrySeeder::class);
+
+        $this->assertSame(count(CountrySeeder::COUNTRIES), Country::query()->count());
+        $this->assertSame(
+            Country::query()->pluck('code')->unique()->count(),
+            Country::query()->count(),
+        );
+    }
+
+    public function test_genre_seeder_is_idempotent(): void
+    {
+        $this->seed(GenreSeeder::class);
+        $this->seed(GenreSeeder::class);
+
+        $this->assertSame(count(GenreSeeder::GENRES), Genre::query()->count());
+        $this->assertSame(
+            Genre::query()->pluck('slug')->unique()->count(),
+            Genre::query()->count(),
+        );
+    }
+
     public function test_database_seeder_runs_all_baseline_seeders(): void
     {
+        $this->seed(DatabaseSeeder::class);
+
+        $this->assertSame(count(LanguageSeeder::LANGUAGES), Language::query()->count());
+        $this->assertSame(count(CountrySeeder::COUNTRIES), Country::query()->count());
+        $this->assertSame(count(GenreSeeder::GENRES), Genre::query()->count());
+    }
+
+    public function test_database_seeder_is_idempotent(): void
+    {
+        $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
 
         $this->assertSame(count(LanguageSeeder::LANGUAGES), Language::query()->count());
