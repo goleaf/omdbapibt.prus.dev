@@ -45,7 +45,7 @@ class UserPolicy
         return $target->canBeImpersonated();
     }
 
-    public function endImpersonation(User $user, ?User $impersonator): bool
+    public function endImpersonation(User $user, User $impersonated, ?User $impersonator): bool
     {
         if (! $impersonator) {
             return false;
@@ -55,6 +55,10 @@ class UserPolicy
             return true;
         }
 
-        return $impersonator->isAdmin();
+        if ($user->is($impersonated)) {
+            return true;
+        }
+
+        return false;
     }
 }
