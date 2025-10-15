@@ -24,7 +24,7 @@ class ParserTriggerController extends Controller
 
         $workload = ParserWorkload::from($validated['workload']);
 
-        $this->authorize('trigger', ParserEntry::class);
+        $this->authorize('trigger', [ParserEntry::class, $workload]);
 
         ExecuteParserPipeline::dispatch($workload);
 
