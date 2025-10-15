@@ -34,10 +34,21 @@ class ImpersonationManager
         ]);
     }
 
-    public function stop(?User $requester = null): void
+    public function stop(?User $requester = null, ?User $impersonatedUser = null): void
     {
         if (! $this->isImpersonating()) {
             return;
+        }
+
+        $impersonatedUser ??= $this->guard()->user();
+        $requester ??= $impersonatedUser;
+
+        if (! $impersonatedUser instanceof User) {
+            abort(403, 'This action is unauthorized.');
+        }
+
+        if (! $requester instanceof User) {
+            abort(403, 'This action is unauthorized.');
         }
 
         $impersonatorId = $this->session->get(self::SESSION_KEY);
@@ -46,16 +57,10 @@ class ImpersonationManager
             return;
         }
 
-        $requester ??= $this->guard()->user();
-
-        if (! $requester instanceof User) {
-            abort(403, 'This action is unauthorized.');
-        }
-
         /** @var User|null $impersonatorForGate */
         $impersonatorForGate = User::find($impersonatorId);
 
-        Gate::forUser($requester)->authorize('endImpersonation', [$impersonatorForGate]);
+        Gate::forUser($requester)->authorize('endImpersonation', [$impersonatedUser, $impersonatorForGate]);
 
         $impersonatorId = $this->session->pull(self::SESSION_KEY);
 

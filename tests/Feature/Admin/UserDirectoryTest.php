@@ -150,7 +150,7 @@ class UserDirectoryTest extends TestCase
         $this->assertTrue($manager->isImpersonating());
         $this->assertAuthenticatedAs($target);
 
-        $manager->stop($target);
+        $manager->stop($target, $target);
     }
 
     public function test_admin_cannot_impersonate_themselves(): void

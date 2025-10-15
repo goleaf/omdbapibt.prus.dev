@@ -12,7 +12,7 @@ class StopImpersonationController
     {
         $isImpersonating = $impersonationManager->isImpersonating();
 
-        $impersonationManager->stop($request->user());
+        $impersonationManager->stop($request->user(), $request->user());
 
         $redirect = redirect()->back(fallback: route('home', ['locale' => app()->getLocale()]));
 

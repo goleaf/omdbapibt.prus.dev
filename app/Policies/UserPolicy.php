@@ -45,13 +45,17 @@ class UserPolicy
         return $target->canBeImpersonated();
     }
 
-    public function endImpersonation(User $user, ?User $impersonator): bool
+    public function endImpersonation(User $user, ?User $impersonatedUser, ?User $impersonator): bool
     {
-        if (! $impersonator) {
+        if (! $impersonator || ! $impersonatedUser) {
             return false;
         }
 
         if ($user->is($impersonator)) {
+            return true;
+        }
+
+        if ($user->is($impersonatedUser)) {
             return true;
         }
 
