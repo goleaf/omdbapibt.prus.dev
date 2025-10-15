@@ -11,7 +11,7 @@ class ParserTriggerResponseTest extends TestCase
 {
     public function test_builds_standardized_accepted_response(): void
     {
-        $response = ParserTriggerResponse::fromWorkload(ParserWorkload::People, 'priority-parsing');
+        $response = ParserTriggerResponse::from(ParserWorkload::People, 'priority-parsing');
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertSame(JsonResponse::HTTP_ACCEPTED, $response->status());
@@ -24,5 +24,12 @@ class ParserTriggerResponseTest extends TestCase
                 'queue' => 'priority-parsing',
             ],
         ], $response->getData(true));
+    }
+
+    public function test_allows_custom_queue_names(): void
+    {
+        $response = ParserTriggerResponse::from(ParserWorkload::Movies, 'low-priority');
+
+        $this->assertSame('low-priority', $response->getData(true)['meta']['queue']);
     }
 }
