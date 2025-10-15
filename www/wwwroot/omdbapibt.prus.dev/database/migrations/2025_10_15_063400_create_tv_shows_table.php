@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\\Database\\Migrations\\Migration;
-use Illuminate\\Database\\Schema\\Blueprint;
-use Illuminate\\Support\\Facades\\Schema;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -41,6 +41,12 @@ return new class extends Migration
             $table->index(['popularity']);
             $table->index(['vote_average']);
         });
+
+        if ($this->usingMySql()) {
+            Schema::table('tv_shows', function (Blueprint $table) {
+                $table->fullText('name');
+            });
+        }
     }
 
     /**
@@ -49,5 +55,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('tv_shows');
+    }
+
+    private function usingMySql(): bool
+    {
+        return Schema::getConnection()->getDriverName() === 'mysql';
     }
 };

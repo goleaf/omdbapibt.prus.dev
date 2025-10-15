@@ -44,6 +44,12 @@ return new class extends Migration
             $table->index(['popularity']);
             $table->index(['vote_average']);
         });
+
+        if ($this->usingMySql()) {
+            Schema::table('movies', function (Blueprint $table) {
+                $table->fullText('title');
+            });
+        }
     }
 
     /**
@@ -52,5 +58,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('movies');
+    }
+
+    private function usingMySql(): bool
+    {
+        return Schema::getConnection()->getDriverName() === 'mysql';
     }
 };

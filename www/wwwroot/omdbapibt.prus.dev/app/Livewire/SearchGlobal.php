@@ -8,10 +8,13 @@ use App\Models\TvShow;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class SearchGlobal extends Component
 {
+    private const MIN_QUERY_LENGTH = 2;
+
     public string $query = '';
 
     /**
@@ -55,7 +58,7 @@ class SearchGlobal extends Component
 
     public function openResults(): void
     {
-        if ($this->hasResults || Str::length(trim($this->query)) >= 2) {
+        if ($this->hasResults || Str::length(trim($this->query)) >= self::MIN_QUERY_LENGTH) {
             $this->isOpen = true;
         }
     }
@@ -63,6 +66,7 @@ class SearchGlobal extends Component
     public function closeResults(): void
     {
         $this->isOpen = false;
+        $this->activeIndex = -1;
     }
 
     public function clear(): void
@@ -116,7 +120,7 @@ class SearchGlobal extends Component
             ->isNotEmpty();
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.search-global', [
             'categoryLabels' => self::CATEGORY_LABELS,
@@ -127,7 +131,7 @@ class SearchGlobal extends Component
     {
         $term = trim($this->query);
 
-        if (Str::length($term) < 2) {
+        if (Str::length($term) < self::MIN_QUERY_LENGTH) {
             $this->results = $this->emptyResults();
             $this->flatResults = [];
             $this->isOpen = false;

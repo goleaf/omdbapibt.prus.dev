@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\\Database\\Migrations\\Migration;
-use Illuminate\\Database\\Schema\\Blueprint;
-use Illuminate\\Support\\Facades\\Schema;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -30,6 +30,12 @@ return new class extends Migration
             $table->index(['name']);
             $table->index(['popularity']);
         });
+
+        if ($this->usingMySql()) {
+            Schema::table('people', function (Blueprint $table) {
+                $table->fullText('name');
+            });
+        }
     }
 
     /**
@@ -38,5 +44,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('people');
+    }
+
+    private function usingMySql(): bool
+    {
+        return Schema::getConnection()->getDriverName() === 'mysql';
     }
 };
