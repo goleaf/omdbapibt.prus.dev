@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Livewire\Auth\SignupForm;
+use App\Mail\WelcomeUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -58,6 +59,7 @@ class SignupFormTest extends TestCase
             ->set('name', 'Jamie Example')
             ->set('email', $email)
             ->set('password', 'Sup3rSecure!')
+            ->set('password_confirmation', 'Sup3rSecure!')
             ->call('register')
             ->assertHasNoErrors()
             ->assertSessionHas('status')
@@ -68,8 +70,8 @@ class SignupFormTest extends TestCase
         $this->assertNotNull($user);
         $this->assertAuthenticatedAs($user);
 
-        Mail::assertQueued('App\\Mail\\WelcomeMail', function (object $mail) use ($user): bool {
-            return method_exists($mail, 'hasTo') && $mail->hasTo($user->email);
+        Mail::assertQueued(WelcomeUser::class, function (WelcomeUser $mail) use ($user): bool {
+            return $mail->hasTo($user->email) && $mail->locale === 'en';
         });
     }
 
