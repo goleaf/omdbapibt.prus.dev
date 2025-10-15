@@ -21,6 +21,9 @@
                     <a href="{{ route('pricing') }}" class="transition hover:text-emerald-300">Pricing</a>
                     @auth
                         <a href="{{ route('account') }}" class="transition hover:text-emerald-300">Account</a>
+                        @if (auth()->user()?->isAdmin())
+                            <a href="{{ route('admin.analytics') }}" class="transition hover:text-emerald-300">Admin</a>
+                        @endif
                     @endauth
                 </nav>
                 <div class="flex items-center gap-3 text-sm">
@@ -66,5 +69,6 @@
     </div>
 
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>
