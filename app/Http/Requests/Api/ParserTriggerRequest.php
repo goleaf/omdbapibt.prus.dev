@@ -30,6 +30,14 @@ class ParserTriggerRequest extends FormRequest
         ];
     }
 
+    public function validatedWorkload(): ParserWorkload
+    {
+        /** @var string $workload */
+        $workload = $this->validated('workload');
+
+        return ParserWorkload::from($workload);
+    }
+
     /**
      * @return array<string, string>
      */

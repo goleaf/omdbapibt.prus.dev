@@ -73,11 +73,9 @@ class ApiRateLimitingTest extends TestCase
         $this->withHeader('Authorization', $authHeader)
             ->postJson('/api/parser/trigger', ['workload' => ParserWorkload::Movies->value])
             ->assertStatus(202)
-            ->assertJson([
-                'status' => 'queued',
-                'workload' => ParserWorkload::Movies->value,
-                'queue' => 'priority-parsing',
-            ]);
+            ->assertJsonPath('data.status', 'queued')
+            ->assertJsonPath('data.workload', ParserWorkload::Movies->value)
+            ->assertJsonPath('meta.queue', 'priority-parsing');
 
         Queue::assertPushed(ExecuteParserPipeline::class, function (ExecuteParserPipeline $job): bool {
             return $job->workload === ParserWorkload::Movies && $job->queue === 'priority-parsing';

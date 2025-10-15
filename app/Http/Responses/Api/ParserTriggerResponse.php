@@ -10,9 +10,13 @@ class ParserTriggerResponse
     public static function fromWorkload(ParserWorkload $workload, string $queue): JsonResponse
     {
         return response()->json([
-            'status' => 'queued',
-            'workload' => $workload->value,
-            'queue' => $queue,
+            'data' => [
+                'status' => 'queued',
+                'workload' => $workload->value,
+            ],
+            'meta' => [
+                'queue' => $queue,
+            ],
         ], JsonResponse::HTTP_ACCEPTED);
     }
 }
