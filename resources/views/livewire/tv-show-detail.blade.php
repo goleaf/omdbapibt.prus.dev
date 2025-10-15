@@ -27,6 +27,16 @@
                         {{ $this->translate($show['tagline']) }}
                     </p>
                 @endif
+
+                <div class="pt-3">
+                    @if ($tvShowId)
+                        <livewire:watchlist :tv-show-id="$tvShowId" :key="'tv-watchlist-' . $tvShowId" />
+                    @else
+                        <span class="inline-flex items-center rounded-full bg-slate-900/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            {{ __('Watchlist available when this series is synced.') }}
+                        </span>
+                    @endif
+                </div>
             </div>
 
             @if (! empty($show['overview']))

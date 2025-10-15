@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Movie extends Model
@@ -91,5 +92,13 @@ class Movie extends Model
     public function countries(): BelongsToMany
     {
         return $this->belongsToMany(Country::class, 'movie_country')->withTimestamps();
+    }
+
+    /**
+     * Users who have added this movie to their watchlist.
+     */
+    public function watchlistedBy(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'watchlistable', 'user_watchlist')->withTimestamps();
     }
 }

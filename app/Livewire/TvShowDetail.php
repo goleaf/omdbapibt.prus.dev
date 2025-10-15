@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\TvShow;
 use App\Support\TvShowRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
@@ -30,6 +31,8 @@ class TvShowDetail extends Component
         'crew' => [],
     ];
 
+    public ?int $tvShowId = null;
+
     public function mount(TvShowRepository $repository, string $show): void
     {
         $this->locale = request()->route('locale') ?? App::getLocale();
@@ -43,6 +46,16 @@ class TvShowDetail extends Component
 
         $this->seasons = $repository->seasonsFor($this->show);
         $this->credits = $repository->creditsFor($this->show);
+
+        $slug = $this->show['slug'] ?? null;
+
+        if ($slug) {
+            $this->tvShowId = TvShow::where('slug', $slug)->value('id');
+        }
+
+        if (! $this->tvShowId && isset($this->show['id'])) {
+            $this->tvShowId = TvShow::where('id', $this->show['id'])->value('id');
+        }
     }
 
     public function translate(null|array|string $value): ?string
