@@ -1,0 +1,261 @@
+[
+  {
+    "id": 1,
+    "slug": "stranger-things",
+    "name": {
+      "en": "Stranger Things",
+      "es": "Stranger Things"
+    },
+    "tagline": {
+      "en": "Every ending has a beginning.",
+      "es": "Cada final tiene un comienzo."
+    },
+    "overview": {
+      "en": "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.",
+      "es": "Cuando un niño desaparece, un pequeño pueblo descubre un misterio que involucra experimentos secretos, fuerzas sobrenaturales aterradoras y una niña muy extraña."
+    },
+    "first_air_date": "2016-07-15",
+    "number_of_seasons": 2,
+    "number_of_episodes": 17,
+    "genres": ["Science Fiction", "Mystery", "Drama"],
+    "runtime": 50,
+    "seasons": [
+      {
+        "season_number": 1,
+        "name": {
+          "en": "Season 1",
+          "es": "Temporada 1"
+        },
+        "overview": {
+          "en": "Set in 1983 Indiana, a young boy vanishes into thin air and the secrecy of Hawkins Laboratory begins to unravel.",
+          "es": "Ambientada en Indiana en 1983, un niño desaparece en el aire y el secreto del Laboratorio Hawkins comienza a desmoronarse."
+        },
+        "episode_count": 8,
+        "episodes": [
+          {
+            "episode_number": 1,
+            "name": {
+              "en": "Chapter One: The Vanishing of Will Byers",
+              "es": "Capítulo Uno: La desaparición de Will Byers"
+            },
+            "overview": {
+              "en": "On his way home, Will sees something terrifying. Nearby, a sinister secret lurks in the depths of a government lab.",
+              "es": "De camino a casa, Will ve algo aterrador. Cerca de allí, un siniestro secreto acecha en lo profundo de un laboratorio gubernamental."
+            },
+            "runtime": 48,
+            "air_date": "2016-07-15"
+          },
+          {
+            "episode_number": 2,
+            "name": {
+              "en": "Chapter Two: The Weirdo on Maple Street",
+              "es": "Capítulo Dos: La rara de la Calle Maple"
+            },
+            "overview": {
+              "en": "Lucas, Mike and Dustin try to talk to the girl they found in the woods. Hopper questions an anxious Joyce about an unsettling phone call.",
+              "es": "Lucas, Mike y Dustin intentan hablar con la chica que encontraron en el bosque. Hopper interroga a una angustiada Joyce sobre una inquietante llamada telefónica."
+            },
+            "runtime": 55,
+            "air_date": "2016-07-15"
+          },
+          {
+            "episode_number": 3,
+            "name": {
+              "en": "Chapter Three: Holly, Jolly",
+              "es": "Capítulo Tres: Holly, Feliz"
+            },
+            "overview": {
+              "en": "An increasingly concerned Nancy looks for Barb and finds out what Jonathan's been up to. Joyce is convinced Will is trying to talk to her.",
+              "es": "Nancy, cada vez más preocupada, busca a Barb y descubre qué ha estado haciendo Jonathan. Joyce está convencida de que Will intenta hablar con ella."
+            },
+            "runtime": 51,
+            "air_date": "2016-07-15"
+          }
+        ]
+      },
+      {
+        "season_number": 2,
+        "name": {
+          "en": "Season 2",
+          "es": "Temporada 2"
+        },
+        "overview": {
+          "en": "In 1984 Hawkins, the citizens are still reeling from the horrors of the Demogorgon and the secrets of the Hawkins Lab.",
+          "es": "En 1984, los habitantes de Hawkins todavía se recuperan de los horrores del Demogorgon y de los secretos del Laboratorio Hawkins."
+        },
+        "episode_count": 9,
+        "episodes": [
+          {
+            "episode_number": 1,
+            "name": {
+              "en": "Chapter One: MADMAX",
+              "es": "Capítulo Uno: MADMAX"
+            },
+            "overview": {
+              "en": "As the town preps for Halloween, a high-scoring rival shakes things up at the arcade, and a skeptic journalist questions the police's official story.",
+              "es": "Mientras el pueblo se prepara para Halloween, una rival de alto puntaje agita las cosas en el arcade y un periodista escéptico cuestiona la versión oficial de la policía."
+            },
+            "runtime": 48,
+            "air_date": "2017-10-27"
+          },
+          {
+            "episode_number": 2,
+            "name": {
+              "en": "Chapter Two: Trick or Treat, Freak",
+              "es": "Capítulo Dos: Truco o trato, rarito"
+            },
+            "overview": {
+              "en": "After Will sees something terrible on trick-or-treat night, Mike wonders whether Eleven is still out there.",
+              "es": "Después de que Will ve algo terrible en la noche de Halloween, Mike se pregunta si Eleven sigue ahí afuera."
+            },
+            "runtime": 56,
+            "air_date": "2017-10-27"
+          }
+        ]
+      }
+    ],
+    "credits": {
+      "cast": [
+        {
+          "name": "Winona Ryder",
+          "character": {
+            "en": "Joyce Byers",
+            "es": "Joyce Byers"
+          },
+          "order": 1
+        },
+        {
+          "name": "David Harbour",
+          "character": {
+            "en": "Jim Hopper",
+            "es": "Jim Hopper"
+          },
+          "order": 2
+        },
+        {
+          "name": "Millie Bobby Brown",
+          "character": {
+            "en": "Eleven",
+            "es": "Once"
+          },
+          "order": 3
+        }
+      ],
+      "crew": [
+        {
+          "name": "The Duffer Brothers",
+          "job": {
+            "en": "Creators",
+            "es": "Creadores"
+          }
+        },
+        {
+          "name": "Shawn Levy",
+          "job": {
+            "en": "Executive Producer",
+            "es": "Productor ejecutivo"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "slug": "dark",
+    "name": {
+      "en": "Dark",
+      "es": "Dark"
+    },
+    "tagline": {
+      "en": "The end is the beginning, and the beginning is the end.",
+      "es": "El final es el principio y el principio es el final."
+    },
+    "overview": {
+      "en": "A missing child sets four families on a frantic hunt as they unearth a mind-bending mystery that spans three generations.",
+      "es": "La desaparición de un niño desencadena la frenética búsqueda de cuatro familias, que descubren un misterio que se extiende a lo largo de tres generaciones."
+    },
+    "first_air_date": "2017-12-01",
+    "number_of_seasons": 3,
+    "number_of_episodes": 26,
+    "genres": ["Science Fiction", "Thriller", "Mystery"],
+    "runtime": 53,
+    "seasons": [
+      {
+        "season_number": 1,
+        "name": {
+          "en": "Season 1",
+          "es": "Temporada 1"
+        },
+        "overview": {
+          "en": "The small German town of Winden becomes the center of a time-travel conspiracy that spans different eras.",
+          "es": "El pequeño pueblo alemán de Winden se convierte en el centro de una conspiración de viajes en el tiempo que abarca diferentes épocas."
+        },
+        "episode_count": 10,
+        "episodes": [
+          {
+            "episode_number": 1,
+            "name": {
+              "en": "Secrets",
+              "es": "Secretos"
+            },
+            "overview": {
+              "en": "In 2019 Winden, the disappearance of a teenager sets off a frantic search that reveals the town's dark history.",
+              "es": "En Winden en 2019, la desaparición de un adolescente desencadena una búsqueda frenética que revela la oscura historia del pueblo."
+            },
+            "runtime": 52,
+            "air_date": "2017-12-01"
+          },
+          {
+            "episode_number": 2,
+            "name": {
+              "en": "Lies",
+              "es": "Mentiras"
+            },
+            "overview": {
+              "en": "When secrets begin to emerge, the relationships between the families are tested.",
+              "es": "Cuando los secretos comienzan a salir a la luz, las relaciones entre las familias se ponen a prueba."
+            },
+            "runtime": 45,
+            "air_date": "2017-12-01"
+          }
+        ]
+      }
+    ],
+    "credits": {
+      "cast": [
+        {
+          "name": "Louis Hofmann",
+          "character": {
+            "en": "Jonas Kahnwald",
+            "es": "Jonas Kahnwald"
+          },
+          "order": 1
+        },
+        {
+          "name": "Lisa Vicari",
+          "character": {
+            "en": "Martha Nielsen",
+            "es": "Martha Nielsen"
+          },
+          "order": 2
+        }
+      ],
+      "crew": [
+        {
+          "name": "Baran bo Odar",
+          "job": {
+            "en": "Creator",
+            "es": "Creador"
+          }
+        },
+        {
+          "name": "Jantje Friese",
+          "job": {
+            "en": "Creator",
+            "es": "Creadora"
+          }
+        }
+      ]
+    }
+  }
+]
