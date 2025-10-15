@@ -28,11 +28,13 @@ class MovieLocaleRelationshipsTest extends TestCase
 
         $english = Language::query()->create([
             'name' => 'English',
+            'native_name' => 'English',
             'code' => 'en',
         ]);
 
         $spanish = Language::query()->create([
             'name' => 'Spanish',
+            'native_name' => 'Español',
             'code' => 'es',
         ]);
 
