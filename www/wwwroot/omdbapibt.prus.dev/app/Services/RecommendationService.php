@@ -133,7 +133,9 @@ class RecommendationService
         }
 
         if (! empty($averageVote)) {
-            $scoreFragments[] = '(CASE WHEN vote_average IS NOT NULL THEN LEAST(10, GREATEST(0, (10 - ABS(vote_average - ?)))) ELSE 0 END)';
+            $scoreFragments[] = '(CASE WHEN vote_average IS NOT NULL THEN CASE WHEN (10 - ABS(vote_average - ?)) < 0 THEN 0 WHEN (10 - ABS(vote_average - ?)) > 10 THEN 10 ELSE (10 - ABS(vote_average - ?)) END ELSE 0 END)';
+            $bindings[] = $averageVote;
+            $bindings[] = $averageVote;
             $bindings[] = $averageVote;
         }
 

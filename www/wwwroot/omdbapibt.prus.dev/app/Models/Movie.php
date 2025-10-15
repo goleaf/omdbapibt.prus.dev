@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Movie extends Model
 {
+    /** @use HasFactory<\Database\Factories\MovieFactory> */
     use HasFactory;
     use SoftDeletes;
 
     /**
-     * The attributes that aren't mass assignable.
+     * Mass assignment protection is disabled to keep imports flexible.
      *
      * @var list<string>
      */

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WatchHistory extends Model
 {
+    /** @use HasFactory<\Database\Factories\WatchHistoryFactory> */
     use HasFactory;
 
     /**
@@ -33,7 +34,7 @@ class WatchHistory extends Model
         return [
             'watched_at' => 'datetime',
             'progress' => 'integer',
-            'user_rating' => 'decimal:1',
+            'user_rating' => 'integer',
         ];
     }
 

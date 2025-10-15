@@ -5,6 +5,9 @@ namespace App\Livewire;
 use App\Services\RecommendationService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class Recommendations extends Component
@@ -48,7 +51,7 @@ class Recommendations extends Component
         $this->lastUpdated = $this->formatUpdatedTimestamp(Arr::get($payload, 'generated_at'));
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.recommendations');
     }
@@ -59,6 +62,19 @@ class Recommendations extends Component
             return '';
         }
 
-        return Carbon::parse($timestamp)->diffForHumans();
+        if (Str::isMatch('/^\d{4}-\d{2}-\d{2}T/', $timestamp) === false) {
+            return '';
+        }
+
+        try {
+            return Carbon::parse($timestamp)->diffForHumans();
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to parse recommendation timestamp.', [
+                'timestamp' => $timestamp,
+                'exception' => $exception,
+            ]);
+
+            return '';
+        }
     }
 }
