@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\ParserWorkload;
 use App\Jobs\Parsing\ExecuteParserPipeline;
 use App\Models\Movie;
 use App\Models\User;
@@ -62,7 +63,7 @@ class ApiRateLimitingTest extends TestCase
         $this->assertSame(0, $basicIndex, 'Basic authentication should be the first middleware in the API group.');
 
         for ($attempt = 0; $attempt < 3; $attempt++) {
-            $this->postJson('/api/parser/trigger', ['workload' => 'movies'])
+            $this->postJson('/api/parser/trigger', ['workload' => ParserWorkload::Movies->value])
                 ->assertStatus(401);
         }
 
@@ -70,24 +71,24 @@ class ApiRateLimitingTest extends TestCase
         $authHeader = 'Basic '.base64_encode($user->email.':password');
 
         $this->withHeader('Authorization', $authHeader)
-            ->postJson('/api/parser/trigger', ['workload' => 'movies'])
+            ->postJson('/api/parser/trigger', ['workload' => ParserWorkload::Movies->value])
             ->assertStatus(202)
             ->assertJson([
                 'status' => 'queued',
-                'workload' => 'movies',
+                'workload' => ParserWorkload::Movies->value,
                 'queue' => 'priority-parsing',
             ]);
 
         Queue::assertPushed(ExecuteParserPipeline::class, function (ExecuteParserPipeline $job): bool {
-            return $job->workload === 'movies' && $job->queue === 'priority-parsing';
+            return $job->workload === ParserWorkload::Movies && $job->queue === 'priority-parsing';
         });
 
         $this->withHeader('Authorization', $authHeader)
-            ->postJson('/api/parser/trigger', ['workload' => 'movies'])
+            ->postJson('/api/parser/trigger', ['workload' => ParserWorkload::Movies->value])
             ->assertStatus(202);
 
         $this->withHeader('Authorization', $authHeader)
-            ->postJson('/api/parser/trigger', ['workload' => 'movies'])
+            ->postJson('/api/parser/trigger', ['workload' => ParserWorkload::Movies->value])
             ->assertStatus(429);
     }
 

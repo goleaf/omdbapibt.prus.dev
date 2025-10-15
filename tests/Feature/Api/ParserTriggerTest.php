@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\ParserWorkload;
 use App\Jobs\Parsing\ExecuteParserPipeline;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,7 @@ class ParserTriggerTest extends TestCase
         $authHeader = 'Basic '.base64_encode($user->email.':password');
 
         $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => 'movies'])
+            ->postJson(route('api.parser.trigger'), ['workload' => ParserWorkload::Movies->value])
             ->assertForbidden();
 
         Queue::assertNothingPushed();
@@ -36,16 +37,16 @@ class ParserTriggerTest extends TestCase
         $authHeader = 'Basic '.base64_encode($admin->email.':password');
 
         $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => 'movies'])
+            ->postJson(route('api.parser.trigger'), ['workload' => ParserWorkload::Movies->value])
             ->assertAccepted()
             ->assertJson([
                 'status' => 'queued',
-                'workload' => 'movies',
+                'workload' => ParserWorkload::Movies->value,
                 'queue' => 'priority-parsing',
             ]);
 
         Queue::assertPushed(ExecuteParserPipeline::class, function (ExecuteParserPipeline $job): bool {
-            return $job->workload === 'movies' && $job->queue === 'priority-parsing';
+            return $job->workload === ParserWorkload::Movies && $job->queue === 'priority-parsing';
         });
     }
 }

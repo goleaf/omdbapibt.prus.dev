@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ParserWorkload;
 use App\Http\Controllers\Controller;
 use App\Jobs\Parsing\ExecuteParserPipeline;
 use App\Models\ParserEntry;
@@ -17,11 +18,11 @@ class ParserTriggerController extends Controller
             'workload' => [
                 'required',
                 'string',
-                Rule::in(config('parser.workloads', ['movies', 'tv', 'people'])),
+                Rule::enum(ParserWorkload::class),
             ],
         ]);
 
-        $workload = $validated['workload'];
+        $workload = ParserWorkload::from($validated['workload']);
 
         $this->authorize('trigger', ParserEntry::class);
 
@@ -29,7 +30,7 @@ class ParserTriggerController extends Controller
 
         return response()->json([
             'status' => 'queued',
-            'workload' => $workload,
+            'workload' => $workload->value,
             'queue' => config('parser.queue'),
         ], 202);
     }
