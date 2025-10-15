@@ -16,9 +16,9 @@ return [
     |
     */
 
-    'key' => env('STRIPE_KEY'),
+    'key' => env('STRIPE_KEY', ''),
 
-    'secret' => env('STRIPE_SECRET'),
+    'secret' => env('STRIPE_SECRET', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -45,8 +45,8 @@ return [
     */
 
     'webhook' => [
-        'secret' => env('STRIPE_WEBHOOK_SECRET'),
-        'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
+        'secret' => env('STRIPE_WEBHOOK_SECRET', ''),
+        'tolerance' => (int) env('STRIPE_WEBHOOK_TOLERANCE', 300),
         'events' => WebhookCommand::DEFAULT_EVENTS,
     ],
 
