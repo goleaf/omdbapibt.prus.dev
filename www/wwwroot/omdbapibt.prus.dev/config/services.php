@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'tmdb' => [
+        'key' => env('TMDB_API_KEY'),
+    ],
+
+    'omdb' => [
+        'key' => env('OMDB_API_KEY'),
+    ],
+
 ];

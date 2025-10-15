@@ -21,6 +21,15 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Environment Variables
+
+For local development, copy `.env.example` to `.env` and provide values for the following API keys:
+
+- `OMDB_API_KEY` — OMDb credentials used by the parser service.
+- `TMDB_API_KEY` — TMDb credentials used by the parser service.
+
+These values are available to the application via the `config('services.omdb.key')` and `config('services.tmdb.key')` helper calls.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
