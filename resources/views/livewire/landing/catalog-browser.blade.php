@@ -176,7 +176,7 @@
                         </div>
                         <a
                             href="{{ route('movies.show', ['locale' => $locale, 'movie' => $movie['slug']]) }}"
-                            class="absolute inset-0"
+                            class="focus-card absolute inset-0"
                             aria-label="Open {{ $movie['title'] }} details"
                         ></a>
                     </article>
