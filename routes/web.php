@@ -8,10 +8,13 @@ use App\Livewire\TvShowDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
-$availableLocales = config('translatable.locales', []);
+$supportedLocales = config('translatable.locales', []);
+$defaultLocale = config('translatable.fallback_locale', config('app.fallback_locale', 'en'));
 
-if ($availableLocales === []) {
-    $availableLocales = [config('app.fallback_locale', 'en')];
+if ($supportedLocales === []) {
+    $supportedLocales = [$defaultLocale];
+} elseif (! in_array($defaultLocale, $supportedLocales, true)) {
+    $supportedLocales[] = $defaultLocale;
 }
 
 $registerAppRoutes = function (): void {
@@ -45,17 +48,35 @@ $registerAppRoutes = function (): void {
     });
 };
 
-Route::middleware('set-locale')->group(function () use ($availableLocales, $registerAppRoutes): void {
-    $registerAppRoutes();
-
-    Route::prefix('{locale}')
-        ->whereIn('locale', $availableLocales)
-        ->name('localized.')
-        ->group(function () use ($registerAppRoutes): void {
-            $registerAppRoutes();
-        });
-});
-
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
     ->middleware(VerifyWebhookSignature::class)
     ->name('webhooks.stripe');
+
+Route::prefix('{locale}')
+    ->middleware(['validate-locale', 'set-locale'])
+    ->group(function () use ($registerAppRoutes): void {
+        $registerAppRoutes();
+    });
+
+Route::get('/', function () use ($defaultLocale) {
+    return redirect()->route('home', ['locale' => $defaultLocale]);
+});
+
+Route::fallback(function () use ($supportedLocales, $defaultLocale) {
+    $firstSegment = request()->segment(1);
+
+    if ($firstSegment && in_array($firstSegment, $supportedLocales, true)) {
+        abort(404);
+    }
+
+    $path = trim(request()->path(), '/');
+    $targetPath = $defaultLocale.($path !== '' ? '/'.$path : '');
+
+    $redirect = redirect()->to('/'.$targetPath);
+
+    if (! in_array(request()->method(), ['GET', 'HEAD', 'OPTIONS'], true)) {
+        $redirect->setStatusCode(307);
+    }
+
+    return $redirect;
+});
