@@ -4,6 +4,7 @@ namespace Tests\Unit\Http\Requests\Api;
 
 use App\Enums\ParserWorkload;
 use App\Http\Requests\Api\ParserTriggerRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -12,6 +13,8 @@ class ParserTriggerRequestTest extends TestCase
 {
     public function test_it_allows_any_user(): void
     {
+        Gate::shouldReceive('allows')->once()->andReturnTrue();
+
         $request = new ParserTriggerRequest;
 
         $this->assertTrue($request->authorize());
@@ -94,6 +97,8 @@ class ParserTriggerRequestTest extends TestCase
 
     public function test_it_returns_validated_workload_enum(): void
     {
+        Gate::shouldReceive('allows')->andReturnTrue();
+
         $request = ParserTriggerRequest::create('/api/parser/trigger', 'POST', [
             'workload' => ParserWorkload::People->value,
         ]);
