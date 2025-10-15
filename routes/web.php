@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\SignupController;
 use App\Http\Controllers\BillingPortalController;
@@ -14,6 +13,7 @@ use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\Admin\ParserModerationDashboard;
 use App\Livewire\Admin\UiTranslationManager;
 use App\Livewire\Admin\UserDirectory;
+use App\Livewire\Auth\LoginForm;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
 use Illuminate\Support\Facades\Route;
@@ -37,7 +37,7 @@ $registerAppRoutes = function (): void {
     Route::view('/pricing', 'pages.pricing')->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
     Route::get('/checkout', CheckoutController::class)->name('checkout');
-    Route::get('/login', LoginController::class)->name('login');
+    Route::get('/login', LoginForm::class)->name('login');
     Route::get('/signup', SignupController::class)->name('signup');
     Route::get('/register', SignupController::class)->name('register');
 
