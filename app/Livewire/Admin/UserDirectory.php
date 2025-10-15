@@ -46,6 +46,11 @@ class UserDirectory extends Component
     #[Computed]
     public function users(): LengthAwarePaginator
     {
+        return $this->makeUserQuery()->paginate($this->perPage);
+    }
+
+    protected function makeUserQuery(): Builder
+    {
         return User::query()
             ->withCount(['watchHistories'])
             ->when($this->search !== '', function (Builder $query): void {
@@ -57,8 +62,7 @@ class UserDirectory extends Component
                 });
             })
             ->when($this->roleFilter, fn (Builder $query, string $role): Builder => $query->where('role', $role))
-            ->orderByDesc('created_at')
-            ->paginate($this->perPage);
+            ->orderByDesc('created_at');
     }
 
     #[Computed]
@@ -122,22 +126,41 @@ class UserDirectory extends Component
 
             fputcsv($handle, ['Name', 'Email', 'Role', 'Watch Events', 'Joined']);
 
-            $this->users()
-                ->through(function (User $user) {
-                    return [
+            $this->makeUserQuery()
+                ->cursor()
+                ->each(function (User $user) use ($handle): void {
+                    fputcsv($handle, [
                         $user->name,
                         $user->email,
                         $user->roleLabel(),
                         (string) $user->watch_histories_count,
                         optional($user->created_at)->toDateTimeString(),
-                    ];
-                })
-                ->each(fn (array $row) => fputcsv($handle, $row));
+                    ]);
+                });
 
             fclose($handle);
         }, $filename, [
             'Content-Type' => 'text/csv',
         ]);
+    }
+
+    public function canImpersonateUser(User $user): bool
+    {
+        $admin = auth()->user();
+
+        if (! $admin || ! $admin->canImpersonate()) {
+            return false;
+        }
+
+        if ($this->impersonationManager->isImpersonating()) {
+            return false;
+        }
+
+        if ($user->is($admin)) {
+            return false;
+        }
+
+        return $user->canBeImpersonated();
     }
 
     public function impersonate(int $userId): void
@@ -146,21 +169,22 @@ class UserDirectory extends Component
 
         abort_if(! $admin?->canImpersonate(), 403);
 
+        if ($this->impersonationManager->isImpersonating()) {
+            $this->addError('impersonation', 'You are already impersonating another user.');
+
+            return;
+        }
+
         /** @var User|null $target */
         $target = User::query()->find($userId);
 
-        if (! $target || ! $target->canBeImpersonated()) {
+        if (! $target || $target->is($admin) || ! $target->canBeImpersonated()) {
             $this->addError('impersonation', 'Unable to impersonate this user.');
 
             return;
         }
 
         $this->impersonationManager->start($admin, $target);
-    }
-
-    public function stopImpersonating(): void
-    {
-        $this->impersonationManager->stop();
     }
 
     public function render(): View

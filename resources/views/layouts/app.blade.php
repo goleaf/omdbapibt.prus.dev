@@ -54,6 +54,32 @@
             </div>
         </header>
 
+        @isset($impersonationBannerContext)
+            <div class="border-b border-amber-400/40 bg-amber-500/10 py-3">
+                <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-6 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="space-y-1">
+                        <p class="font-semibold tracking-wide uppercase text-amber-200">Impersonation Active</p>
+                        <p>
+                            <span class="font-medium">{{ $impersonationBannerContext['impersonator']->name }}</span>
+                            <span class="text-amber-200">({{ $impersonationBannerContext['impersonator']->email }})</span>
+                            is currently viewing the site as
+                            <span class="font-medium">{{ $impersonationBannerContext['actingAs']->name }}</span>
+                            <span class="text-amber-200">({{ $impersonationBannerContext['actingAs']->email }})</span>.
+                        </p>
+                    </div>
+                    <form method="POST" action="{{ route('impersonation.stop') }}" class="sm:flex-shrink-0">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="inline-flex items-center rounded-full border border-amber-300 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-amber-900 transition hover:bg-amber-400 hover:text-amber-950"
+                        >
+                            Stop impersonating
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endisset
+
         <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
             @isset($header)
                 <div class="mb-8 text-center">

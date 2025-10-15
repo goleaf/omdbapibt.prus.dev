@@ -33,15 +33,6 @@
             >
                 Export CSV
             </button>
-            @if ($this->impersonating)
-                <button
-                    type="button"
-                    wire:click="stopImpersonating"
-                    class="rounded-full border border-emerald-400/70 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
-                >
-                    Stop impersonating
-                </button>
-            @endif
         </div>
     </div>
 
@@ -77,13 +68,17 @@
                         <td class="px-6 py-4">{{ optional($user->created_at)->toDateTimeString() }}</td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button
-                                    type="button"
-                                    wire:click="impersonate({{ $user->id }})"
-                                    class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200"
-                                >
-                                    Impersonate
-                                </button>
+                                @if ($this->canImpersonateUser($user))
+                                    <button
+                                        type="button"
+                                        wire:click="impersonate({{ $user->id }})"
+                                        class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200"
+                                    >
+                                        Impersonate
+                                    </button>
+                                @elseif ($this->impersonating)
+                                    <span class="text-xs text-emerald-200">Impersonation active</span>
+                                @endif
                             </div>
                         </td>
                     </tr>
