@@ -83,4 +83,23 @@ return [
         'results_summary' => 'Filtering :genre :type released in :year.',
         'apply' => 'Apply',
     ],
+    'people' => [
+        'page_title' => 'Person detail',
+        'no_biography' => 'No biography available yet.',
+        'profile_alt' => ':name profile portrait',
+        'poster_alt' => 'Key art poster for :name',
+        'vitals_heading' => 'Vitals',
+        'born_label' => 'Born',
+        'place_label' => 'Place',
+        'known_for_label' => 'Known for',
+        'popularity_label' => 'Popularity',
+        'biography_heading' => 'Biography',
+        'movies_heading' => 'Movies',
+        'tv_heading' => 'TV',
+        'credits_heading' => ':type credits',
+        'credit_types' => [
+            'cast' => 'Cast',
+            'crew' => 'Crew',
+        ],
+    ],
 ];

@@ -83,4 +83,23 @@ return [
         'results_summary' => 'Filtrando :type de :genre estrenados en :year.',
         'apply' => 'Aplicar',
     ],
+    'people' => [
+        'page_title' => 'Detalle de persona',
+        'no_biography' => 'Biografía no disponible por ahora.',
+        'profile_alt' => 'Retrato de :name',
+        'poster_alt' => 'Póster destacado de :name',
+        'vitals_heading' => 'Datos clave',
+        'born_label' => 'Nacimiento',
+        'place_label' => 'Lugar',
+        'known_for_label' => 'Reconocido por',
+        'popularity_label' => 'Popularidad',
+        'biography_heading' => 'Biografía',
+        'movies_heading' => 'Películas',
+        'tv_heading' => 'TV',
+        'credits_heading' => 'Créditos de :type',
+        'credit_types' => [
+            'cast' => 'Elenco',
+            'crew' => 'Equipo técnico',
+        ],
+    ],
 ];

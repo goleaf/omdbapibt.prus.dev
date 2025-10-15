@@ -91,6 +91,6 @@ class PersonDetail extends Component
             }
         }
 
-        return $this->personModel->biography ?? __('No biography available yet.');
+        return $this->personModel->biography ?? __('ui.people.no_biography');
     }
 }
