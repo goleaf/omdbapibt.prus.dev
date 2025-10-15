@@ -7,8 +7,14 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Laravel\Horizon\Horizon;
+use Laravel\Horizon\Contracts\JobRepository;
+use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Laravel\Horizon\Contracts\MetricsRepository;
+use Laravel\Horizon\Contracts\SupervisorRepository;
+use Laravel\Horizon\Contracts\WorkloadRepository;
+use Laravel\Horizon\WaitTimeCalculator;
 use Livewire\Component;
+use Throwable;
 
 class HorizonMonitor extends Component
 {
@@ -85,27 +91,69 @@ class HorizonMonitor extends Component
     protected function loadHorizonData(): void
     {
         try {
-            $this->stats = Horizon::stats()->toArray();
-            $this->workload = collect(Horizon::workload())
+            $jobRepository = app(JobRepository::class);
+            $metricsRepository = app(MetricsRepository::class);
+            $workloadRepository = app(WorkloadRepository::class);
+            $masterSupervisors = app(MasterSupervisorRepository::class);
+            $supervisors = app(SupervisorRepository::class);
+            $waitTimes = app(WaitTimeCalculator::class);
+
+            $masters = collect($masterSupervisors->all() ?? []);
+
+            $status = 'inactive';
+
+            if ($masters->isNotEmpty()) {
+                $status = $masters->every(fn ($master) => ($master->status ?? null) === 'paused')
+                    ? 'paused'
+                    : 'running';
+            }
+
+            $this->stats = [
+                'jobsPerMinute' => $metricsRepository->jobsProcessedPerMinute(),
+                'jobsProcessed' => $jobRepository->countCompleted(),
+                'jobsFailed' => $jobRepository->countRecentlyFailed(),
+                'status' => Str::headline($status),
+                'longestWait' => collect($waitTimes->calculate())
+                    ->take(1)
+                    ->map(fn (int $seconds, string $queue) => [
+                        'queue' => $queue,
+                        'seconds' => $seconds,
+                    ])
+                    ->first(),
+                'activeWorkers' => collect($supervisors->all() ?? [])
+                    ->reduce(fn (int $carry, $supervisor) => $carry + (int) collect($supervisor->processes ?? [])->sum(), 0),
+            ];
+
+            $this->workload = collect($workloadRepository->get() ?? [])
                 ->map(fn (array $queue) => [
-                    'queue' => $queue['queue'] ?? 'default',
+                    'queue' => $queue['name'] ?? $queue['queue'] ?? 'default',
                     'length' => $queue['length'] ?? 0,
                     'wait' => $queue['wait'] ?? 0,
+                    'processes' => $queue['processes'] ?? 0,
                 ])
                 ->values()
                 ->all();
-            $this->recentJobs = collect(Horizon::recentJobs())
+
+            $this->recentJobs = $jobRepository->getRecent()
                 ->take(10)
-                ->map(fn (array $job) => [
-                    'id' => $job['id'] ?? null,
-                    'name' => $job['name'] ?? $job['displayName'] ?? 'Unknown Job',
-                    'queue' => $job['queue'] ?? 'default',
-                    'status' => Str::headline($job['status'] ?? 'pending'),
-                    'completed_at' => $job['completed_at'] ?? null,
-                    'failed_at' => $job['failed_at'] ?? null,
-                ])
+                ->map(function ($job) {
+                    $payload = [];
+
+                    if (! empty($job->payload)) {
+                        $payload = json_decode($job->payload, true) ?: [];
+                    }
+
+                    return [
+                        'id' => $job->id ?? null,
+                        'name' => $job->name ?? data_get($payload, 'displayName', 'Unknown Job'),
+                        'queue' => $job->queue ?? 'default',
+                        'status' => Str::headline($job->status ?? 'pending'),
+                        'completed_at' => $job->completed_at ?? null,
+                        'failed_at' => $job->failed_at ?? null,
+                    ];
+                })
                 ->all();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $this->stats = [];
             $this->workload = [];
             $this->recentJobs = [];

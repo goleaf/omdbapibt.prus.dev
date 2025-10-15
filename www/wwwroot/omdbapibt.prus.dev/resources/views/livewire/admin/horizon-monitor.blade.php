@@ -44,7 +44,7 @@
         <div class="space-y-4 lg:col-span-2">
             <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-semibold text-gray-800">Horizon statistics</h2>
-                <dl class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <dl class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
                     <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
                         <dt class="text-sm text-gray-500">Jobs per minute</dt>
                         <dd class="mt-1 text-2xl font-semibold text-gray-800">{{ number_format((float) data_get($stats, 'jobsPerMinute', 0), 1) }}</dd>
@@ -61,6 +61,22 @@
                         <dt class="text-sm text-gray-500">Status</dt>
                         <dd class="mt-1 text-xl font-semibold text-gray-800">{{ data_get($stats, 'status', 'Unknown') }}</dd>
                     </div>
+                    <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <dt class="text-sm text-gray-500">Active workers</dt>
+                        <dd class="mt-1 text-2xl font-semibold text-gray-800">{{ number_format((int) data_get($stats, 'activeWorkers', 0)) }}</dd>
+                    </div>
+                    <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <dt class="text-sm text-gray-500">Longest wait</dt>
+                        @php
+                            $longestWait = data_get($stats, 'longestWait');
+                        @endphp
+                        <dd class="mt-1 text-2xl font-semibold text-gray-800">
+                            {{ $longestWait ? number_format((int) data_get($longestWait, 'seconds', 0)) . 's' : '—' }}
+                        </dd>
+                        @if ($longestWait)
+                            <dd class="text-xs text-gray-500">Queue {{ data_get($longestWait, 'queue', '—') }}</dd>
+                        @endif
+                    </div>
                 </dl>
             </div>
 
@@ -73,6 +89,7 @@
                                 <th class="px-4 py-2">Queue</th>
                                 <th class="px-4 py-2">Pending jobs</th>
                                 <th class="px-4 py-2">Wait (s)</th>
+                                <th class="px-4 py-2">Workers</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -81,10 +98,11 @@
                                     <td class="px-4 py-2 font-medium text-gray-800">{{ $queue['queue'] }}</td>
                                     <td class="px-4 py-2 text-gray-700">{{ $queue['length'] }}</td>
                                     <td class="px-4 py-2 text-gray-700">{{ $queue['wait'] }}</td>
+                                    <td class="px-4 py-2 text-gray-700">{{ $queue['processes'] }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="px-4 py-4 text-center text-gray-500">No Horizon queue data available.</td>
+                                    <td colspan="4" class="px-4 py-4 text-center text-gray-500">No Horizon queue data available.</td>
                                 </tr>
                             @endforelse
                         </tbody>
