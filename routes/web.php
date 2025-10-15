@@ -4,6 +4,7 @@ use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\HorizonMonitor;
+use App\Livewire\MovieDetail;
 use App\Livewire\TvShowDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -19,7 +20,7 @@ $registerAppRoutes = function (): void {
     Route::view('/browse', 'pages.browse')->name('browse');
     Route::view('/pricing', 'pages.pricing')->name('pricing');
 
-    Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
+    Route::get('/movies/{movie}', MovieDetail::class)
         ->name('movies.show');
 
     Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))

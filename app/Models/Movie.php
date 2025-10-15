@@ -42,6 +42,11 @@ class Movie extends Model
         'poster_path',
         'backdrop_path',
         'trailer_url',
+        'translations',
+        'cast',
+        'crew',
+        'streaming_links',
+        'trailers',
         'media_type',
         'adult',
         'video',
@@ -53,13 +58,36 @@ class Movie extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'title' => 'array',
         'overview' => 'array',
+        'translations' => 'array',
+        'cast' => 'array',
+        'crew' => 'array',
+        'streaming_links' => 'array',
+        'trailers' => 'array',
         'adult' => 'boolean',
         'video' => 'boolean',
         'release_date' => 'date',
         'popularity' => 'float',
         'vote_average' => 'float',
     ];
+
+    public function resolveRouteBinding($value, $field = null): Model
+    {
+        $query = $this->newQuery();
+
+        if ($field !== null) {
+            return $query->where($field, $value)->firstOrFail();
+        }
+
+        return $query
+            ->where(function (Builder $builder) use ($value): void {
+                $builder
+                    ->where($this->getRouteKeyName(), $value)
+                    ->orWhere('slug', $value);
+            })
+            ->firstOrFail();
+    }
 
     /**
      * Scope a query to filter by a minimum rating.
