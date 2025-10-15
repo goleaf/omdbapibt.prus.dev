@@ -16,7 +16,7 @@ class MovieLookupController extends Controller
         $validated = $request->validated();
 
         $term = $validated['query'];
-        $limit = $validated['limit'] ?? 10;
+        $limit = (int) ($validated['limit'] ?? 10);
 
         $likeTerm = '%'.$term.'%';
 
@@ -40,6 +40,6 @@ class MovieLookupController extends Controller
                 'year',
             ]);
 
-        return MovieLookupResponse::fromCollection($results);
+        return MovieLookupResponse::fromCollection($results, $term, $limit);
     }
 }

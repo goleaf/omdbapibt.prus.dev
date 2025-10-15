@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Http\Controllers\Api;
+namespace Tests\Feature\Api;
 
 use App\Models\Movie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,7 +11,7 @@ class MovieLookupControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_it_returns_matching_movies(): void
+    public function test_it_returns_matching_movies_in_standard_format(): void
     {
         $older = Movie::factory()->create([
             'title' => [
@@ -72,6 +72,9 @@ class MovieLookupControllerTest extends TestCase
             ->where('data.1.tmdb_id', 111111)
             ->where('data.1.slug', 'flux-runner')
             ->where('data.1.year', 2021)
+            ->where('meta.query', 'Flux')
+            ->where('meta.limit', 10)
+            ->where('meta.count', 2)
         );
     }
 
