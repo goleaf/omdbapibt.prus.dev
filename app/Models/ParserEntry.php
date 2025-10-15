@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ParserEntryStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,12 +12,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class ParserEntry extends Model
 {
     use HasFactory;
-
-    public const STATUS_PENDING = 'pending';
-
-    public const STATUS_APPROVED = 'approved';
-
-    public const STATUS_REJECTED = 'rejected';
 
     /**
      * @var array<int, string>
@@ -40,6 +35,7 @@ class ParserEntry extends Model
         'payload' => 'array',
         'baseline_snapshot' => 'array',
         'reviewed_at' => 'datetime',
+        'status' => ParserEntryStatus::class,
     ];
 
     public function subject(): MorphTo

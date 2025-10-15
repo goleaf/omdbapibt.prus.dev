@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Livewire\Admin;
 
+use App\Enums\AdminAuditAction;
+use App\Enums\ParserEntryStatus;
+use App\Enums\ParserReviewAction;
 use App\Livewire\Admin\ParserModerationDashboard;
 use App\Models\Movie;
 use App\Models\ParserEntry;
@@ -87,25 +90,25 @@ class ParserModerationDashboardTest extends TestCase
             ->set('selectedEntryId', $entry->id)
             ->set('decisionNotes', 'Looks accurate')
             ->call('approve')
-            ->assertDispatched('parser-entry-reviewed', entryId: $entry->id, decision: 'approved');
+            ->assertDispatched('parser-entry-reviewed', entryId: $entry->id, decision: ParserReviewAction::Approved->value);
 
         $entry->refresh();
 
-        $this->assertSame(ParserEntry::STATUS_APPROVED, $entry->status);
+        $this->assertSame(ParserEntryStatus::Approved, $entry->status);
         $this->assertSame('Looks accurate', $entry->notes);
         $this->assertSame($admin->id, $entry->reviewed_by);
         $this->assertNotNull($entry->reviewed_at);
 
         $this->assertDatabaseHas('parser_entry_histories', [
             'parser_entry_id' => $entry->id,
-            'action' => 'approved',
+            'action' => ParserReviewAction::Approved->value,
             'notes' => 'Looks accurate',
         ]);
 
         $this->assertDatabaseHas('admin_audit_logs', [
-            'action' => 'parser_entry_reviewed',
+            'action' => AdminAuditAction::ParserEntryReviewed->value,
             'details->entry_id' => $entry->id,
-            'details->decision' => 'approved',
+            'details->decision' => ParserReviewAction::Approved->value,
         ]);
     }
 
@@ -141,25 +144,25 @@ class ParserModerationDashboardTest extends TestCase
             ->assertHasErrors(['decisionNotes' => 'required'])
             ->set('decisionNotes', 'Payload missing credits data')
             ->call('reject')
-            ->assertDispatched('parser-entry-reviewed', entryId: $entry->id, decision: 'rejected');
+            ->assertDispatched('parser-entry-reviewed', entryId: $entry->id, decision: ParserReviewAction::Rejected->value);
 
         $entry->refresh();
 
-        $this->assertSame(ParserEntry::STATUS_REJECTED, $entry->status);
+        $this->assertSame(ParserEntryStatus::Rejected, $entry->status);
         $this->assertSame('Payload missing credits data', $entry->notes);
         $this->assertSame($admin->id, $entry->reviewed_by);
         $this->assertNotNull($entry->reviewed_at);
 
         $this->assertDatabaseHas('parser_entry_histories', [
             'parser_entry_id' => $entry->id,
-            'action' => 'rejected',
+            'action' => ParserReviewAction::Rejected->value,
             'notes' => 'Payload missing credits data',
         ]);
 
         $this->assertDatabaseHas('admin_audit_logs', [
-            'action' => 'parser_entry_reviewed',
+            'action' => AdminAuditAction::ParserEntryReviewed->value,
             'details->entry_id' => $entry->id,
-            'details->decision' => 'rejected',
+            'details->decision' => ParserReviewAction::Rejected->value,
         ]);
     }
 }
