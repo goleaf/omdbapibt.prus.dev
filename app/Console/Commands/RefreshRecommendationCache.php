@@ -29,8 +29,18 @@ class RefreshRecommendationCache extends Command
 
         $query->chunkById(100, function ($users) use ($service, &$count) {
             foreach ($users as $user) {
+                $limits = $service->cachedLimits($user);
+
                 $service->flush($user);
                 $service->recommendFor($user);
+
+                foreach ($limits as $limit) {
+                    if ($limit === 12) {
+                        continue;
+                    }
+
+                    $service->recommendFor($user, $limit);
+                }
                 $count++;
             }
         });

@@ -5,9 +5,11 @@ namespace App\Services\Movies;
 use App\Models\Movie;
 use App\Models\User;
 use App\Models\WatchHistory;
+use Carbon\CarbonInterface;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class RecommendationService
@@ -20,25 +22,42 @@ class RecommendationService
     public function recommendFor(User $user, int $limit = 12): Collection
     {
         $cache = $this->cacheStore();
+        $snapshot = $this->historySnapshot($user);
         $cacheKey = $this->cacheKey($user->getKey(), $limit);
 
-        return $cache->remember($cacheKey, now()->addMinutes(45), function () use ($user, $limit) {
-            $profile = $this->buildPreferenceProfile($user);
+        $cached = $cache->get($cacheKey);
 
-            $candidates = $this->candidateMovies($user, $limit * 4);
+        if (is_array($cached) && ($cached['version'] ?? null) === $snapshot['signature']) {
+            return $this->hydrateMovies($cached['movie_ids'] ?? []);
+        }
 
-            return $candidates
-                ->map(function (Movie $movie) use ($profile) {
-                    return [
-                        'movie' => $movie,
-                        'score' => $this->scoreMovie($movie, $profile),
-                    ];
-                })
-                ->sortByDesc('score')
-                ->take($limit)
-                ->values()
-                ->map(fn (array $payload) => $payload['movie']);
-        });
+        $profile = $this->buildPreferenceProfile($user);
+
+        $candidates = $this->candidateMovies($user, $limit * 4);
+
+        $scored = $candidates
+            ->map(function (Movie $movie) use ($profile) {
+                return [
+                    'movie' => $movie,
+                    'score' => $this->scoreMovie($movie, $profile),
+                ];
+            })
+            ->sortByDesc('score')
+            ->take($limit)
+            ->values();
+
+        $movies = $scored->map(fn (array $payload) => $payload['movie']);
+
+        $expiration = $this->cacheExpiration($snapshot['last_watched_at'], $snapshot['count']);
+
+        $cache->put($cacheKey, [
+            'version' => $snapshot['signature'],
+            'movie_ids' => $movies->pluck('id')->all(),
+        ], $expiration);
+
+        $this->rememberCachedLimit($cache, $user->getKey(), $limit, $expiration);
+
+        return $movies;
     }
 
     /**
@@ -48,9 +67,35 @@ class RecommendationService
     {
         $cache = $this->cacheStore();
 
-        foreach ([6, 12, 18, 24] as $limit) {
+        $indexKey = $this->cacheIndexKey($user->getKey());
+
+        $limits = collect($cache->get($indexKey, []))
+            ->merge([6, 12, 18, 24])
+            ->map(fn ($value) => (int) $value)
+            ->unique()
+            ->all();
+
+        foreach ($limits as $limit) {
             $cache->forget($this->cacheKey($user->getKey(), $limit));
         }
+
+        $cache->forget($indexKey);
+    }
+
+    /**
+     * Retrieve the list of cached limits for the provided user.
+     *
+     * @return array<int, int>
+     */
+    public function cachedLimits(User $user): array
+    {
+        $cache = $this->cacheStore();
+
+        return collect($cache->get($this->cacheIndexKey($user->getKey()), []))
+            ->map(fn ($value) => (int) $value)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**
@@ -58,8 +103,8 @@ class RecommendationService
      *
      * @return array{
      *     genres: array<string, float>,
-     *     average_rating: float,
-     *     release_year: float,
+     *     average_rating: float|null,
+     *     release_year: float|null,
      * }
      */
     public function buildPreferenceProfile(User $user): array
@@ -75,9 +120,10 @@ class RecommendationService
 
         $genreWeights = [];
         $ratingAccumulator = 0.0;
-        $ratingCount = 0;
+        $ratingWeight = 0.0;
         $releaseAccumulator = 0.0;
-        $releaseCount = 0;
+        $releaseWeight = 0.0;
+        $now = Carbon::now();
 
         foreach ($history as $entry) {
             $movie = $entry->watchable;
@@ -86,24 +132,33 @@ class RecommendationService
                 continue;
             }
 
+            $weight = $this->recencyWeight($entry->watched_at ?? $entry->updated_at ?? null, $now);
+
             foreach ($movie->genres as $genre) {
-                $genreWeights[$genre->slug ?? $genre->name] = ($genreWeights[$genre->slug ?? $genre->name] ?? 0) + 1;
+                $key = $genre->slug ?? $genre->name;
+                $genreWeights[$key] = ($genreWeights[$key] ?? 0) + $weight;
             }
 
             if (! is_null($movie->vote_average)) {
-                $ratingAccumulator += (float) $movie->vote_average;
-                $ratingCount++;
+                $ratingAccumulator += $weight * (float) $movie->vote_average;
+                $ratingWeight += $weight;
             }
 
-            if (! is_null($movie->year)) {
-                $releaseAccumulator += (float) $movie->year;
-                $releaseCount++;
+            $releaseYear = $movie->year;
+
+            if (is_null($releaseYear) && $movie->release_date) {
+                $releaseYear = (int) $movie->release_date->format('Y');
+            }
+
+            if (! is_null($releaseYear)) {
+                $releaseAccumulator += $weight * (float) $releaseYear;
+                $releaseWeight += $weight;
             }
         }
 
         $normalizedGenres = $this->normalizeWeights($genreWeights);
-        $averageRating = $ratingCount > 0 ? $ratingAccumulator / $ratingCount : 0.0;
-        $averageYear = $releaseCount > 0 ? $releaseAccumulator / $releaseCount : null;
+        $averageRating = $ratingWeight > 0 ? $ratingAccumulator / $ratingWeight : null;
+        $averageYear = $releaseWeight > 0 ? $releaseAccumulator / $releaseWeight : null;
 
         return [
             'genres' => $normalizedGenres,
@@ -129,18 +184,32 @@ class RecommendationService
         $normalizedGenreScore = $genreWeight > 0 ? $genreScore / $genreWeight : 0.0;
 
         $rating = (float) ($movie->vote_average ?? 0) / 10;
-        $popularity = min(((float) ($movie->popularity ?? 0)) / 100, 1);
+        $popularity = min(((float) ($movie->popularity ?? 0)) / 400, 1);
 
-        $releaseAlignment = 0.0;
-        if (! empty($profile['release_year']) && ! empty($movie->year)) {
-            $difference = abs((float) $movie->year - (float) $profile['release_year']);
-            $releaseAlignment = max(0, 1 - min($difference, 15) / 15);
+        $ratingAlignment = 0.0;
+
+        if (! is_null($profile['average_rating']) && ! is_null($movie->vote_average)) {
+            $difference = abs((float) $movie->vote_average - (float) $profile['average_rating']);
+            $ratingAlignment = max(0.0, 1 - min($difference, 5) / 5);
         }
 
-        return ($normalizedGenreScore * 0.45)
-            + ($rating * 0.3)
-            + ($popularity * 0.15)
-            + ($releaseAlignment * 0.1);
+        $releaseAlignment = 0.0;
+        $releaseYear = $movie->year;
+
+        if (is_null($releaseYear) && $movie->release_date) {
+            $releaseYear = (int) $movie->release_date->format('Y');
+        }
+
+        if (! empty($profile['release_year']) && ! empty($releaseYear)) {
+            $difference = abs((float) $releaseYear - (float) $profile['release_year']);
+            $releaseAlignment = max(0.0, 1 - min($difference, 20) / 20);
+        }
+
+        return ($normalizedGenreScore * 0.4)
+            + ($rating * 0.2)
+            + ($ratingAlignment * 0.25)
+            + ($popularity * 0.1)
+            + ($releaseAlignment * 0.05);
     }
 
     /**
@@ -191,8 +260,101 @@ class RecommendationService
         return sprintf('recommendations:user:%d:%d', $userId, $limit);
     }
 
+    protected function cacheIndexKey(int $userId): string
+    {
+        return sprintf('recommendations:user:%d:index', $userId);
+    }
+
     protected function cacheStore(): CacheRepository
     {
         return $this->cacheManager->store(config('cache.default'));
+    }
+
+    /**
+     * Compute a signature for the user's watch history to drive cache invalidation.
+     *
+     * @return array{signature:string,count:int,last_watched_at:?Carbon}
+     */
+    protected function historySnapshot(User $user): array
+    {
+        $result = WatchHistory::query()
+            ->forUser($user)
+            ->selectRaw('COUNT(*) as aggregate_count, MAX(updated_at) as last_updated_at, MAX(watched_at) as last_watched_at')
+            ->first();
+
+        $count = (int) ($result?->aggregate_count ?? 0);
+        $lastUpdatedAt = $result?->last_updated_at ? Carbon::parse($result->last_updated_at) : null;
+        $lastWatchedAt = $result?->last_watched_at ? Carbon::parse($result->last_watched_at) : null;
+
+        return [
+            'signature' => sprintf('%d:%d', $count, $lastUpdatedAt?->getTimestamp() ?? 0),
+            'count' => $count,
+            'last_watched_at' => $lastWatchedAt,
+        ];
+    }
+
+    protected function cacheExpiration(?Carbon $lastWatchedAt, int $historyCount): Carbon
+    {
+        $now = Carbon::now();
+        $minutes = 60;
+
+        if ($historyCount === 0) {
+            $minutes = 15;
+        } elseif ($lastWatchedAt && $lastWatchedAt->greaterThan((clone $now)->subDay())) {
+            $minutes = 20;
+        } elseif ($lastWatchedAt && $lastWatchedAt->greaterThan((clone $now)->subWeek())) {
+            $minutes = 40;
+        }
+
+        return $now->addMinutes($minutes);
+    }
+
+    /**
+     * Convert cached movie identifiers back into hydrated models.
+     *
+     * @param  array<int, int>  $ids
+     * @return Collection<int, Movie>
+     */
+    protected function hydrateMovies(array $ids): Collection
+    {
+        if ($ids === []) {
+            return collect();
+        }
+
+        $movies = Movie::query()
+            ->with('genres')
+            ->whereIn('id', $ids)
+            ->get()
+            ->keyBy('id');
+
+        return collect($ids)
+            ->map(fn (int $id) => $movies->get($id))
+            ->filter()
+            ->values();
+    }
+
+    protected function recencyWeight(?CarbonInterface $watchedAt, CarbonInterface $reference): float
+    {
+        if (! $watchedAt) {
+            return 1.0;
+        }
+
+        $days = max($watchedAt->diffInDays($reference), 0);
+
+        return round(1 / (1 + ($days / 14)), 4);
+    }
+
+    protected function rememberCachedLimit(CacheRepository $cache, int $userId, int $limit, Carbon $expiresAt): void
+    {
+        $indexKey = $this->cacheIndexKey($userId);
+
+        $limits = collect($cache->get($indexKey, []))
+            ->map(fn ($value) => (int) $value)
+            ->push($limit)
+            ->unique()
+            ->values()
+            ->all();
+
+        $cache->put($indexKey, $limits, $expiresAt);
     }
 }

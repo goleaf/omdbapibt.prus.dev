@@ -17,7 +17,7 @@ class WatchHistoryBrowserTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_non_subscriber_is_redirected_to_account_with_error(): void
+    public function test_non_subscriber_is_redirected_to_checkout_with_error(): void
     {
         $user = User::factory()->create();
 
@@ -26,8 +26,8 @@ class WatchHistoryBrowserTest extends TestCase
         $response = $this->actingAs($user)->get(route('account.watch-history', ['locale' => $locale]));
 
         $response
-            ->assertRedirect(route('account', ['locale' => $locale]))
-            ->assertSessionHas('error', 'A current subscription is required to browse your watch history.');
+            ->assertRedirect(route('checkout', ['locale' => $locale]))
+            ->assertSessionHas('error', 'A premium subscription is required to access this area.');
     }
 
     public function test_subscriber_can_filter_and_search_watch_history(): void
@@ -81,5 +81,35 @@ class WatchHistoryBrowserTest extends TestCase
             ->set('search', 'Testing Movie')
             ->assertSee($movie->localizedTitle())
             ->assertDontSee($show->name);
+    }
+
+    public function test_watch_history_links_use_localized_movie_routes(): void
+    {
+        $user = User::factory()->create([
+            'stripe_id' => 'cus_link_123',
+        ]);
+
+        $user->subscriptions()->create([
+            'type' => 'default',
+            'stripe_id' => 'sub_link_123',
+            'stripe_status' => SubscriptionStatus::Active->value,
+            'stripe_price' => 'price_basic',
+            'quantity' => 1,
+        ]);
+
+        $movie = Movie::factory()->create([
+            'slug' => 'localized-watch-history-movie',
+            'title' => ['en' => 'Localized History Movie'],
+        ]);
+
+        WatchHistory::factory()->for($user)->forMovie($movie)->create([
+            'watched_at' => Carbon::now()->subHour(),
+        ]);
+
+        $locale = config('app.fallback_locale', 'en');
+
+        Livewire::actingAs($user)
+            ->test(WatchHistoryBrowser::class)
+            ->assertSee('href="'.route('movies.show', ['locale' => $locale, 'movie' => $movie->slug]).'"', false);
     }
 }

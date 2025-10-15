@@ -7,6 +7,7 @@ use App\Models\TvShow;
 use App\Models\User;
 use App\Models\WatchHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\WatchHistory>
@@ -38,22 +39,30 @@ class WatchHistoryFactory extends Factory
     /**
      * Indicate that the watch history entry belongs to a TV show.
      */
-    public function forTvShow(): self
+    public function forTvShow(?TvShow $show = null): self
     {
         return $this->state(fn () => [
             'watchable_type' => TvShow::class,
-            'watchable_id' => TvShow::factory(),
+            'watchable_id' => $show?->getKey() ?? TvShow::factory(),
         ]);
     }
 
     /**
      * Indicate that the watch history entry belongs to a movie.
      */
-    public function forMovie(): self
+    public function forMovie(?Movie $movie = null): self
     {
         return $this->state(fn () => [
             'watchable_type' => Movie::class,
-            'watchable_id' => Movie::factory(),
+            'watchable_id' => $movie?->getKey() ?? Movie::factory(),
+        ]);
+    }
+
+    public function forWatchable(EloquentModel $model): self
+    {
+        return $this->state(fn () => [
+            'watchable_type' => $model::class,
+            'watchable_id' => $model->getKey(),
         ]);
     }
 }

@@ -1,3 +1,7 @@
+@php
+    $locale = app()->getLocale();
+@endphp
+
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold text-white">Curated recommendations</h2>
@@ -33,7 +37,7 @@
                     </div>
 
                     <div class="mt-4 flex items-center gap-3">
-                        <flux:button href="{{ route('movies.show', ['slug' => $item['slug']]) }}" variant="primary" color="emerald" size="sm">
+                        <flux:button href="{{ route('movies.show', ['locale' => $locale, 'movie' => $item['slug']]) }}" variant="primary" color="emerald" size="sm">
                             View detail
                         </flux:button>
                     </div>

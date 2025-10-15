@@ -67,7 +67,7 @@ class ApiRateLimitingTest extends TestCase
                 ->assertStatus(401);
         }
 
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $authHeader = 'Basic '.base64_encode($user->email.':password');
 
         $this->withHeader('Authorization', $authHeader)
