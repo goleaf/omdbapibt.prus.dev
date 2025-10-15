@@ -2,9 +2,8 @@
 
 namespace App\Livewire\Auth;
 
-use App\Enums\UserRole;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
+use App\Services\Auth\CreateUser;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
@@ -12,6 +11,8 @@ use Livewire\Component;
 
 class SignupForm extends Component
 {
+    private CreateUser $createUser;
+
     public string $name = '';
 
     public string $email = '';
@@ -19,6 +20,11 @@ class SignupForm extends Component
     public string $password = '';
 
     public string $password_confirmation = '';
+
+    public function boot(CreateUser $createUser): void
+    {
+        $this->createUser = $createUser;
+    }
 
     public function mount(): void
     {
@@ -43,15 +49,7 @@ class SignupForm extends Component
 
         $validated = $this->validate($this->rules());
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-            'role' => UserRole::User,
-            'preferred_locale' => app()->getLocale(),
-        ]);
-
-        event(new Registered($user));
+        $user = $this->createUser->create($validated, app()->getLocale());
 
         Auth::login($user);
 
