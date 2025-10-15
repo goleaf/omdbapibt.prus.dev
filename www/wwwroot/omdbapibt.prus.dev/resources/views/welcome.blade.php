@@ -266,6 +266,59 @@
                         </g>
                     </svg>
                     <div class="absolute inset-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"></div>
+                <section class="mt-12 rounded-2xl border border-amber-200/70 bg-amber-50/70 p-8 text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-50">
+                    <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="max-w-2xl space-y-3">
+                            <h2 class="text-2xl font-semibold tracking-tight">Try everything free for 7 days</h2>
+                            <p class="text-base leading-6">
+                                New subscriptions begin with a full week of premium movie data, curated lists, and streaming availability. Use the trial to explore the entire catalogue before committing.
+                            </p>
+                            @auth
+                                @php
+                                    $trialSubscription = auth()->user()->subscription('default');
+                                @endphp
+                                @if ($trialSubscription?->onTrial())
+                                    <p class="text-sm">
+                                        Your current trial ends on
+                                        <span class="font-semibold">{{ $trialSubscription->trial_ends_at?->setTimezone(config('app.timezone'))->toFormattedDateString() }}</span>.
+                                    </p>
+                                @else
+                                    <p class="text-sm">Start today and we'll remind you before the first charge after the trial.</p>
+                                @endif
+                            @else
+                                <p class="text-sm">Create an account to activate your free trial—no payment is collected until it ends.</p>
+                            @endauth
+                        </div>
+                        <div class="w-full max-w-sm space-y-3">
+                            @auth
+                                @php
+                                    $monthlyPrice = config('services.stripe.prices.monthly');
+                                    $trialDays = (int) config('services.stripe.trial_days', 7);
+                                @endphp
+                                @if ($monthlyPrice)
+                                    <form method="POST" action="{{ route('subscriptions.store') }}" class="space-y-3">
+                                        @csrf
+                                        <input type="hidden" name="price" value="{{ $monthlyPrice }}">
+                                        <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-amber-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600">
+                                            Start {{ $trialDays }}-day trial
+                                        </button>
+                                    </form>
+                                    @error('price')
+                                        <p class="text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                @else
+                                    <p class="text-sm text-amber-800">Configure <code class="rounded bg-amber-100 px-1">STRIPE_MONTHLY_PRICE</code> to enable the checkout link.</p>
+                                @endif
+                            @else
+                                <a href="{{ route('register') }}" class="inline-flex w-full items-center justify-center rounded-lg bg-amber-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600">
+                                    Create your account
+                                </a>
+                                <p class="text-xs text-amber-800/80 dark:text-amber-100/80">You'll be able to start the trial immediately after signing in.</p>
+                            @endauth
+                        </div>
+                    </div>
+                </section>
+
                 </div>
             </main>
         </div>

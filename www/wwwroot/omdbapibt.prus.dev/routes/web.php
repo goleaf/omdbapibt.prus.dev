@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BillingPortalController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -14,6 +15,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/billing/portal', BillingPortalController::class)
         ->name('billing.portal');
+
+    Route::post('/subscriptions', [SubscriptionController::class, 'store'])
+        ->name('subscriptions.store');
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
