@@ -12,13 +12,13 @@
                 <p class="text-base text-slate-200">{{ $movieModel->tagline }}</p>
                 <p class="text-sm leading-relaxed text-slate-300">{{ $movieModel->overview['en'] ?? $movieModel->plot }}</p>
             </div>
-            <img src="{{ \App\Support\TmdbImage::poster($movieModel->poster_path) }}" alt="{{ $movieModel->localizedTitle() }} poster" class="w-56 rounded-3xl border border-slate-800/60 object-cover" />
+            <img src="{{ $posterUrl }}" alt="{{ $movieModel->localizedTitle() }} poster" class="w-56 rounded-3xl border border-slate-800/60 object-cover" />
         </div>
     </div>
 
     <div>
         <div class="flex flex-wrap gap-3">
-            @foreach (['overview', 'credits', 'streaming', 'trailers', 'translations', 'reviews'] as $tab)
+            @foreach ($tabs as $tab => $label)
                 <button
                     type="button"
                     wire:click="setTab('{{ $tab }}')"
@@ -28,7 +28,7 @@
                         'border-slate-700 text-slate-300 hover:border-emerald-400 hover:text-emerald-200' => $activeTab !== $tab,
                     ])
                 >
-                    {{ \Illuminate\Support\Str::headline($tab) }}
+                    {{ $label }}
                 </button>
             @endforeach
         </div>

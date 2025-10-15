@@ -7,6 +7,7 @@ use App\Models\UiTranslation;
 use App\Support\UiTranslationRepository;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class UiTranslationManager extends Component
@@ -47,7 +48,22 @@ class UiTranslationManager extends Component
     {
         $translations = UiTranslation::query()
             ->ordered()
-            ->get();
+            ->get()
+            ->map(function (UiTranslation $translation): array {
+                $previews = [];
+
+                foreach ($this->locales as $locale) {
+                    $value = $translation->getTranslation('value', $locale, false) ?? '—';
+                    $previews[$locale] = Str::limit($value, 80);
+                }
+
+                return [
+                    'id' => $translation->id,
+                    'group' => $translation->group,
+                    'key' => $translation->key,
+                    'previews' => $previews,
+                ];
+            });
 
         return view('livewire.admin.ui-translation-manager', [
             'translations' => $translations,

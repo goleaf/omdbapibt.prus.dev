@@ -144,24 +144,24 @@
                     </thead>
                     <tbody class="divide-y divide-slate-800 bg-slate-950/40">
                         @forelse ($translations as $translation)
-                            <tr wire:key="translation-{{ $translation->id }}" class="hover:bg-slate-900/60">
-                                <td class="px-4 py-3 font-mono text-xs uppercase tracking-wide text-slate-400">{{ $translation->group }}</td>
-                                <td class="px-4 py-3 font-mono text-xs uppercase tracking-wide text-slate-400">{{ $translation->key }}</td>
+                            <tr wire:key="translation-{{ $translation['id'] }}" class="hover:bg-slate-900/60">
+                                <td class="px-4 py-3 font-mono text-xs uppercase tracking-wide text-slate-400">{{ $translation['group'] }}</td>
+                                <td class="px-4 py-3 font-mono text-xs uppercase tracking-wide text-slate-400">{{ $translation['key'] }}</td>
                                 @foreach ($locales as $locale)
                                     <td class="px-4 py-3 text-slate-200">
-                                        {{ \Illuminate\Support\Str::limit($translation->getTranslation('value', $locale, false) ?? '—', 80) }}
+                                        {{ $translation['previews'][$locale] ?? '—' }}
                                     </td>
                                 @endforeach
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-end gap-2">
                                         <button
                                             type="button"
-                                            wire:click="edit({{ $translation->id }})"
+                                            wire:click="edit({{ $translation['id'] }})"
                                             class="rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200"
                                         >
                                             Edit
                                         </button>
-                                        @if ($pendingDeletionId === $translation->id)
+                                        @if ($pendingDeletionId === $translation['id'])
                                             <button
                                                 type="button"
                                                 wire:click="deleteConfirmed"
@@ -179,7 +179,7 @@
                                         @else
                                             <button
                                                 type="button"
-                                                wire:click="confirmDeletion({{ $translation->id }})"
+                                                wire:click="confirmDeletion({{ $translation['id'] }})"
                                                 class="rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-300 transition hover:border-red-400 hover:text-red-200"
                                             >
                                                 Delete

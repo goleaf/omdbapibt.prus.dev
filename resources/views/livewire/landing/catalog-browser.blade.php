@@ -107,7 +107,7 @@
                                 >
                                     <span class="flex flex-1 flex-col text-left">
                                         <span class="text-sm font-semibold text-inherit">
-                                            {{ $collection['label'] ?? \Illuminate\Support\Str::headline($collectionKey) }}
+                                            {{ $collection['label'] }}
                                         </span>
                                         @if (! empty($collection['tagline']))
                                             <span class="text-xs text-slate-300">{{ $collection['tagline'] }}</span>

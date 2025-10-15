@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Person;
 use App\Support\TmdbImage;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class PersonDetail extends Component
@@ -52,6 +53,8 @@ class PersonDetail extends Component
         foreach ($this->personModel->movies as $movie) {
             $pivot = $movie->pivot;
             $type = $pivot->credit_type ?? 'cast';
+            $credits = $this->ensureCreditGroupInitialized($credits, $type);
+
             $credits[$type]['movies'][] = [
                 'title' => $movie->localizedTitle(),
                 'role' => $pivot->character ?? $pivot->job,
@@ -63,6 +66,8 @@ class PersonDetail extends Component
         foreach ($this->personModel->tvShows as $show) {
             $pivot = $show->pivot;
             $type = $pivot->credit_type ?? 'cast';
+            $credits = $this->ensureCreditGroupInitialized($credits, $type);
+
             $credits[$type]['shows'][] = [
                 'title' => $show->name,
                 'role' => $pivot->character ?? $pivot->job,
@@ -72,6 +77,34 @@ class PersonDetail extends Component
         }
 
         ksort($credits);
+
+        return $credits;
+    }
+
+    /**
+     * Ensure a credit group has been initialised with display metadata.
+     *
+     * @param  array<string, array<string, mixed>>  $credits
+     * @return array<string, array<string, mixed>>
+     */
+    protected function ensureCreditGroupInitialized(array $credits, string $type): array
+    {
+        if (isset($credits[$type])) {
+            return $credits;
+        }
+
+        $translationKey = 'ui.people.credit_types.'.$type;
+        $label = __($translationKey);
+
+        if ($label === $translationKey) {
+            $label = Str::headline($type);
+        }
+
+        $credits[$type] = [
+            'label' => $label,
+            'movies' => [],
+            'shows' => [],
+        ];
 
         return $credits;
     }
