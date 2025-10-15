@@ -2,12 +2,11 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Forms\UiTranslationForm;
 use App\Models\UiTranslation;
 use App\Support\UiTranslationRepository;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class UiTranslationManager extends Component
@@ -16,7 +15,7 @@ class UiTranslationManager extends Component
 
     public array $locales = [];
 
-    public array $form = [];
+    public UiTranslationForm $form;
 
     public ?int $editingId = null;
 
@@ -40,7 +39,8 @@ class UiTranslationManager extends Component
         $this->locales = array_values(array_unique($configuredLocales));
         $this->fallbackLocale = $fallback;
 
-        $this->resetForm();
+        $this->form->configure($this->locales, $this->fallbackLocale);
+        $this->form->startCreating();
     }
 
     public function render(): View
@@ -61,7 +61,7 @@ class UiTranslationManager extends Component
         $this->editingId = null;
         $this->pendingDeletionId = null;
         $this->statusMessage = '';
-        $this->resetForm();
+        $this->form->startCreating();
     }
 
     public function edit(int $translationId): void
@@ -74,11 +74,7 @@ class UiTranslationManager extends Component
         $this->pendingDeletionId = null;
         $this->statusMessage = '';
 
-        $this->resetForm(
-            values: $translation->getTranslations('value'),
-            group: $translation->group,
-            key: $translation->key,
-        );
+        $this->form->fillFromModel($translation);
     }
 
     public function confirmDeletion(int $translationId): void
@@ -112,7 +108,7 @@ class UiTranslationManager extends Component
             $this->authorize('delete', $translation);
             $translation->delete();
             $this->repository()->refreshAndRegister();
-            $this->statusMessage = __('Translation deleted.');
+            $this->statusMessage = trans('admin.ui_translations.status.deleted');
         }
 
         if ($this->editingId === $this->pendingDeletionId) {
@@ -127,101 +123,39 @@ class UiTranslationManager extends Component
         $this->authorize('update', UiTranslation::class);
 
         $this->repository()->refreshAndRegister();
-        $this->statusMessage = __('Translation cache refreshed.');
+        $this->statusMessage = trans('admin.ui_translations.status.cache_refreshed');
     }
 
     public function save(): void
     {
         $translation = null;
+        $wasEditing = (bool) $this->editingId;
 
         if ($this->editingId) {
             $translation = UiTranslation::query()->find($this->editingId);
 
             if ($translation) {
                 $this->authorize('update', $translation);
+                $this->form->setTranslationId($translation->id);
             } else {
                 $this->authorize('create', UiTranslation::class);
+                $this->form->setTranslationId(null);
             }
         } else {
             $this->authorize('create', UiTranslation::class);
+            $this->form->setTranslationId(null);
         }
 
         $this->statusMessage = '';
-
-        $rules = [
-            'form.group' => ['required', 'string', 'max:100'],
-            'form.key' => [
-                'required',
-                'string',
-                'max:150',
-                Rule::unique('ui_translations', 'key')
-                    ->where(fn ($query) => $query->where('group', $this->form['group'] ?? ''))
-                    ->ignore($this->editingId),
-            ],
-        ];
-
-        foreach ($this->locales as $locale) {
-            $rules["form.values.{$locale}"] = ['nullable', 'string'];
-        }
-
-        $rules["form.values.{$this->fallbackLocale}"][] = 'required';
-
-        $this->validate($rules);
-
-        $payload = $this->cleanPayload();
-
-        if (! $translation) {
-            $translation = new UiTranslation;
-        }
-
-        $translation->group = Str::slug($this->form['group'], '_');
-        $translation->key = Str::slug($this->form['key'], '_');
-        $translation->setTranslations('value', $payload);
-        $translation->save();
+        $savedTranslation = $this->form->persist($translation);
 
         $this->repository()->refreshAndRegister();
 
-        $this->statusMessage = $this->editingId ? __('Translation updated.') : __('Translation saved.');
+        $this->statusMessage = $wasEditing
+            ? trans('admin.ui_translations.status.updated')
+            : trans('admin.ui_translations.status.saved');
 
-        $this->editingId = $translation->id;
-        $this->resetForm(
-            values: $translation->getTranslations('value'),
-            group: $translation->group,
-            key: $translation->key,
-        );
-    }
-
-    protected function resetForm(?array $values = null, ?string $group = null, ?string $key = null): void
-    {
-        $defaults = [];
-
-        foreach ($this->locales as $locale) {
-            $defaults[$locale] = trim((string) ($values[$locale] ?? ''));
-        }
-
-        $this->form = [
-            'group' => $group ?? '',
-            'key' => $key ?? '',
-            'values' => $defaults,
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    protected function cleanPayload(): array
-    {
-        $values = [];
-
-        foreach ($this->locales as $locale) {
-            $value = trim((string) ($this->form['values'][$locale] ?? ''));
-
-            if ($value !== '') {
-                $values[$locale] = $value;
-            }
-        }
-
-        return $values;
+        $this->editingId = $savedTranslation->id;
     }
 
     protected function repository(): UiTranslationRepository
