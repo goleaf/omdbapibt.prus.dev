@@ -1,0 +1,37 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to deploy'
+        required: false
+        default: 'main'
+
+jobs:
+  deploy:
+    name: Run production deployment
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || 'main' }}
+
+      - name: Upload release to server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PRODUCTION_SSH_HOST }}
+          username: ${{ secrets.PRODUCTION_SSH_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_SSH_PORT || 22 }}
+          script: |
+            cd ${{ secrets.PRODUCTION_APP_PATH }}
+            git fetch origin ${{ github.event.inputs.ref || 'main' }}
+            git checkout ${{ github.event.inputs.ref || 'main' }}
+            git reset --hard origin/${{ github.event.inputs.ref || 'main' }}
+            composer install --no-dev --prefer-dist --optimize-autoloader
+            npm ci --omit=dev || npm install --omit=dev
+            npm run build
+            ./scripts/deploy-production.sh
