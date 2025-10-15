@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Laravel') }} &mdash; Dashboard</title>
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="antialiased bg-gray-100 text-gray-900">
     <div class="min-h-screen">
@@ -24,8 +25,7 @@
             <section class="rounded-lg bg-white p-6 shadow">
                 <h2 class="text-xl font-semibold mb-2">Welcome back!</h2>
                 <p class="text-gray-600">
-                    Access your Stripe billing portal to update payment methods, review invoices,
-                    or cancel your subscription at any time using the link above.
+                    Review your plan details, manage billing, and make changes to your subscription in real time.
                 </p>
 
                 @php
@@ -99,7 +99,10 @@
                     </div>
                 @endif
             </section>
+
+            @livewire('subscription-manage')
         </main>
     </div>
+    @livewireScripts
 </body>
 </html>
