@@ -7,6 +7,7 @@ return [
     'custom' => [
         'query' => [
             'required' => 'Veuillez fournir un terme de recherche.',
+            'string' => 'Le terme de recherche doit être une chaîne de caractères.',
             'min' => 'Le terme de recherche doit contenir au moins :min caractères.',
         ],
         'limit' => [

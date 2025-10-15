@@ -7,6 +7,7 @@ return [
     'custom' => [
         'query' => [
             'required' => 'Please enter a search query.',
+            'string' => 'The search query must be a text value.',
             'min' => 'The search query must be at least :min characters.',
         ],
         'limit' => [
