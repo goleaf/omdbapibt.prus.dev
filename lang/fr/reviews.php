@@ -2,7 +2,7 @@
 
 return [
     'messages' => [
-        'submitted' => 'Critique envoyée avec succès.',
+        'submitted' => 'Votre critique a été envoyée avec succès.',
     ],
     'validation' => [
         'movie_title' => [

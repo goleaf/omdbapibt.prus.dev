@@ -2,7 +2,7 @@
 
 return [
     'messages' => [
-        'submitted' => 'Reseña enviada correctamente.',
+        'submitted' => 'Tu reseña se ha enviado correctamente.',
     ],
     'validation' => [
         'movie_title' => [

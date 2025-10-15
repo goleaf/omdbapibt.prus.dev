@@ -87,6 +87,7 @@ class ReviewFormValidationTest extends TestCase
             ->set('form.body', 'Une critique brève.')
             ->call('submit')
             ->assertHasNoErrors()
+            ->assertSet('form.rating', 5)
             ->assertSet('statusMessage', __('reviews.messages.submitted'))
             ->assertSee(__('reviews.messages.submitted'));
 
