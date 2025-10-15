@@ -10,7 +10,7 @@
             <div class="text-sm text-gray-500">
                 <p class="font-medium text-gray-700">Current status</p>
                 <p class="mt-0.5 inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-700">
-                    {{ Str::headline($selectedEntry->status) }}
+                    {{ Str::headline($selectedEntry->status->value) }}
                 </p>
             </div>
         @endif
@@ -30,7 +30,7 @@
                             >
                                 <div class="flex items-center justify-between">
                                     <span class="font-medium">{{ data_get($entry->payload, 'title', 'Untitled entry') }}</span>
-                                    <span class="text-xs text-gray-500">{{ ucfirst($entry->status) }}</span>
+                                    <span class="text-xs text-gray-500">{{ ucfirst($entry->status->value) }}</span>
                                 </div>
                                 <p class="mt-1 text-xs text-gray-500">Parser: {{ $entry->parser }}</p>
                                 <p class="text-xs text-gray-400">Submitted {{ $entry->created_at->diffForHumans() }}</p>
@@ -139,7 +139,7 @@
                         @forelse ($history as $event)
                             <li class="rounded-lg border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
                                 <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                                    <span class="font-semibold text-gray-800">{{ Str::headline($event->action) }}</span>
+                                    <span class="font-semibold text-gray-800">{{ Str::headline($event->action->value) }}</span>
                                     <span class="text-xs text-gray-500">{{ $event->created_at->toDayDateTimeString() }}</span>
                                 </div>
                                 @if ($event->user)

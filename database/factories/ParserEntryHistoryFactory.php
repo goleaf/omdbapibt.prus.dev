@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ParserReviewAction;
 use App\Models\ParserEntry;
 use App\Models\ParserEntryHistory;
 use App\Models\User;
@@ -19,7 +20,7 @@ class ParserEntryHistoryFactory extends Factory
         return [
             'parser_entry_id' => ParserEntry::factory(),
             'user_id' => User::factory(),
-            'action' => $this->faker->randomElement(['queued', 'approved', 'rejected']),
+            'action' => $this->faker->randomElement(ParserReviewAction::cases())->value,
             'changes' => [
                 [
                     'key' => 'title',

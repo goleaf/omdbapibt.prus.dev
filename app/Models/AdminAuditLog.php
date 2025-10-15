@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AdminAuditAction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,7 @@ class AdminAuditLog extends Model
      */
     protected $casts = [
         'details' => 'array',
+        'action' => AdminAuditAction::class,
     ];
 
     public function user(): BelongsTo

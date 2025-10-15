@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ParserEntryStatus;
 use App\Models\Movie;
 use App\Models\ParserEntry;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -37,18 +38,18 @@ class ParserEntryFactory extends Factory
                 'popularity' => $this->faker->randomFloat(3, 0, 500),
                 'vote_average' => $this->faker->randomFloat(1, 0, 10),
             ],
-            'status' => ParserEntry::STATUS_PENDING,
+            'status' => ParserEntryStatus::Pending,
             'notes' => null,
         ];
     }
 
     public function approved(): self
     {
-        return $this->state(fn (): array => ['status' => ParserEntry::STATUS_APPROVED]);
+        return $this->state(fn (): array => ['status' => ParserEntryStatus::Approved]);
     }
 
     public function rejected(): self
     {
-        return $this->state(fn (): array => ['status' => ParserEntry::STATUS_REJECTED]);
+        return $this->state(fn (): array => ['status' => ParserEntryStatus::Rejected]);
     }
 }

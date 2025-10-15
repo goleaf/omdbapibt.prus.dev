@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ParserReviewAction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,7 @@ class ParserEntryHistory extends Model
      */
     protected $casts = [
         'changes' => 'array',
+        'action' => ParserReviewAction::class,
     ];
 
     public function entry(): BelongsTo

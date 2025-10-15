@@ -2,6 +2,7 @@
 
 namespace App\Services\Parser\Hydrators;
 
+use App\Enums\ParserEntryStatus;
 use App\Models\ParserEntry;
 use App\Services\Parser\Contracts\Hydrator;
 use Carbon\CarbonImmutable;
@@ -43,7 +44,7 @@ abstract class ModelHydrator implements Hydrator
                 [
                     'payload' => $this->buildPayload($model),
                     'baseline_snapshot' => $this->baseline($model),
-                    'status' => ParserEntry::STATUS_PENDING,
+                    'status' => ParserEntryStatus::Pending,
                 ],
             );
 
