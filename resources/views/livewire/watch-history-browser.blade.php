@@ -107,7 +107,7 @@
                         }
                         $poster = $watchable->poster_path;
                         $typeLabel = 'Movie';
-                        $route = route('movies.show', ['locale' => $locale, 'slug' => $watchable->slug]);
+                        $route = route('movies.show', ['locale' => $locale, 'movie' => $watchable->slug]);
                     } elseif ($watchable instanceof TvShow) {
                         $title = $watchable->name ?: 'Untitled series';
                         if ($watchable->first_air_date) {

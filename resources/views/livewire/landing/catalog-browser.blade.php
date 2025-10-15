@@ -1,3 +1,7 @@
+@php
+    $locale = app()->getLocale();
+@endphp
+
 <section
     class="space-y-6"
     data-infinite-scroll="true"
@@ -171,7 +175,7 @@
                             @endif
                         </div>
                         <a
-                            href="{{ route('movies.show', $movie['slug']) }}"
+                            href="{{ route('movies.show', ['locale' => $locale, 'movie' => $movie['slug']]) }}"
                             class="absolute inset-0"
                             aria-label="Open {{ $movie['title'] }} details"
                         ></a>
