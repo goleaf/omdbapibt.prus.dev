@@ -83,6 +83,12 @@ SQL);
                 $table->fullText(['title_search_vector', 'overview_search_vector'], 'movies_fulltext_translations');
             }
         });
+
+        if ($this->usingMySql()) {
+            Schema::table('movies', function (Blueprint $table) {
+                $table->fullText('title');
+            });
+        }
     }
 
     /**
@@ -91,5 +97,10 @@ SQL);
     public function down(): void
     {
         Schema::dropIfExists('movies');
+    }
+
+    private function usingMySql(): bool
+    {
+        return Schema::getConnection()->getDriverName() === 'mysql';
     }
 };
