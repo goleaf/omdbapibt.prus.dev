@@ -1,6 +1,6 @@
 @extends('layouts.app', [
-    'title' => $title ?? 'Dashboard',
-    'header' => $header ?? 'Dashboard overview',
+    'title' => $title ?? __('ui.dashboard.title'),
+    'header' => $header ?? __('ui.dashboard.layout.default_header'),
     'subheader' => $subheader ?? null,
 ])
 
@@ -8,7 +8,7 @@
     <div class="grid gap-8 lg:grid-cols-[18rem,1fr]">
         <aside class="space-y-4">
             <div class="rounded-3xl border border-slate-800/60 bg-slate-900/60 p-5">
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Navigation</h2>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">{{ __('ui.dashboard.layout.sidebar_heading') }}</h2>
                 <nav class="mt-4 space-y-2">
                     @foreach (($navigation ?? []) as $item)
                         @php

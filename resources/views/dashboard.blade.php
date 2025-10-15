@@ -77,18 +77,18 @@
 
                 <div class="space-y-4">
                     <div class="rounded-2xl border border-slate-800/60 bg-slate-900/70 p-5">
-                        <p class="text-xs uppercase tracking-[0.35em] text-emerald-200">Plan insights</p>
+                        <p class="text-xs uppercase tracking-[0.35em] text-emerald-200">{{ __('ui.dashboard.insights_card.title') }}</p>
                         <dl class="mt-4 grid gap-3 text-sm text-slate-300">
                             <div class="flex items-center justify-between">
-                                <dt>Subscription status</dt>
+                                <dt>{{ __('ui.dashboard.insights_card.subscription_status') }}</dt>
                                 <dd class="font-semibold text-emerald-200">{{ $subscription?->status ?? 'inactive' }}</dd>
                             </div>
                             <div class="flex items-center justify-between">
-                                <dt>Trial days</dt>
+                                <dt>{{ __('ui.dashboard.insights_card.trial_days') }}</dt>
                                 <dd>{{ $trialDays }}</dd>
                             </div>
                             <div class="flex items-center justify-between">
-                                <dt>Next invoice</dt>
+                                <dt>{{ __('ui.dashboard.insights_card.next_invoice') }}</dt>
                                 <dd>{{ optional($subscription?->nextPaymentAttempt())->toDateTimeString() ?? '—' }}</dd>
                             </div>
                         </dl>
@@ -99,11 +99,11 @@
 
         <livewire:dashboard.recommendations />
 
-        <x-flux.card heading="Manage subscription">
+        <x-flux.card heading="{{ __('ui.dashboard.cards.manage_subscription') }}">
             @livewire('subscription-manage')
         </x-flux.card>
 
-        <x-flux.card heading="Watchlist">
+        <x-flux.card heading="{{ __('ui.dashboard.cards.watchlist') }}">
             @livewire('watchlist')
         </x-flux.card>
     </div>

@@ -33,12 +33,26 @@ return [
     ],
     'dashboard' => [
         'title' => 'Dashboard',
+        'layout' => [
+            'sidebar_heading' => 'Navigation',
+            'default_header' => 'Dashboard overview',
+        ],
         'nav' => [
             'overview' => 'Overview',
             'manage_subscription' => 'Manage Subscription',
         ],
         'welcome_heading' => 'Welcome back!',
         'welcome_body' => 'Review your plan details, manage billing, and make changes to your subscription in real time.',
+        'insights_card' => [
+            'title' => 'Plan insights',
+            'subscription_status' => 'Subscription status',
+            'trial_days' => 'Trial days',
+            'next_invoice' => 'Next invoice',
+        ],
+        'cards' => [
+            'manage_subscription' => 'Manage subscription',
+            'watchlist' => 'Watchlist',
+        ],
         'trial' => [
             'active_title' => 'Your free trial is active.',
             'active_body' => 'Enjoy full access until :date. We\'ll send reminders before billing begins.',

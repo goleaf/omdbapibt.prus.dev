@@ -33,12 +33,26 @@ return [
     ],
     'dashboard' => [
         'title' => 'Tableau de bord',
+        'layout' => [
+            'sidebar_heading' => 'Navigation',
+            'default_header' => 'Vue d’ensemble du tableau de bord',
+        ],
         'nav' => [
             'overview' => 'Aperçu',
             'manage_subscription' => 'Gérer l’abonnement',
         ],
         'welcome_heading' => 'Bon retour parmi nous !',
         'welcome_body' => 'Consultez les détails de votre offre, gérez la facturation et ajustez votre abonnement en temps réel.',
+        'insights_card' => [
+            'title' => 'Aperçu de l’offre',
+            'subscription_status' => 'Statut de l’abonnement',
+            'trial_days' => 'Jours d’essai',
+            'next_invoice' => 'Prochaine facture',
+        ],
+        'cards' => [
+            'manage_subscription' => 'Gérer l’abonnement',
+            'watchlist' => 'Liste de suivi',
+        ],
         'trial' => [
             'active_title' => 'Votre essai gratuit est actif.',
             'active_body' => 'Profitez d’un accès complet jusqu’au :date. Nous enverrons des rappels avant le début de la facturation.',
