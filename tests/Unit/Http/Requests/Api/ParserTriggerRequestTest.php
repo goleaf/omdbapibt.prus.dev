@@ -4,6 +4,7 @@ namespace Tests\Unit\Http\Requests\Api;
 
 use App\Enums\ParserWorkload;
 use App\Http\Requests\Api\ParserTriggerRequest;
+use App\Models\ParserEntry;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -16,6 +17,32 @@ class ParserTriggerRequestTest extends TestCase
         Gate::shouldReceive('allows')->once()->andReturnTrue();
 
         $request = new ParserTriggerRequest;
+
+        $this->assertTrue($request->authorize());
+    }
+
+    public function test_it_denies_when_gate_rejects_candidate(): void
+    {
+        Gate::shouldReceive('allows')
+            ->once()
+            ->with('trigger', [ParserEntry::class, ParserWorkload::Movies])
+            ->andReturnFalse();
+
+        $request = new ParserTriggerRequest;
+
+        $this->assertFalse($request->authorize());
+    }
+
+    public function test_it_passes_request_workload_to_gate(): void
+    {
+        Gate::shouldReceive('allows')
+            ->once()
+            ->with('trigger', [ParserEntry::class, ParserWorkload::People])
+            ->andReturnTrue();
+
+        $request = ParserTriggerRequest::create('/api/parser/trigger', 'POST', [
+            'workload' => ParserWorkload::People->value,
+        ]);
 
         $this->assertTrue($request->authorize());
     }
