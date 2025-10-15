@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphedByMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,6 +15,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use Billable;
+
     use HasFactory, Notifiable;
 
     /**
@@ -87,5 +89,13 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    /**
+     * Watch history entries associated with the user.
+     */
+    public function watchHistories(): HasMany
+    {
+        return $this->hasMany(WatchHistory::class);
     }
 }

@@ -7,6 +7,7 @@ use App\Livewire\Admin\AnalyticsDashboard;
 use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\Admin\ParserModerationDashboard;
 use App\Livewire\TvShowDetail;
+use App\Livewire\WatchHistoryBrowser;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
@@ -36,6 +37,10 @@ $registerAppRoutes = function (): void {
     Route::middleware('auth')->group(function (): void {
         Route::view('/dashboard', 'dashboard')->name('dashboard');
         Route::view('/account', 'pages.account')->name('account');
+
+        Route::get('/account/watch-history', WatchHistoryBrowser::class)
+            ->middleware('subscriber')
+            ->name('account.watch-history');
 
         Route::get('/billing/portal', BillingPortalController::class)
             ->name('billing.portal');
