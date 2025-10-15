@@ -65,7 +65,7 @@ class UiTranslationManagerTest extends TestCase
             ->set('form.values.es', 'Ver esta noche')
             ->call('save')
             ->assertHasNoErrors()
-            ->assertSet('statusMessage', __('Translation updated.'));
+            ->assertSet('statusMessage', trans('admin.ui_translations.status.updated'));
 
         Livewire::actingAs($admin)
             ->test(UiTranslationManager::class)
@@ -304,5 +304,55 @@ class UiTranslationManagerTest extends TestCase
             ]);
 
         $response->assertForbidden();
+    }
+
+    public function test_status_message_is_localized(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $translation = UiTranslation::factory()->create([
+            'group' => 'nav',
+            'key' => 'cta_label',
+            'value' => [
+                'en' => 'Stream now',
+                'es' => 'Reproducir ahora',
+            ],
+        ]);
+
+        app()->setLocale('es');
+
+        try {
+            Livewire::actingAs($admin)
+                ->test(UiTranslationManager::class)
+                ->call('edit', $translation->id)
+                ->set('form.values.en', 'Watch tonight')
+                ->set('form.values.es', 'Ver esta noche')
+                ->call('save')
+                ->assertSet('statusMessage', trans('admin.ui_translations.status.updated'));
+        } finally {
+            app()->setLocale('en');
+        }
+    }
+
+    public function test_validation_error_message_is_localized(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        app()->setLocale('fr');
+
+        try {
+            Livewire::actingAs($admin)
+                ->test(UiTranslationManager::class)
+                ->set('form.group', 'nav')
+                ->set('form.key', 'cta_label')
+                ->set('form.values.es', 'Regarder maintenant')
+                ->call('save')
+                ->assertHasErrors([
+                    'form.values.en' => trans('admin.ui_translations.validation.value_required', [
+                        'locale' => trans('admin.ui_translations.locales.en'),
+                    ]),
+                ]);
+        } finally {
+            app()->setLocale('en');
+        }
     }
 }
