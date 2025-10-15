@@ -98,6 +98,8 @@ return [
 
     'waits' => [
         'redis:default' => 60,
+        'redis:parsing' => 180,
+        'redis:emails' => 120,
     ],
 
     /*
@@ -197,33 +199,80 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        'parsing-supervisor' => [
+            'connection' => 'redis',
+            'queue' => ['parsing'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 6,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 3,
+            'backoff' => [60, 120, 240],
+            'timeout' => 120,
+            'nice' => 0,
+        ],
+
+        'default-supervisor' => [
             'connection' => 'redis',
             'queue' => ['default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
+            'maxProcesses' => 4,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
-            'tries' => 1,
-            'timeout' => 60,
+            'tries' => 3,
+            'backoff' => [30, 90, 270],
+            'timeout' => 90,
+            'nice' => 0,
+        ],
+
+        'emails-supervisor' => [
+            'connection' => 'redis',
+            'queue' => ['emails'],
+            'balance' => 'simple',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 3,
+            'backoff' => [120, 240, 480],
+            'timeout' => 90,
             'nice' => 0,
         ],
     ],
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
-                'maxProcesses' => 10,
-                'balanceMaxShift' => 1,
+            'parsing-supervisor' => [
+                'maxProcesses' => 12,
+                'balanceMaxShift' => 2,
                 'balanceCooldown' => 3,
+            ],
+
+            'default-supervisor' => [
+                'maxProcesses' => 6,
+            ],
+
+            'emails-supervisor' => [
+                'maxProcesses' => 4,
             ],
         ],
 
         'local' => [
-            'supervisor-1' => [
-                'maxProcesses' => 3,
+            'parsing-supervisor' => [
+                'maxProcesses' => 2,
+            ],
+
+            'default-supervisor' => [
+                'maxProcesses' => 2,
+            ],
+
+            'emails-supervisor' => [
+                'maxProcesses' => 1,
             ],
         ],
     ],
