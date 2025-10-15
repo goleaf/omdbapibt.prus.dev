@@ -41,7 +41,7 @@ $registerAppRoutes = function (): void {
     Route::get('/signup', SignupController::class)->name('signup');
     Route::get('/register', SignupController::class)->name('register');
 
-    Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
+    Route::get('/movies/{movie}', fn (string $locale, string $movie) => view('pages.movies.show', ['movie' => $movie]))
         ->name('movies.show');
 
     Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))
