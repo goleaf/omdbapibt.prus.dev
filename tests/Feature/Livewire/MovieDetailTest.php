@@ -39,4 +39,32 @@ class MovieDetailTest extends TestCase
             ->assertOk()
             ->assertSee($movie->title);
     }
+
+    public function test_movie_detail_page_is_accessible_by_slug(): void
+    {
+        $movie = Movie::factory()->create();
+
+        $this->withoutVite();
+        $this->get(route('movies.show', [
+            'locale' => config('translatable.fallback_locale'),
+            'movie' => $movie->slug,
+        ]))
+            ->assertOk()
+            ->assertSeeLivewire(MovieDetail::class)
+            ->assertSee($movie->title);
+    }
+
+    public function test_movie_detail_page_is_accessible_by_id(): void
+    {
+        $movie = Movie::factory()->create();
+
+        $this->withoutVite();
+        $this->get(route('movies.show', [
+            'locale' => config('translatable.fallback_locale'),
+            'movie' => $movie->id,
+        ]))
+            ->assertOk()
+            ->assertSeeLivewire(MovieDetail::class)
+            ->assertSee($movie->title);
+    }
 }
