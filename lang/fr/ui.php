@@ -116,4 +116,57 @@ return [
             'crew' => 'Équipe technique',
         ],
     ],
+    'admin' => [
+        'ui_translations' => [
+            'title' => 'Gestionnaire de traductions UI',
+            'description' => 'Gérez les textes localisés de l’interface pour toutes les langues prises en charge et synchronisez les mises à jour vers le cache Redis.',
+            'actions' => [
+                'new' => 'Nouvelle traduction',
+                'refresh' => 'Rafraîchir le cache',
+                'refreshing' => 'Rafraîchissement…',
+                'save' => 'Enregistrer la traduction',
+                'saving' => 'Enregistrement…',
+                'cancel_edit' => 'Annuler la modification',
+                'edit' => 'Modifier',
+                'delete' => 'Supprimer',
+                'confirm' => 'Confirmer',
+                'cancel' => 'Annuler',
+            ],
+            'form' => [
+                'heading' => [
+                    'create' => 'Créer une traduction',
+                    'edit' => 'Modifier la traduction',
+                ],
+                'instructions' => 'Définissez le groupe, la clé et les valeurs localisées. La langue de secours est obligatoire pour chaque entrée.',
+                'fields' => [
+                    'group' => 'Groupe',
+                    'key' => 'Clé',
+                    'value' => 'Traduction',
+                ],
+                'fallback_hint' => 'Cette langue est obligatoire.',
+            ],
+            'table' => [
+                'heading' => 'Traductions enregistrées',
+                'columns' => [
+                    'group' => 'Groupe',
+                    'key' => 'Clé',
+                    'actions' => 'Actions',
+                ],
+                'locale_count' => '{1} :count langue|[2,*] :count langues',
+                'empty' => 'Aucune traduction d’interface n’a encore été créée.',
+            ],
+            'status' => [
+                'saved' => 'Traduction enregistrée.',
+                'updated' => 'Traduction mise à jour.',
+                'deleted' => 'Traduction supprimée.',
+                'cache_refreshed' => 'Cache des traductions rafraîchi.',
+            ],
+            'validation' => [
+                'group_required' => 'Le champ groupe est obligatoire.',
+                'key_required' => 'Le champ clé est obligatoire.',
+                'key_unique' => 'Une traduction avec ce groupe et cette clé existe déjà.',
+                'value_required' => 'Une valeur de traduction est requise pour la langue :locale.',
+            ],
+        ],
+    ],
 ];

@@ -116,4 +116,57 @@ return [
             'crew' => 'Equipo técnico',
         ],
     ],
+    'admin' => [
+        'ui_translations' => [
+            'title' => 'Administrador de traducciones de la interfaz',
+            'description' => 'Gestiona el contenido localizado de la interfaz en los idiomas admitidos y sincroniza las actualizaciones con la caché en Redis.',
+            'actions' => [
+                'new' => 'Nueva traducción',
+                'refresh' => 'Actualizar caché',
+                'refreshing' => 'Actualizando…',
+                'save' => 'Guardar traducción',
+                'saving' => 'Guardando…',
+                'cancel_edit' => 'Cancelar edición',
+                'edit' => 'Editar',
+                'delete' => 'Eliminar',
+                'confirm' => 'Confirmar',
+                'cancel' => 'Cancelar',
+            ],
+            'form' => [
+                'heading' => [
+                    'create' => 'Crear traducción',
+                    'edit' => 'Editar traducción',
+                ],
+                'instructions' => 'Define el grupo, la clave y los valores localizados. El idioma de respaldo es obligatorio para cada registro.',
+                'fields' => [
+                    'group' => 'Grupo',
+                    'key' => 'Clave',
+                    'value' => 'Traducción',
+                ],
+                'fallback_hint' => 'Este idioma es obligatorio.',
+            ],
+            'table' => [
+                'heading' => 'Traducciones almacenadas',
+                'columns' => [
+                    'group' => 'Grupo',
+                    'key' => 'Clave',
+                    'actions' => 'Acciones',
+                ],
+                'locale_count' => '{1} :count idioma|[2,*] :count idiomas',
+                'empty' => 'Aún no se han creado traducciones de la interfaz.',
+            ],
+            'status' => [
+                'saved' => 'Traducción guardada.',
+                'updated' => 'Traducción actualizada.',
+                'deleted' => 'Traducción eliminada.',
+                'cache_refreshed' => 'Caché de traducciones actualizada.',
+            ],
+            'validation' => [
+                'group_required' => 'El campo grupo es obligatorio.',
+                'key_required' => 'El campo clave es obligatorio.',
+                'key_unique' => 'Ya existe una traducción con este grupo y clave.',
+                'value_required' => 'Se requiere un valor de traducción para el idioma :locale.',
+            ],
+        ],
+    ],
 ];

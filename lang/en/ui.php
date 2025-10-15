@@ -116,4 +116,57 @@ return [
             'crew' => 'Crew',
         ],
     ],
+    'admin' => [
+        'ui_translations' => [
+            'title' => 'UI translation manager',
+            'description' => 'Manage localized interface copy across supported locales and sync updates to the Redis-backed cache.',
+            'actions' => [
+                'new' => 'New translation',
+                'refresh' => 'Refresh cache',
+                'refreshing' => 'Refreshing…',
+                'save' => 'Save translation',
+                'saving' => 'Saving…',
+                'cancel_edit' => 'Cancel edit',
+                'edit' => 'Edit',
+                'delete' => 'Delete',
+                'confirm' => 'Confirm',
+                'cancel' => 'Cancel',
+            ],
+            'form' => [
+                'heading' => [
+                    'create' => 'Create translation',
+                    'edit' => 'Edit translation',
+                ],
+                'instructions' => 'Define the translation group, key, and localized values. The fallback locale is required for every entry.',
+                'fields' => [
+                    'group' => 'Group',
+                    'key' => 'Key',
+                    'value' => 'Translation',
+                ],
+                'fallback_hint' => 'This locale is required.',
+            ],
+            'table' => [
+                'heading' => 'Stored translations',
+                'columns' => [
+                    'group' => 'Group',
+                    'key' => 'Key',
+                    'actions' => 'Actions',
+                ],
+                'locale_count' => '{1} :count locale|[2,*] :count locales',
+                'empty' => 'No UI translations have been created yet.',
+            ],
+            'status' => [
+                'saved' => 'Translation saved.',
+                'updated' => 'Translation updated.',
+                'deleted' => 'Translation deleted.',
+                'cache_refreshed' => 'Translation cache refreshed.',
+            ],
+            'validation' => [
+                'group_required' => 'The group field is required.',
+                'key_required' => 'The key field is required.',
+                'key_unique' => 'A translation with this group and key already exists.',
+                'value_required' => 'A translation value is required for the :locale locale.',
+            ],
+        ],
+    ],
 ];
