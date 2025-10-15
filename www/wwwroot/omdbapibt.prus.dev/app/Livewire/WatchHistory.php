@@ -26,6 +26,17 @@ class WatchHistory extends Component
 
     public int $perPage = 15;
 
+    /**
+     * Allowed filter values to prevent invalid query combinations.
+     */
+    protected array $statusOptions = ['all', 'completed', 'in_progress'];
+
+    protected array $contentTypeOptions = ['all', 'movie', 'tv'];
+
+    protected array $periodOptions = ['all', '7', '30', '90', '365'];
+
+    protected array $perPageOptions = [15, 25, 50];
+
     public string $pageTitle = 'Watch History';
 
     protected $queryString = [
@@ -42,7 +53,42 @@ class WatchHistory extends Component
     public function updated($property, $value): void
     {
         if (in_array($property, ['search', 'status', 'contentType', 'period', 'perPage'], true)) {
+            $this->sanitizeFilters($property, $value);
             $this->resetPage();
+        }
+    }
+
+    /**
+     * Ensure the component state remains within the allowed options.
+     */
+    protected function sanitizeFilters(string $property, mixed $value): void
+    {
+        if ($property === 'status' && ! in_array($value, $this->statusOptions, true)) {
+            $this->status = 'all';
+
+            return;
+        }
+
+        if ($property === 'contentType' && ! in_array($value, $this->contentTypeOptions, true)) {
+            $this->contentType = 'all';
+
+            return;
+        }
+
+        if ($property === 'period' && ! in_array($value, $this->periodOptions, true)) {
+            $this->period = 'all';
+
+            return;
+        }
+
+        if ($property === 'perPage') {
+            $perPage = (int) $value;
+
+            if (! in_array($perPage, $this->perPageOptions, true)) {
+                $perPage = 15;
+            }
+
+            $this->perPage = $perPage;
         }
     }
 

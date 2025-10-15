@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', $title ?? config('app.name', 'Laravel'))</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @unless (app()->runningUnitTests())
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endunless
     @livewireStyles
 </head>
 <body class="antialiased bg-gray-100 text-gray-900">
