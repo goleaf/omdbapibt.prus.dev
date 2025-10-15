@@ -19,6 +19,7 @@ The UI copy is delivered through a combination of version-controlled language fi
 - The `App\Support\UiTranslationRepository` loads translations into the translator and caches results forever using the store defined in `config/ui-translations.php` (`UI_TRANSLATIONS_CACHE_STORE`).
 - Production defaults to Redis; when Redis is unavailable (or in CI) the repository falls back to the configured `fallback_store` (array by default).
 - A lightweight `redis_stub` cache driver is registered for test environments so the repository can behave like Redis without a server. `.env.testing` pins `UI_TRANSLATIONS_CACHE_STORE=redis_stub`.
+- The `redis_stub` cache store is configured in `config/cache.php`; it mirrors the Redis connection options so `Cache::store('redis_stub')` resolves without falling back to the default driver.
 - Call `refreshCache` from the admin panel (or the repository) after manual database changes to flush the cache and repopulate the translator.
 
 ## Testing and CI
