@@ -1,0 +1,54 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Movie;
+use App\Models\ParserEntry;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<ParserEntry>
+ */
+class ParserEntryFactory extends Factory
+{
+    protected $model = ParserEntry::class;
+
+    public function definition(): array
+    {
+        $payload = [
+            'title' => $this->faker->sentence(3),
+            'overview' => [
+                'en' => $this->faker->paragraph(),
+            ],
+            'popularity' => $this->faker->randomFloat(3, 0, 500),
+            'vote_average' => $this->faker->randomFloat(1, 0, 10),
+        ];
+
+        return [
+            'subject_type' => Movie::class,
+            'subject_id' => Movie::factory(),
+            'parser' => $this->faker->randomElement(['tmdb', 'omdb']),
+            'payload' => $payload,
+            'baseline_snapshot' => [
+                'title' => $this->faker->sentence(3),
+                'overview' => [
+                    'en' => $this->faker->paragraph(),
+                ],
+                'popularity' => $this->faker->randomFloat(3, 0, 500),
+                'vote_average' => $this->faker->randomFloat(1, 0, 10),
+            ],
+            'status' => ParserEntry::STATUS_PENDING,
+            'notes' => null,
+        ];
+    }
+
+    public function approved(): self
+    {
+        return $this->state(fn (): array => ['status' => ParserEntry::STATUS_APPROVED]);
+    }
+
+    public function rejected(): self
+    {
+        return $this->state(fn (): array => ['status' => ParserEntry::STATUS_REJECTED]);
+    }
+}

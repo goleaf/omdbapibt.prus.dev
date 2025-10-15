@@ -4,6 +4,7 @@ use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\HorizonMonitor;
+use App\Livewire\Admin\ParserModerationDashboard;
 use App\Livewire\TvShowDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -42,6 +43,8 @@ $registerAppRoutes = function (): void {
     Route::middleware(['auth', 'admin'])->group(function (): void {
         Route::get('/admin/horizon-monitor', HorizonMonitor::class)
             ->name('admin.horizon-monitor');
+        Route::get('/admin/parser-moderation', ParserModerationDashboard::class)
+            ->name('admin.parser-moderation');
     });
 };
 
