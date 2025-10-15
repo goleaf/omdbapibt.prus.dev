@@ -33,12 +33,26 @@ return [
     ],
     'dashboard' => [
         'title' => 'Panel',
+        'layout' => [
+            'sidebar_heading' => 'Navegación',
+            'default_header' => 'Resumen del panel',
+        ],
         'nav' => [
             'overview' => 'Resumen',
             'manage_subscription' => 'Administrar suscripción',
         ],
         'welcome_heading' => '¡Bienvenido de nuevo!',
         'welcome_body' => 'Revisa los detalles de tu plan, gestiona la facturación y realiza cambios en tu suscripción en tiempo real.',
+        'insights_card' => [
+            'title' => 'Información del plan',
+            'subscription_status' => 'Estado de la suscripción',
+            'trial_days' => 'Días de prueba',
+            'next_invoice' => 'Próxima factura',
+        ],
+        'cards' => [
+            'manage_subscription' => 'Administrar suscripción',
+            'watchlist' => 'Lista de seguimiento',
+        ],
         'trial' => [
             'active_title' => 'Tu prueba gratuita está activa.',
             'active_body' => 'Disfruta de acceso completo hasta :date. Te enviaremos recordatorios antes de que comience la facturación.',
