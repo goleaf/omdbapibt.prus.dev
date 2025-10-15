@@ -11,16 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('languages', function (Blueprint $table): void {
-            $table->id();
-            $table->string('name');
-            $table->string('native_name');
-            $table->string('code')->unique();
-            $table->boolean('active')->default(true);
-            $table->timestamps();
-
+        Schema::table('languages', function (Blueprint $table): void {
+            $table->string('native_name')->nullable(false)->change();
             $table->index('name');
-            $table->index('active');
         });
     }
 
@@ -29,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('languages');
+        Schema::table('languages', function (Blueprint $table): void {
+            $table->dropIndex(['name']);
+            $table->string('native_name')->nullable()->change();
+        });
     }
 };
