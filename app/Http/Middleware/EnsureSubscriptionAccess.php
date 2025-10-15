@@ -27,6 +27,6 @@ class EnsureSubscriptionAccess
             return $next($request);
         }
 
-        return redirect()->route('checkout')->with('error', __('A premium subscription is required to access this area.'));
+        return redirect()->route('checkout')->with('error', __('messages.subscription.access_required'));
     }
 }
