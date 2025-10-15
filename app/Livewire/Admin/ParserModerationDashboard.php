@@ -5,7 +5,7 @@ namespace App\Livewire\Admin;
 use App\Enums\AdminAuditAction;
 use App\Enums\ParserEntryStatus;
 use App\Enums\ParserReviewAction;
-use App\Livewire\Forms\ParserEntryDecisionForm;
+use App\Livewire\Admin\Forms\ParserModerationDecisionForm;
 use App\Models\AdminAuditLog;
 use App\Models\ParserEntry;
 use App\Models\ParserEntryHistory;
@@ -24,7 +24,7 @@ class ParserModerationDashboard extends Component
 
     public ?int $selectedEntryId = null;
 
-    public ParserEntryDecisionForm $decisionForm;
+    public ParserModerationDecisionForm $decisionForm;
 
     public function mount(): void
     {

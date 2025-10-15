@@ -65,8 +65,8 @@ class ParserModerationDashboardTest extends TestCase
             ->test(ParserModerationDashboard::class)
             ->assertSee('Parser Moderation')
             ->assertSee('Updated Film Title')
-            ->assertSee('Approve and persist')
-            ->assertSee('Reject entry');
+            ->assertSee(trans('parser.moderation.decision.actions.approve'))
+            ->assertSee(trans('parser.moderation.decision.actions.reject'));
     }
 
     public function test_admin_can_approve_entry_and_logs_history(): void
@@ -209,7 +209,7 @@ class ParserModerationDashboardTest extends TestCase
                 ->set('selectedEntryId', $entry->id)
                 ->call('reject')
                 ->assertHasErrors(['decisionForm.notes' => 'required'])
-                ->assertSee(trans('parser.moderation.notes_required'));
+                ->assertSee(trans('parser.moderation.validation.notes.required'));
 
             $this->assertSame(ParserEntryStatus::Pending, $entry->fresh()->status);
 

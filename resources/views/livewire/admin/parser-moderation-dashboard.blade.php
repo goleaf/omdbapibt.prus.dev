@@ -112,16 +112,16 @@
                 </section>
 
                 <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <h2 class="text-xl font-semibold text-gray-900">Decision</h2>
-                    <p class="mt-1 text-sm text-gray-500">Leave context for your decision. Notes are required when rejecting an entry.</p>
+                    <h2 class="text-xl font-semibold text-gray-900">{{ __('parser.moderation.decision.heading') }}</h2>
+                    <p class="mt-1 text-sm text-gray-500">{{ __('parser.moderation.decision.description') }}</p>
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700" for="decision-notes">Notes</label>
+                        <label class="block text-sm font-medium text-gray-700" for="decision-notes">{{ __('parser.moderation.decision.fields.notes') }}</label>
                         <textarea
                             id="decision-notes"
                             wire:model.defer="decisionForm.notes"
                             rows="4"
                             class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Summarize why this payload should be approved or rejected"
+                            placeholder="{{ __('parser.moderation.decision.placeholder.notes') }}"
                         ></textarea>
                         @error('decisionForm.notes')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -132,13 +132,13 @@
                             wire:click="approve"
                             class="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         >
-                            Approve and persist
+                            {{ __('parser.moderation.decision.actions.approve') }}
                         </button>
                         <button
                             wire:click="reject"
                             class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
-                            Reject entry
+                            {{ __('parser.moderation.decision.actions.reject') }}
                         </button>
                     </div>
                 </section>
