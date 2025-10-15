@@ -8,6 +8,7 @@ use App\Models\UserManagementLog;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ImpersonationManager
 {
@@ -17,9 +18,7 @@ class ImpersonationManager
 
     public function start(User $actor, User $target): void
     {
-        if (! $actor->canImpersonate() || ! $target->canBeImpersonated()) {
-            abort(403, 'Impersonation is not permitted for this account.');
-        }
+        Gate::forUser($actor)->authorize('impersonate', $target);
 
         $this->session->put(self::SESSION_KEY, $actor->getKey());
         $this->guard()->login($target);
@@ -35,13 +34,30 @@ class ImpersonationManager
         ]);
     }
 
-    public function stop(): void
+    public function stop(?User $requester = null): void
     {
-        $impersonatorId = $this->session->pull(self::SESSION_KEY);
+        if (! $this->isImpersonating()) {
+            return;
+        }
+
+        $impersonatorId = $this->session->get(self::SESSION_KEY);
 
         if (! $impersonatorId) {
             return;
         }
+
+        $requester ??= $this->guard()->user();
+
+        if (! $requester instanceof User) {
+            abort(403, 'This action is unauthorized.');
+        }
+
+        /** @var User|null $impersonatorForGate */
+        $impersonatorForGate = User::find($impersonatorId);
+
+        Gate::forUser($requester)->authorize('endImpersonation', [$impersonatorForGate]);
+
+        $impersonatorId = $this->session->pull(self::SESSION_KEY);
 
         /** @var User|null $impersonator */
         $impersonator = User::find($impersonatorId);

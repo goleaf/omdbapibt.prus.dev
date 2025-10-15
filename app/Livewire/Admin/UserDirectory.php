@@ -10,6 +10,8 @@ use App\Support\ImpersonationManager;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -17,6 +19,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserDirectory extends Component
 {
+    use AuthorizesRequests;
+
     public string $search = '';
 
     public ?string $roleFilter = null;
@@ -32,7 +36,7 @@ class UserDirectory extends Component
 
     public function mount(): void
     {
-        abort_if(! auth()->user()?->isAdmin(), 403);
+        $this->authorize('viewAny', User::class);
     }
 
     #[Computed]
@@ -83,10 +87,6 @@ class UserDirectory extends Component
 
     public function updateRole(int $userId, string $roleValue): void
     {
-        $admin = auth()->user();
-
-        abort_if(! $admin?->isAdmin(), 403);
-
         $role = UserRole::tryFrom($roleValue);
 
         if (! $role) {
@@ -102,11 +102,13 @@ class UserDirectory extends Component
             return;
         }
 
+        $this->authorize('updateRole', $user);
+
         $user->role = $role;
         $user->save();
 
         UserManagementLog::create([
-            'actor_id' => $admin->getKey(),
+            'actor_id' => auth()->id(),
             'user_id' => $user->getKey(),
             'action' => UserManagementAction::RoleUpdated,
             'details' => [
@@ -119,6 +121,8 @@ class UserDirectory extends Component
 
     public function exportCsv(): StreamedResponse
     {
+        $this->authorize('export', User::class);
+
         $filename = 'user-directory-'.now()->format('Y-m-d-His').'.csv';
 
         return response()->streamDownload(function () {
@@ -146,9 +150,7 @@ class UserDirectory extends Component
 
     public function canImpersonateUser(User $user): bool
     {
-        $admin = auth()->user();
-
-        if (! $admin || ! $admin->canImpersonate()) {
+        if (! Gate::allows('impersonate', $user)) {
             return false;
         }
 
@@ -156,19 +158,11 @@ class UserDirectory extends Component
             return false;
         }
 
-        if ($user->is($admin)) {
-            return false;
-        }
-
-        return $user->canBeImpersonated();
+        return true;
     }
 
     public function impersonate(int $userId): void
     {
-        $admin = auth()->user();
-
-        abort_if(! $admin?->canImpersonate(), 403);
-
         if ($this->impersonationManager->isImpersonating()) {
             $this->addError('impersonation', 'You are already impersonating another user.');
 
@@ -178,13 +172,23 @@ class UserDirectory extends Component
         /** @var User|null $target */
         $target = User::query()->find($userId);
 
-        if (! $target || $target->is($admin) || ! $target->canBeImpersonated()) {
+        if (! $target) {
             $this->addError('impersonation', 'Unable to impersonate this user.');
 
             return;
         }
 
-        $this->impersonationManager->start($admin, $target);
+        $this->authorize('impersonate', $target);
+
+        $actor = auth()->user();
+
+        if (! $actor) {
+            $this->addError('impersonation', 'Unable to impersonate this user.');
+
+            return;
+        }
+
+        $this->impersonationManager->start($actor, $target);
     }
 
     public function render(): View
