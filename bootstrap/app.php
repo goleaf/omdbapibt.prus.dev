@@ -1,10 +1,15 @@
 <?php
 
 use App\Console\Commands\CleanupExpiredTrials;
-use App\Http\Middleware\EnsureUserHasSubscription;
+use App\Console\Commands\Parser\HydrateMovies;
+use App\Console\Commands\Parser\HydratePeople;
+use App\Console\Commands\Parser\HydrateTvShows;
+use App\Console\Commands\RefreshRecommendationCache;
+use App\Http\Middleware\EnsureSubscriptionAccess;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ValidateLocale;
+use App\Providers\AuthServiceProvider;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -26,12 +31,19 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withProviders([
+        AuthServiceProvider::class,
+    ])
     ->withCommands([
         CleanupExpiredTrials::class,
+        HydrateMovies::class,
+        HydrateTvShows::class,
+        HydratePeople::class,
+        RefreshRecommendationCache::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'subscriber' => EnsureUserHasSubscription::class,
+            'subscriber' => EnsureSubscriptionAccess::class,
             'admin' => EnsureUserIsAdmin::class,
             'auth.basic' => AuthenticateWithBasicAuth::class,
             'validate-locale' => ValidateLocale::class,
@@ -42,6 +54,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('trials:cleanup')->dailyAt('02:00');
+        $schedule->command('recommendations:refresh')->dailyAt('03:30');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

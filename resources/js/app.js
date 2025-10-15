@@ -1,5 +1,90 @@
 import './bootstrap';
 
+const themeStorageKey = 'omdb-theme';
+
+const getStoredTheme = () => {
+    try {
+        return localStorage.getItem(themeStorageKey);
+    } catch (error) {
+        console.warn('Unable to access theme preference storage.', error);
+        return null;
+    }
+};
+
+const storeTheme = (theme) => {
+    try {
+        localStorage.setItem(themeStorageKey, theme);
+    } catch (error) {
+        console.warn('Unable to persist theme preference.', error);
+    }
+};
+
+const getPreferredTheme = () => {
+    const stored = getStoredTheme();
+
+    if (stored === 'light' || stored === 'dark') {
+        return stored;
+    }
+
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+        return 'light';
+    }
+
+    return 'dark';
+};
+
+const applyTheme = (theme) => {
+    const root = document.documentElement;
+    const resolved = theme === 'light' ? 'light' : 'dark';
+
+    root.dataset.theme = resolved;
+    root.classList.toggle('dark', resolved === 'dark');
+    document.body.classList.toggle('light', resolved === 'light');
+
+    document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+        button.dataset.theme = resolved;
+
+        const darkIcon = button.querySelector('[data-theme-icon="dark"]');
+        const lightIcon = button.querySelector('[data-theme-icon="light"]');
+
+        if (darkIcon && lightIcon) {
+            if (resolved === 'dark') {
+                darkIcon.classList.remove('hidden');
+                lightIcon.classList.add('hidden');
+            } else {
+                darkIcon.classList.add('hidden');
+                lightIcon.classList.remove('hidden');
+            }
+        }
+
+        const text = button.querySelector('[data-theme-label]');
+
+        if (text) {
+            text.textContent = resolved === 'dark' ? text.dataset.labelDark : text.dataset.labelLight;
+        }
+    });
+};
+
+const setupThemeToggle = () => {
+    const currentTheme = getPreferredTheme();
+    applyTheme(currentTheme);
+
+    document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+        if (button._themeHandler) {
+            return;
+        }
+
+        const handleClick = () => {
+            const resolved = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+            applyTheme(resolved);
+            storeTheme(resolved);
+        };
+
+        button.addEventListener('click', handleClick);
+        button._themeHandler = handleClick;
+    });
+};
+
 const setupSidebar = (root) => {
     const sidebar = root.querySelector('[data-catalog-sidebar]');
 
@@ -139,6 +224,7 @@ const bootCatalogModules = () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    setupThemeToggle();
     bootCatalogModules();
 });
 
@@ -155,4 +241,6 @@ document.addEventListener('livewire:init', () => {
         setupSidebar(root);
         setupInfiniteScroll(root);
     });
+
+    setupThemeToggle();
 });

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,12 +51,34 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === UserRole::Admin;
+    }
+
+    public function roleLabel(): string
+    {
+        return $this->role instanceof UserRole
+            ? $this->role->label()
+            : UserRole::User->label();
+    }
+
+    public function canImpersonate(): bool
+    {
+        return $this->role instanceof UserRole
+            ? $this->role->canImpersonate()
+            : false;
+    }
+
+    public function canBeImpersonated(): bool
+    {
+        return $this->role instanceof UserRole
+            ? $this->role->canBeImpersonated()
+            : true;
     }
 
     /**
@@ -97,5 +119,47 @@ class User extends Authenticatable
     public function watchHistories(): HasMany
     {
         return $this->hasMany(WatchHistory::class);
+    }
+
+    public function managementLogs(): HasMany
+    {
+        return $this->hasMany(UserManagementLog::class);
+    }
+
+    public function actedManagementLogs(): HasMany
+    {
+        return $this->hasMany(UserManagementLog::class, 'actor_id');
+    }
+
+    public function hasPremiumAccess(string $subscription = 'default'): bool
+    {
+        if ($this->subscribed($subscription)) {
+            return true;
+        }
+
+        if ($this->onTrial($subscription)) {
+            return true;
+        }
+
+        $subscriptionModel = $this->subscription($subscription);
+
+        return (bool) ($subscriptionModel?->onGracePeriod());
+    }
+
+    public function canAccessBillingPortal(string $subscription = 'default'): bool
+    {
+        if (! $this->hasStripeId()) {
+            return false;
+        }
+
+        $subscriptionModel = $this->subscription($subscription);
+
+        if (! $subscriptionModel) {
+            return false;
+        }
+
+        return $subscriptionModel->valid()
+            || $subscriptionModel->onGracePeriod()
+            || $subscriptionModel->onTrial();
     }
 }

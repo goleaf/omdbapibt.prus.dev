@@ -3,5 +3,5 @@
 ])
 
 @section('content')
-    @livewire('movie-detail-overview', ['slug' => $slug])
+    @livewire('movie-detail', ['movie' => $slug])
 @endsection

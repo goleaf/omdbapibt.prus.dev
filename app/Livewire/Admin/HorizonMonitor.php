@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\AdminAuditLog;
+use App\Models\UserManagementLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -54,8 +54,9 @@ class HorizonMonitor extends Component
 
         Artisan::queue($command);
 
-        AdminAuditLog::create([
+        UserManagementLog::create([
             'user_id' => Auth::id(),
+            'actor_id' => Auth::id(),
             'action' => 'queued_command',
             'details' => [
                 'command' => $command,
@@ -162,12 +163,12 @@ class HorizonMonitor extends Component
 
     protected function loadAuditLogs(): void
     {
-        $this->auditLogEntries = AdminAuditLog::query()
-            ->with('user')
+        $this->auditLogEntries = UserManagementLog::query()
+            ->with(['user', 'actor'])
             ->latest()
             ->take(10)
             ->get()
-            ->map(fn (AdminAuditLog $log) => [
+            ->map(fn (UserManagementLog $log) => [
                 'id' => $log->id,
                 'action' => Str::headline($log->action),
                 'details' => $log->details,
@@ -175,6 +176,10 @@ class HorizonMonitor extends Component
                 'user' => $log->user ? [
                     'name' => $log->user->name,
                     'email' => $log->user->email,
+                ] : null,
+                'actor' => $log->actor ? [
+                    'name' => $log->actor->name,
+                    'email' => $log->actor->email,
                 ] : null,
             ])
             ->all();

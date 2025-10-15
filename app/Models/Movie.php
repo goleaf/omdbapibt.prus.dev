@@ -56,6 +56,10 @@ class Movie extends Model
      */
     protected $casts = [
         'overview' => 'array',
+        'translation_metadata' => 'array',
+        'credits' => 'array',
+        'streaming_links' => 'array',
+        'trailers' => 'array',
         'adult' => 'boolean',
         'video' => 'boolean',
         'release_date' => 'date',
@@ -109,5 +113,23 @@ class Movie extends Model
     public function watchHistories(): MorphMany
     {
         return $this->morphMany(WatchHistory::class, 'watchable');
+    }
+
+    public function people(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'movie_person')
+            ->withPivot(['credit_type', 'department', 'character', 'job', 'credit_order'])
+            ->withTimestamps();
+    }
+
+    public function requiresSubscription(): bool
+    {
+        $metadataRequirement = data_get($this->translation_metadata, 'access.requires_subscription');
+
+        if (! is_null($metadataRequirement)) {
+            return (bool) $metadataRequirement;
+        }
+
+        return (bool) data_get($this->streaming_links, 'requires_subscription', true);
     }
 }
