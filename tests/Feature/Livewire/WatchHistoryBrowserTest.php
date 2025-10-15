@@ -19,15 +19,23 @@ class WatchHistoryBrowserTest extends TestCase
 
     public function test_non_subscriber_is_redirected_to_checkout_with_error(): void
     {
-        $user = User::factory()->create();
+        foreach ($this->supportedLocales() as $locale) {
+            $user = User::factory()->create();
 
-        $locale = config('app.fallback_locale', 'en');
+            $response = $this->actingAs($user)->get(route('account.watch-history', ['locale' => $locale]));
 
-        $response = $this->actingAs($user)->get(route('account.watch-history', ['locale' => $locale]));
+            $response
+                ->assertRedirect(route('checkout', ['locale' => $locale]))
+                ->assertSessionHas('error', trans('subscriptions.errors.premium_required', locale: $locale));
+        }
+    }
 
-        $response
-            ->assertRedirect(route('checkout', ['locale' => $locale]))
-            ->assertSessionHas('error', 'A premium subscription is required to access this area.');
+    /**
+     * @return array<int, string>
+     */
+    protected function supportedLocales(): array
+    {
+        return config('translatable.locales', ['en']);
     }
 
     public function test_subscriber_can_filter_and_search_watch_history(): void

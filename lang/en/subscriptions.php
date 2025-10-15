@@ -6,5 +6,6 @@ return [
     ],
     'errors' => [
         'price_required' => 'A Stripe price identifier is required to start your trial.',
+        'premium_required' => 'A premium subscription is required to access this area.',
     ],
 ];

@@ -16,22 +16,32 @@ class StoreSubscriptionTest extends TestCase
 
     public function test_subscribed_user_is_redirected_with_status_message(): void
     {
-        $user = User::factory()->create(['stripe_id' => 'cus_existing']);
-        $user->subscriptions()->create([
-            'type' => 'default',
-            'stripe_id' => 'sub_existing',
-            'stripe_status' => SubscriptionStatus::Active->value,
-            'stripe_price' => 'price_monthly',
-            'quantity' => 1,
-        ]);
-
-        $response = $this->actingAs($user)
-            ->post(route('subscriptions.store', ['locale' => 'en']), [
-                'price' => 'price_monthly',
+        foreach ($this->supportedLocales() as $locale) {
+            $user = User::factory()->create(['stripe_id' => "cus_existing_{$locale}"]);
+            $user->subscriptions()->create([
+                'type' => 'default',
+                'stripe_id' => "sub_existing_{$locale}",
+                'stripe_status' => SubscriptionStatus::Active->value,
+                'stripe_price' => 'price_monthly',
+                'quantity' => 1,
             ]);
 
-        $response->assertRedirect(route('dashboard', ['locale' => 'en']))
-            ->assertSessionHas('status', __('subscriptions.status.already_subscribed'));
+            $response = $this->actingAs($user)
+                ->post(route('subscriptions.store', ['locale' => $locale]), [
+                    'price' => 'price_monthly',
+                ]);
+
+            $response->assertRedirect(route('dashboard', ['locale' => $locale]))
+                ->assertSessionHas('status', __('subscriptions.status.already_subscribed', locale: $locale));
+        }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function supportedLocales(): array
+    {
+        return config('translatable.locales', ['en']);
     }
 
     public function test_trial_user_is_redirected_to_checkout_session(): void
