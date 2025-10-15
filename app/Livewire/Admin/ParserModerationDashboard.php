@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Enums\AdminAuditAction;
 use App\Enums\ParserEntryStatus;
 use App\Enums\ParserReviewAction;
+use App\Livewire\Forms\ParserEntryDecisionForm;
 use App\Models\AdminAuditLog;
 use App\Models\ParserEntry;
 use App\Models\ParserEntryHistory;
@@ -23,11 +24,12 @@ class ParserModerationDashboard extends Component
 
     public ?int $selectedEntryId = null;
 
-    public string $decisionNotes = '';
+    public ParserEntryDecisionForm $decisionForm;
 
     public function mount(): void
     {
         $this->authorizeReviewAccess();
+        $this->decisionForm->clear();
     }
 
     #[On('refresh-parser-entries')]
@@ -41,7 +43,7 @@ class ParserModerationDashboard extends Component
     {
         $this->authorizeReviewAccess();
         $this->selectedEntryId = $entryId;
-        $this->decisionNotes = '';
+        $this->decisionForm->clear();
     }
 
     public function approve(): void
@@ -57,17 +59,19 @@ class ParserModerationDashboard extends Component
 
         $diff = $this->buildDiff($entry);
 
+        $notes = $this->decisionForm->notes;
+
         $entry->fill([
             'status' => ParserEntryStatus::Approved,
-            'notes' => $this->decisionNotes ?: null,
+            'notes' => $notes ?: null,
             'reviewed_by' => Auth::id(),
             'reviewed_at' => Date::now(),
         ])->save();
 
-        $this->recordHistory($entry, ParserReviewAction::Approved, $diff, $this->decisionNotes);
-        $this->logAudit($entry, ParserReviewAction::Approved);
+        $this->recordHistory($entry, ParserReviewAction::Approved, $diff, $notes);
+        $this->logAudit($entry, ParserReviewAction::Approved, $notes ?: null);
 
-        $this->decisionNotes = '';
+        $this->decisionForm->clear();
         $this->dispatch('parser-entry-reviewed', entryId: $entry->id, decision: ParserReviewAction::Approved->value);
     }
 
@@ -82,23 +86,21 @@ class ParserModerationDashboard extends Component
 
         $this->authorize('review', $entry);
 
-        $this->validate([
-            'decisionNotes' => ['required', 'string', 'max:2000'],
-        ]);
+        $validated = $this->decisionForm->ensureValidForRejection();
 
         $diff = $this->buildDiff($entry);
 
         $entry->fill([
             'status' => ParserEntryStatus::Rejected,
-            'notes' => $this->decisionNotes,
+            'notes' => $validated['notes'],
             'reviewed_by' => Auth::id(),
             'reviewed_at' => Date::now(),
         ])->save();
 
-        $this->recordHistory($entry, ParserReviewAction::Rejected, $diff, $this->decisionNotes);
-        $this->logAudit($entry, ParserReviewAction::Rejected);
+        $this->recordHistory($entry, ParserReviewAction::Rejected, $diff, $validated['notes']);
+        $this->logAudit($entry, ParserReviewAction::Rejected, $validated['notes']);
 
-        $this->decisionNotes = '';
+        $this->decisionForm->clear();
         $this->dispatch('parser-entry-reviewed', entryId: $entry->id, decision: ParserReviewAction::Rejected->value);
     }
 
@@ -182,7 +184,7 @@ class ParserModerationDashboard extends Component
         ]);
     }
 
-    protected function logAudit(ParserEntry $entry, ParserReviewAction $decision): void
+    protected function logAudit(ParserEntry $entry, ParserReviewAction $decision, ?string $notes = null): void
     {
         AdminAuditLog::create([
             'user_id' => Auth::id(),
@@ -191,7 +193,7 @@ class ParserModerationDashboard extends Component
                 'entry_id' => $entry->id,
                 'parser' => $entry->parser,
                 'decision' => $decision->value,
-                'notes' => $this->decisionNotes ?: null,
+                'notes' => $notes ?: null,
             ],
         ]);
     }

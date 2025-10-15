@@ -118,12 +118,12 @@
                         <label class="block text-sm font-medium text-gray-700" for="decision-notes">Notes</label>
                         <textarea
                             id="decision-notes"
-                            wire:model.defer="decisionNotes"
+                            wire:model.defer="decisionForm.notes"
                             rows="4"
                             class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             placeholder="Summarize why this payload should be approved or rejected"
                         ></textarea>
-                        @error('decisionNotes')
+                        @error('decisionForm.notes')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

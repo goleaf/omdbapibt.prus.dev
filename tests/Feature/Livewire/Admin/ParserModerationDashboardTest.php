@@ -97,7 +97,7 @@ class ParserModerationDashboardTest extends TestCase
         Livewire::actingAs($admin)
             ->test(ParserModerationDashboard::class)
             ->set('selectedEntryId', $entry->id)
-            ->set('decisionNotes', 'Looks accurate')
+            ->set('decisionForm.notes', 'Looks accurate')
             ->call('approve')
             ->assertDispatched('parser-entry-reviewed', entryId: $entry->id, decision: ParserReviewAction::Approved->value);
 
@@ -150,8 +150,8 @@ class ParserModerationDashboardTest extends TestCase
             ->test(ParserModerationDashboard::class)
             ->set('selectedEntryId', $entry->id)
             ->call('reject')
-            ->assertHasErrors(['decisionNotes' => 'required'])
-            ->set('decisionNotes', 'Payload missing credits data')
+            ->assertHasErrors(['decisionForm.notes' => 'required'])
+            ->set('decisionForm.notes', 'Payload missing credits data')
             ->call('reject')
             ->assertDispatched('parser-entry-reviewed', entryId: $entry->id, decision: ParserReviewAction::Rejected->value);
 
@@ -173,6 +173,56 @@ class ParserModerationDashboardTest extends TestCase
             'details->entry_id' => $entry->id,
             'details->decision' => ParserReviewAction::Rejected->value,
         ]);
+    }
+
+    public function test_rejection_notes_validation_is_localized(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $locales = ['en', 'es', 'fr'];
+        $originalLocale = app()->getLocale();
+
+        foreach ($locales as $locale) {
+            app()->setLocale($locale);
+
+            $movie = Movie::factory()->create([
+                'title' => ['en' => 'Baseline Film'],
+                'overview' => ['en' => 'Original overview'],
+                'popularity' => 10,
+            ]);
+
+            $entry = ParserEntry::factory()
+                ->for($movie, 'subject')
+                ->create([
+                    'parser' => 'tmdb',
+                    'payload' => $movie->only(['title', 'overview', 'popularity']),
+                    'baseline_snapshot' => $movie->only(['title', 'overview', 'popularity']),
+                ]);
+
+            $component = Livewire::actingAs($admin)
+                ->test(ParserModerationDashboard::class)
+                ->set('selectedEntryId', $entry->id);
+
+            $requiredMessage = trans('parser.moderation.validation.notes_required', [], $locale);
+
+            $component
+                ->call('reject')
+                ->assertHasErrors(['decisionForm.notes' => 'required'])
+                ->assertSee($requiredMessage);
+
+            $note = "Localized note ({$locale})";
+
+            $component
+                ->set('decisionForm.notes', $note)
+                ->call('reject')
+                ->assertHasNoErrors();
+
+            $entry->refresh();
+
+            $this->assertSame(ParserEntryStatus::Rejected, $entry->status);
+            $this->assertSame($note, $entry->notes);
+        }
+
+        app()->setLocale($originalLocale);
     }
 
     public function test_authorization_is_rechecked_on_livewire_actions(): void
@@ -204,7 +254,7 @@ class ParserModerationDashboardTest extends TestCase
         $component = Livewire::actingAs($admin)
             ->test(ParserModerationDashboard::class)
             ->set('selectedEntryId', $entry->id)
-            ->set('decisionNotes', 'Should not work');
+            ->set('decisionForm.notes', 'Should not work');
 
         $this->actingAs($moderator);
 
