@@ -37,6 +37,8 @@ return [
 
     'tmdb' => [
         'key' => env('TMDB_API_KEY'),
+        'image_base_url' => env('TMDB_IMAGE_BASE_URL', 'https://image.tmdb.org/t/p'),
+        'profile_size' => env('TMDB_PROFILE_SIZE', 'w780'),
     ],
 
     'omdb' => [

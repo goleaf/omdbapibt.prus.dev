@@ -2,12 +2,16 @@
 
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Livewire\People\PersonDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/people/{person}', PersonDetail::class)
+    ->name('people.show');
 
 Route::middleware('auth')->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
