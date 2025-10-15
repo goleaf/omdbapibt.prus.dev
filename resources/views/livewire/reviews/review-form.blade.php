@@ -6,11 +6,11 @@
             <input
                 id="movieTitle"
                 type="text"
-                wire:model.defer="movieTitle"
+                wire:model.defer="form.movieTitle"
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 placeholder="Enter the movie title"
             />
-            @error('movieTitle')
+            @error('form.movieTitle')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
@@ -19,14 +19,14 @@
             <label class="block text-sm font-medium text-gray-700" for="rating">Rating</label>
             <select
                 id="rating"
-                wire:model.defer="rating"
+                wire:model.defer="form.rating"
                 class="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
                 @for ($i = 1; $i <= 5; $i++)
                     <option value="{{ $i }}">{{ $i }} / 5</option>
                 @endfor
             </select>
-            @error('rating')
+            @error('form.rating')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
@@ -35,12 +35,12 @@
             <label class="block text-sm font-medium text-gray-700" for="body">Review</label>
             <textarea
                 id="body"
-                wire:model.defer="body"
+                wire:model.defer="form.body"
                 rows="6"
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 placeholder="Share your thoughts about the movie"
             ></textarea>
-            @error('body')
+            @error('form.body')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>

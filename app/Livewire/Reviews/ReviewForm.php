@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Reviews;
 
+use App\Livewire\Forms\ReviewSubmissionForm;
 use App\Models\Review;
 use App\Support\HtmlSanitizer;
 use Illuminate\Support\Facades\Auth;
@@ -9,26 +10,13 @@ use Livewire\Component;
 
 class ReviewForm extends Component
 {
-    public string $movieTitle = '';
-
-    public int $rating = 5;
-
-    public string $body = '';
+    public ReviewSubmissionForm $form;
 
     public string $statusMessage = '';
 
-    protected function rules(): array
-    {
-        return [
-            'movieTitle' => ['required', 'string', 'max:255'],
-            'rating' => ['required', 'integer', 'between:1,5'],
-            'body' => ['required', 'string', 'max:2000'],
-        ];
-    }
-
     public function submit(): void
     {
-        $this->validate();
+        $validated = $this->form->validate();
 
         $user = Auth::user();
 
@@ -36,18 +24,18 @@ class ReviewForm extends Component
             abort(403, 'Authentication required.');
         }
 
-        $sanitized = HtmlSanitizer::clean($this->body);
+        $sanitized = HtmlSanitizer::clean($validated['body']);
 
         Review::create([
             'user_id' => $user->id,
-            'movie_title' => $this->movieTitle,
-            'rating' => $this->rating,
+            'movie_title' => $validated['movieTitle'],
+            'rating' => $validated['rating'],
             'body' => $sanitized,
         ]);
 
-        $this->reset(['movieTitle', 'rating', 'body']);
-        $this->rating = 5;
-        $this->statusMessage = 'Review submitted successfully.';
+        $this->form->reset();
+        $this->form->rating = 5;
+        $this->statusMessage = __('reviews.status.submitted');
 
         $this->dispatch('review-submitted');
     }
