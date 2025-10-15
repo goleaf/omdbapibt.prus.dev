@@ -273,5 +273,17 @@
         @if (Route::has('login'))
             <div class="h-14.5 hidden lg:block"></div>
         @endif
+
+        <footer class="border-t border-slate-200 bg-white/70 py-10 backdrop-blur dark:border-slate-700 dark:bg-slate-900/70">
+            <div class="mx-auto flex max-w-5xl flex-col items-start gap-6 px-6 text-sm text-slate-600 dark:text-slate-300 md:flex-row md:items-center md:justify-between">
+                <a href="https://www.themoviedb.org/" target="_blank" rel="noopener" class="inline-flex items-center gap-4 transition-transform hover:scale-[1.01] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">
+                    <img src="{{ asset('images/tmdb-logo.svg') }}" alt="TMDb logo" class="h-12 w-12">
+                    <span class="font-medium text-slate-700 dark:text-slate-100">Data provided by The Movie Database (TMDb)</span>
+                </a>
+                <p class="max-w-xl text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                    This product uses the TMDb API but is not endorsed or certified by TMDb.
+                </p>
+            </div>
+        </footer>
     </body>
 </html>

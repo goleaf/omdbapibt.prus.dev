@@ -41,6 +41,7 @@ return [
 
     'omdb' => [
         'key' => env('OMDB_API_KEY'),
+        'max_requests_per_minute' => env('OMDB_MAX_REQUESTS_PER_MINUTE', 60),
     ],
 
 ];

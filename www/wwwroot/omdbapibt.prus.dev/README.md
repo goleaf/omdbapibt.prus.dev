@@ -29,6 +29,7 @@ For local development, copy `.env.example` to `.env` and provide values for the 
 - `STRIPE_SECRET` — Stripe secret key used for server-side API calls.
 - `STRIPE_WEBHOOK_SECRET` — Stripe webhook signing secret used to validate incoming webhooks.
 - `OMDB_API_KEY` — OMDb credentials used by the parser service.
+- `OMDB_MAX_REQUESTS_PER_MINUTE` — Optional global throttle for OMDb requests (defaults to 60 requests/minute).
 - `TMDB_API_KEY` — TMDb credentials used by the parser service.
 
 ### Obtaining Stripe test credentials
@@ -39,6 +40,22 @@ For local development, copy `.env.example` to `.env` and provide values for the 
 4. If you rotate keys or regenerate the webhook secret, update the corresponding values in your `.env` file and clear the configuration cache (`php artisan config:clear`).
 
 The Stripe keys are consumed through the `config('cashier')` configuration, while the OMDb and TMDb keys are available via the `config('services.omdb.key')` and `config('services.tmdb.key')` helper calls.
+
+## API usage & compliance
+
+### OMDb
+
+- The application is configured for the OMDb paid tier to guarantee stable throughput.
+- All outbound requests funnel through `App\Services\OmdbClient`, which enforces a configurable global rate limit (`OMDB_MAX_REQUESTS_PER_MINUTE`) so burst traffic continues to respect the service's usage expectations even on the paid plan.
+
+### TMDb
+
+- Every public-facing page includes the official TMDb attribution statement and logo, per the [TMDb attribution guidelines](https://www.themoviedb.org/documentation/api/terms-of-use). The footer link directs users back to TMDb and reiterates that the product is not endorsed or certified by TMDb.
+
+### Stripe & PCI compliance
+
+- Subscription flows rely on Stripe-hosted experiences provided by Laravel Cashier (Stripe Checkout for new subscriptions and the hosted Billing Portal for account management).
+- Because card entry occurs exclusively inside Stripe Checkout/Elements and the Billing Portal, no raw cardholder data traverses or is stored on our servers, keeping the integration within Stripe's recommended SAQ A scope for PCI compliance.
 
 ## Learning Laravel
 
