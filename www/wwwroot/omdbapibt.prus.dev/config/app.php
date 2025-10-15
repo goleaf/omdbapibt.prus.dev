@@ -82,6 +82,19 @@ return [
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Supported Application Locales
+    |--------------------------------------------------------------------------
+    |
+    | Define the locales that the application supports. These locales are used
+    | to validate locale-prefixed routes and to determine where users should be
+    | redirected when visiting a non-prefixed URL.
+    |
+    */
+
+    'supported_locales' => ['en'],
+
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*
