@@ -16,6 +16,7 @@ return [
         'not_on_grace_period' => 'Your subscription cannot be resumed because it is not within the grace period.',
         'resume_failed' => 'We were unable to resume your subscription. Please try again.',
         'invoice_load_failed' => 'We were unable to load your upcoming invoice.',
+        'access_required' => 'A premium subscription is required to access this area.',
         'premium_required' => 'A premium subscription is required to access this area.',
     ],
 ];

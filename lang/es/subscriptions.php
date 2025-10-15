@@ -16,6 +16,7 @@ return [
         'not_on_grace_period' => 'Tu suscripción no se puede reanudar porque no está dentro del período de gracia.',
         'resume_failed' => 'No pudimos reanudar tu suscripción. Por favor, inténtalo de nuevo.',
         'invoice_load_failed' => 'No pudimos cargar tu próxima factura.',
+        'access_required' => 'Se requiere una suscripción premium para acceder a esta área.',
         'premium_required' => 'Se requiere una suscripción premium para acceder a esta área.',
     ],
 ];
