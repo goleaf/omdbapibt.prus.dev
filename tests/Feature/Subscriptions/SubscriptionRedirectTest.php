@@ -10,7 +10,7 @@ use Laravel\Cashier\SubscriptionBuilder;
 use Mockery;
 use Tests\TestCase;
 
-class StoreSubscriptionTest extends TestCase
+class SubscriptionRedirectTest extends TestCase
 {
     use RefreshDatabase;
 
