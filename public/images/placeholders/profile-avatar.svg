@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+    <title id="title">Profile placeholder</title>
+    <desc id="desc">Neutral silhouette placeholder for missing profile images</desc>
+    <defs>
+        <linearGradient id="gradient" x1="0%" x2="100%" y1="0%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b" />
+            <stop offset="100%" stop-color="#0f172a" />
+        </linearGradient>
+        <clipPath id="circleMask">
+            <circle cx="100" cy="72" r="48" />
+        </clipPath>
+    </defs>
+    <rect width="200" height="200" fill="url(#gradient)" rx="24" ry="24" />
+    <g clip-path="url(#circleMask)">
+        <rect x="52" y="24" width="96" height="96" rx="48" fill="#1e293b" />
+        <circle cx="100" cy="72" r="36" fill="#334155" />
+        <circle cx="100" cy="64" r="24" fill="#475569" />
+    </g>
+    <path d="M36 186c0-35.346 28.654-64 64-64s64 28.654 64 64" fill="#1e293b" />
+    <path d="M52 182c0-26.51 21.49-48 48-48s48 21.49 48 48" fill="#334155" />
+</svg>

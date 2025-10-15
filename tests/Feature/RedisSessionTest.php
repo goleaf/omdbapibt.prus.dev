@@ -11,6 +11,10 @@ class RedisSessionTest extends TestCase
     {
         parent::setUp();
 
+        if (! class_exists('Redis')) {
+            $this->markTestSkipped('The Redis extension is not installed.');
+        }
+
         config()->set('session.driver', 'redis');
         config()->set('session.connection', 'default');
     }

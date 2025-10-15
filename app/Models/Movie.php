@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\TmdbImage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -53,12 +54,17 @@ class Movie extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'title' => 'array',
         'overview' => 'array',
         'adult' => 'boolean',
         'video' => 'boolean',
         'release_date' => 'date',
         'popularity' => 'float',
         'vote_average' => 'float',
+    ];
+
+    protected $appends = [
+        'poster_image_url',
     ];
 
     /**
@@ -91,5 +97,30 @@ class Movie extends Model
     public function countries(): BelongsToMany
     {
         return $this->belongsToMany(Country::class, 'movie_country')->withTimestamps();
+    }
+
+    /**
+     * People who contributed to the movie.
+     */
+    public function people(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'movie_person')
+            ->withPivot([
+                'role',
+                'character',
+                'job',
+                'department',
+                'credit_order',
+            ])
+            ->withTimestamps()
+            ->orderByPivot('credit_order');
+    }
+
+    /**
+     * Poster image url accessor.
+     */
+    public function getPosterImageUrlAttribute(): string
+    {
+        return TmdbImage::poster($this->poster_path);
     }
 }

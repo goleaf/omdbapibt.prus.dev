@@ -24,7 +24,7 @@ class TvShowFactory extends Factory
         return [
             'tmdb_id' => null,
             'imdb_id' => null,
-            'slug' => Str::slug($name) . '-' . Str::lower(Str::random(6)),
+            'slug' => Str::slug($name).'-'.Str::lower(Str::random(6)),
             'name' => $name,
             'original_name' => $name,
             'first_air_date' => $firstAirDate,
@@ -39,7 +39,7 @@ class TvShowFactory extends Factory
             'popularity' => $this->faker->randomFloat(3, 0, 1000),
             'vote_average' => $this->faker->randomFloat(1, 0, 10),
             'vote_count' => $this->faker->numberBetween(0, 25000),
-            'poster_path' => $this->faker->imageUrl(300, 450),
+            'poster_path' => null,
             'backdrop_path' => $this->faker->imageUrl(1280, 720),
             'media_type' => 'tv',
             'adult' => false,

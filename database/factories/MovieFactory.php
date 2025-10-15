@@ -19,10 +19,14 @@ class MovieFactory extends Factory
 
         return [
             'tmdb_id' => $this->faker->unique()->numberBetween(1, 10_000_000),
-            'imdb_id' => 'tt' . $this->faker->unique()->numerify('########'),
+            'imdb_id' => 'tt'.$this->faker->unique()->numerify('########'),
             'omdb_id' => $this->faker->optional()->uuid(),
-            'slug' => Str::slug($title) . '-' . $this->faker->unique()->numerify('####'),
-            'title' => $title,
+            'slug' => Str::slug($title).'-'.$this->faker->unique()->numerify('####'),
+            'title' => [
+                'en' => $title,
+                'es' => $this->faker->sentence(3),
+                'fr' => $this->faker->sentence(3),
+            ],
             'original_title' => $title,
             'year' => (int) $this->faker->year(),
             'runtime' => $this->faker->numberBetween(80, 180),
@@ -41,7 +45,7 @@ class MovieFactory extends Factory
             'popularity' => $this->faker->randomFloat(3, 0, 500),
             'vote_average' => $this->faker->randomFloat(1, 0, 10),
             'vote_count' => $this->faker->numberBetween(0, 10_000),
-            'poster_path' => $this->faker->imageUrl(),
+            'poster_path' => null,
             'backdrop_path' => $this->faker->imageUrl(),
             'trailer_url' => $this->faker->url(),
             'media_type' => $this->faker->randomElement(['movie', 'tv']),

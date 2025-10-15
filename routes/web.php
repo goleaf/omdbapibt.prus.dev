@@ -25,6 +25,9 @@ $registerAppRoutes = function (): void {
     Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))
         ->name('shows.show');
 
+    Route::get('/people/{person}', fn (string $person) => view('pages.people.show', ['person' => $person]))
+        ->name('people.show');
+
     Route::get('/tv/{show}', TvShowDetail::class)
         ->name('tv.show');
 

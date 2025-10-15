@@ -49,6 +49,19 @@ return [
         'query' => [
             'api_key' => env('TMDB_API_KEY'),
         ],
+        'images' => [
+            'base_url' => rtrim(env('TMDB_IMAGE_BASE_URL', 'https://image.tmdb.org/t/p/'), '/'),
+            'profiles' => [
+                'size' => env('TMDB_PROFILE_SIZE', 'w342'),
+            ],
+            'posters' => [
+                'size' => env('TMDB_POSTER_SIZE', 'w500'),
+            ],
+        ],
+        'placeholders' => [
+            'profile' => 'images/placeholders/profile-avatar.svg',
+            'poster' => 'images/placeholders/poster-placeholder.svg',
+        ],
     ],
 
     'omdb' => [

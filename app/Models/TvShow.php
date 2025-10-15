@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Support\TmdbImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TvShow extends Model
@@ -53,4 +55,33 @@ class TvShow extends Model
         'popularity' => 'float',
         'vote_average' => 'float',
     ];
+
+    protected $appends = [
+        'poster_image_url',
+    ];
+
+    /**
+     * People who contributed to the TV show.
+     */
+    public function people(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'person_tv_show')
+            ->withPivot([
+                'role',
+                'character',
+                'job',
+                'department',
+                'credit_order',
+            ])
+            ->withTimestamps()
+            ->orderByPivot('credit_order');
+    }
+
+    /**
+     * Poster image url accessor.
+     */
+    public function getPosterImageUrlAttribute(): string
+    {
+        return TmdbImage::poster($this->poster_path);
+    }
 }

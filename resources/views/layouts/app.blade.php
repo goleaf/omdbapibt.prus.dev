@@ -31,8 +31,12 @@
                             <button type="submit" class="rounded-full border border-slate-700 px-4 py-1.5 text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200">Logout</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="rounded-full border border-slate-700 px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">Sign in</a>
-                        <a href="{{ route('register') }}" class="hidden rounded-full bg-emerald-500 px-4 py-1.5 font-semibold text-emerald-950 transition hover:bg-emerald-400 md:inline">Join now</a>
+                        @if (Route::has('login'))
+                            <a href="{{ route('login') }}" class="rounded-full border border-slate-700 px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">Sign in</a>
+                        @endif
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="hidden rounded-full bg-emerald-500 px-4 py-1.5 font-semibold text-emerald-950 transition hover:bg-emerald-400 md:inline">Join now</a>
+                        @endif
                     @endauth
                 </div>
             </div>
