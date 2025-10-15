@@ -25,15 +25,17 @@ return [
         ],
     ],
     'trigger' => [
-        'validation' => [
-            'workload' => [
-                'required' => 'Please choose a parser workload before continuing.',
-                'string' => 'The parser workload must be provided as a string.',
-                'enum' => 'The selected parser workload is not supported.',
+        'workflow' => [
+            'validation' => [
+                'workload' => [
+                    'required' => 'Please select a parser workload to trigger.',
+                    'string' => 'The parser workload must be provided as text.',
+                    'enum' => 'The selected parser workload is invalid.',
+                ],
             ],
-        ],
-        'attributes' => [
-            'workload' => 'parser workload',
+            'attributes' => [
+                'workload' => 'parser workload',
+            ],
         ],
     ],
 ];

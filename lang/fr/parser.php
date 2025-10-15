@@ -24,4 +24,18 @@ return [
             ],
         ],
     ],
+    'trigger' => [
+        'workflow' => [
+            'validation' => [
+                'workload' => [
+                    'required' => 'Veuillez sélectionner une charge de traitement à lancer.',
+                    'string' => 'La charge de traitement doit être fournie sous forme de texte.',
+                    'enum' => 'La charge de traitement sélectionnée n\'est pas valide.',
+                ],
+            ],
+            'attributes' => [
+                'workload' => 'charge de traitement',
+            ],
+        ],
+    ],
 ];

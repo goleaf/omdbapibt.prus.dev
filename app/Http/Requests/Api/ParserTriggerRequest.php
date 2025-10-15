@@ -40,15 +40,20 @@ class ParserTriggerRequest extends FormRequest
         return ParserWorkload::from($workload);
     }
 
+    public function validatedWorkload(): ParserWorkload
+    {
+        return $this->workload();
+    }
+
     /**
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'workload.required' => __('parser.trigger.validation.workload.required'),
-            'workload.string' => __('parser.trigger.validation.workload.string'),
-            'workload.enum' => __('parser.trigger.validation.workload.enum'),
+            'workload.required' => __('parser.trigger.workflow.validation.workload.required'),
+            'workload.string' => __('parser.trigger.workflow.validation.workload.string'),
+            'workload.enum' => __('parser.trigger.workflow.validation.workload.enum'),
         ];
     }
 
@@ -58,7 +63,7 @@ class ParserTriggerRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'workload' => __('parser.trigger.attributes.workload'),
+            'workload' => __('parser.trigger.workflow.attributes.workload'),
         ];
     }
 }
