@@ -53,7 +53,7 @@ return [
 
     'omdb' => [
         'key' => env('OMDB_API_KEY'),
-        'base_url' => rtrim(env('OMDB_BASE_URL', 'https://www.omdbapi.com'), '/').'/','
+        'base_url' => rtrim(env('OMDB_BASE_URL', 'https://www.omdbapi.com'), '/').'/',
         'query' => [
             'apikey' => env('OMDB_API_KEY'),
         ],
