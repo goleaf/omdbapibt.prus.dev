@@ -38,22 +38,22 @@ class WatchHistoryFactory extends Factory
     /**
      * Indicate that the watch history entry belongs to a TV show.
      */
-    public function forTvShow(): self
+    public function forTvShow(?TvShow $tvShow = null): self
     {
         return $this->state(fn () => [
             'watchable_type' => TvShow::class,
-            'watchable_id' => TvShow::factory(),
+            'watchable_id' => $tvShow?->getKey() ?? TvShow::factory(),
         ]);
     }
 
     /**
      * Indicate that the watch history entry belongs to a movie.
      */
-    public function forMovie(): self
+    public function forMovie(?Movie $movie = null): self
     {
         return $this->state(fn () => [
             'watchable_type' => Movie::class,
-            'watchable_id' => Movie::factory(),
+            'watchable_id' => $movie?->getKey() ?? Movie::factory(),
         ]);
     }
 }

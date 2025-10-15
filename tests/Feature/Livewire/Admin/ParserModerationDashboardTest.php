@@ -203,7 +203,7 @@ class ParserModerationDashboardTest extends TestCase
 
         $entry->refresh();
 
-        $this->assertSame(ParserEntry::STATUS_PENDING, $entry->status);
+        $this->assertSame(ParserEntry::STATUS_PENDING, $entry->status->value);
         $this->assertNull($entry->reviewed_by);
         $this->assertNull($entry->reviewed_at);
     }

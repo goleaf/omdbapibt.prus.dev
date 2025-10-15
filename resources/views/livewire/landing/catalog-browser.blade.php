@@ -171,7 +171,7 @@
                             @endif
                         </div>
                         <a
-                            href="{{ route('movies.show', $movie['slug']) }}"
+                            href="{{ route('movies.show', ['locale' => app()->getLocale(), 'movie' => $movie['slug']]) }}"
                             class="absolute inset-0"
                             aria-label="Open {{ $movie['title'] }} details"
                         ></a>

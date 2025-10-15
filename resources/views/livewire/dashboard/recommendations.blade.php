@@ -33,7 +33,12 @@
                     </div>
 
                     <div class="mt-4 flex items-center gap-3">
-                        <flux:button href="{{ route('movies.show', ['slug' => $item['slug']]) }}" variant="primary" color="emerald" size="sm">
+                        <flux:button
+                            href="{{ route('movies.show', ['locale' => app()->getLocale(), 'movie' => $item['slug']]) }}"
+                            variant="primary"
+                            color="emerald"
+                            size="sm"
+                        >
                             View detail
                         </flux:button>
                     </div>

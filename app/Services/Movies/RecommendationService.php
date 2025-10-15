@@ -8,6 +8,7 @@ use App\Models\WatchHistory;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class RecommendationService
@@ -59,7 +60,7 @@ class RecommendationService
      * @return array{
      *     genres: array<string, float>,
      *     average_rating: float,
-     *     release_year: float,
+     *     release_year: float|null,
      * }
      */
     public function buildPreferenceProfile(User $user): array
@@ -75,9 +76,10 @@ class RecommendationService
 
         $genreWeights = [];
         $ratingAccumulator = 0.0;
-        $ratingCount = 0;
+        $ratingWeight = 0.0;
         $releaseAccumulator = 0.0;
-        $releaseCount = 0;
+        $releaseWeight = 0.0;
+        $now = now();
 
         foreach ($history as $entry) {
             $movie = $entry->watchable;
@@ -86,24 +88,27 @@ class RecommendationService
                 continue;
             }
 
+            $recencyWeight = $this->recencyWeight($entry->watched_at ?? $entry->created_at, $now);
+
             foreach ($movie->genres as $genre) {
-                $genreWeights[$genre->slug ?? $genre->name] = ($genreWeights[$genre->slug ?? $genre->name] ?? 0) + 1;
+                $key = $genre->slug ?? $genre->name;
+                $genreWeights[$key] = ($genreWeights[$key] ?? 0.0) + $recencyWeight;
             }
 
             if (! is_null($movie->vote_average)) {
-                $ratingAccumulator += (float) $movie->vote_average;
-                $ratingCount++;
+                $ratingAccumulator += (float) $movie->vote_average * $recencyWeight;
+                $ratingWeight += $recencyWeight;
             }
 
             if (! is_null($movie->year)) {
-                $releaseAccumulator += (float) $movie->year;
-                $releaseCount++;
+                $releaseAccumulator += (float) $movie->year * $recencyWeight;
+                $releaseWeight += $recencyWeight;
             }
         }
 
         $normalizedGenres = $this->normalizeWeights($genreWeights);
-        $averageRating = $ratingCount > 0 ? $ratingAccumulator / $ratingCount : 0.0;
-        $averageYear = $releaseCount > 0 ? $releaseAccumulator / $releaseCount : null;
+        $averageRating = $ratingWeight > 0 ? $ratingAccumulator / $ratingWeight : 0.0;
+        $averageYear = $releaseWeight > 0 ? $releaseAccumulator / $releaseWeight : null;
 
         return [
             'genres' => $normalizedGenres,
@@ -129,6 +134,7 @@ class RecommendationService
         $normalizedGenreScore = $genreWeight > 0 ? $genreScore / $genreWeight : 0.0;
 
         $rating = (float) ($movie->vote_average ?? 0) / 10;
+        $ratingAlignment = $this->ratingAlignment($movie->vote_average, $profile['average_rating'] ?? null);
         $popularity = min(((float) ($movie->popularity ?? 0)) / 100, 1);
 
         $releaseAlignment = 0.0;
@@ -138,8 +144,9 @@ class RecommendationService
         }
 
         return ($normalizedGenreScore * 0.45)
-            + ($rating * 0.3)
-            + ($popularity * 0.15)
+            + ($rating * 0.2)
+            + ($ratingAlignment * 0.15)
+            + ($popularity * 0.1)
             + ($releaseAlignment * 0.1);
     }
 
@@ -155,12 +162,16 @@ class RecommendationService
             ->where('watchable_type', Movie::class)
             ->pluck('watchable_id');
 
-        return Movie::query()
+        $query = Movie::query()
             ->with('genres')
-            ->whereNotIn('id', $watchedMovieIds)
             ->orderByDesc('popularity')
-            ->take($limit)
-            ->get();
+            ->take($limit);
+
+        if ($watchedMovieIds->isNotEmpty()) {
+            $query->whereNotIn('id', $watchedMovieIds);
+        }
+
+        return $query->get();
     }
 
     /**
@@ -184,6 +195,29 @@ class RecommendationService
         return collect($weights)
             ->map(fn ($value) => round(((float) $value) / $max, 4))
             ->all();
+    }
+
+    protected function ratingAlignment(?float $movieRating, ?float $preferredRating): float
+    {
+        if (is_null($movieRating) || is_null($preferredRating)) {
+            return 0.0;
+        }
+
+        $difference = abs($movieRating - $preferredRating);
+
+        return max(0, 1 - min($difference, 4) / 4);
+    }
+
+    protected function recencyWeight(?Carbon $watchedAt, Carbon $now): float
+    {
+        if (is_null($watchedAt)) {
+            return 1.0;
+        }
+
+        $days = max($watchedAt->diffInDays($now), 0);
+        $weight = 1 / (1 + ($days / 14));
+
+        return round(max($weight, 0.1), 4);
     }
 
     protected function cacheKey(int $userId, int $limit): string

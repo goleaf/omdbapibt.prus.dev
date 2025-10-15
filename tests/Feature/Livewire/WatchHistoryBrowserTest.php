@@ -16,7 +16,7 @@ class WatchHistoryBrowserTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_non_subscriber_is_redirected_to_account_with_error(): void
+    public function test_non_subscriber_is_redirected_to_checkout_with_error(): void
     {
         $user = User::factory()->create();
 
@@ -25,8 +25,8 @@ class WatchHistoryBrowserTest extends TestCase
         $response = $this->actingAs($user)->get(route('account.watch-history', ['locale' => $locale]));
 
         $response
-            ->assertRedirect(route('account', ['locale' => $locale]))
-            ->assertSessionHas('error', 'A current subscription is required to browse your watch history.');
+            ->assertRedirect(route('checkout', ['locale' => $locale]))
+            ->assertSessionHas('error', 'A premium subscription is required to access this area.');
     }
 
     public function test_subscriber_can_filter_and_search_watch_history(): void

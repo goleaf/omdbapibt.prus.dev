@@ -54,7 +54,10 @@
                                 @foreach ($items['movies'] as $movie)
                                     <li wire:key="watchlist-movie-{{ $movie['id'] }}" class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                                         <div>
-                                            <a href="{{ $movie['slug'] ? route('movies.show', $movie['slug']) : '#' }}" class="text-sm font-semibold text-slate-900 hover:text-emerald-600">
+                                            <a
+                                                href="{{ $movie['slug'] ? route('movies.show', ['locale' => app()->getLocale(), 'movie' => $movie['slug']]) : '#' }}"
+                                                class="text-sm font-semibold text-slate-900 hover:text-emerald-600"
+                                            >
                                                 {{ $movie['title'] }}
                                             </a>
                                             <p class="text-xs text-slate-500">
@@ -78,7 +81,10 @@
                                 @foreach ($items['shows'] as $show)
                                     <li wire:key="watchlist-show-{{ $show['id'] }}" class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                                         <div>
-                                            <a href="{{ $show['slug'] ? route('shows.show', $show['slug']) : '#' }}" class="text-sm font-semibold text-slate-900 hover:text-emerald-600">
+                                            <a
+                                                href="{{ $show['slug'] ? route('shows.show', ['locale' => app()->getLocale(), 'slug' => $show['slug']]) : '#' }}"
+                                                class="text-sm font-semibold text-slate-900 hover:text-emerald-600"
+                                            >
                                                 {{ $show['title'] }}
                                             </a>
                                             <p class="text-xs text-slate-500">

@@ -13,6 +13,12 @@ class ParserEntry extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING = ParserEntryStatus::Pending->value;
+
+    public const STATUS_APPROVED = ParserEntryStatus::Approved->value;
+
+    public const STATUS_REJECTED = ParserEntryStatus::Rejected->value;
+
     /**
      * @var array<int, string>
      */
