@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 
 class Movie extends Model
 {
+    /** @use HasFactory<\Database\Factories\MovieFactory> */
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'tmdb_id',
@@ -43,32 +47,42 @@ class Movie extends Model
         'trailers',
     ];
 
-    protected $casts = [
-        'release_date' => 'date',
-        'adult' => 'boolean',
-        'video' => 'boolean',
-        'translations' => 'array',
-        'cast' => 'array',
-        'crew' => 'array',
-        'streaming_links' => 'array',
-        'trailers' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'release_date' => 'date',
+            'adult' => 'boolean',
+            'video' => 'boolean',
+            'translations' => 'array',
+            'cast' => 'array',
+            'crew' => 'array',
+            'streaming_links' => 'array',
+            'trailers' => 'array',
+        ];
+    }
 
     /**
      * Attempt to resolve a movie from either a slug or primary key when route binding.
      */
     public function resolveRouteBinding($value, $field = null): ?Model
     {
-        $query = static::query();
+        $query = $this->newQuery();
+
+        if (blank($value)) {
+            return null;
+        }
 
         if ($field) {
             return $query->where($field, $value)->first();
         }
 
         return $query
-            ->where(function ($query) use ($value) {
+            ->where(function (Builder $query) use ($value) {
                 $query->where('slug', $value)
-                    ->orWhere($this->getKeyName(), $value);
+                    ->orWhere($this->getKeyName(), $value)
+                    ->orWhere('tmdb_id', $value)
+                    ->orWhere('imdb_id', $value)
+                    ->orWhere('omdb_id', $value);
             })
             ->first();
     }

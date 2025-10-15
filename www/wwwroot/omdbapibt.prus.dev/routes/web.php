@@ -10,7 +10,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/movies/{movie}', MovieDetail::class)->name('movies.show');
+Route::prefix('movies')->name('movies.')->group(function () {
+    Route::get('/{movie}', MovieDetail::class)
+        ->where('movie', '[A-Za-z0-9\-]+')
+        ->name('show');
+});
 
 Route::middleware('auth')->group(function () {
     Route::view('/dashboard', 'dashboard')->name('dashboard');
