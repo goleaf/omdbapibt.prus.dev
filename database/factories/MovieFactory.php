@@ -19,9 +19,9 @@ class MovieFactory extends Factory
 
         return [
             'tmdb_id' => $this->faker->unique()->numberBetween(1, 10_000_000),
-            'imdb_id' => 'tt' . $this->faker->unique()->numerify('########'),
+            'imdb_id' => 'tt'.$this->faker->unique()->numerify('########'),
             'omdb_id' => $this->faker->optional()->uuid(),
-            'slug' => Str::slug($title) . '-' . $this->faker->unique()->numerify('####'),
+            'slug' => Str::slug($title).'-'.$this->faker->unique()->numerify('####'),
             'title' => $title,
             'original_title' => $title,
             'year' => (int) $this->faker->year(),
@@ -31,6 +31,31 @@ class MovieFactory extends Factory
                 'en' => $this->faker->paragraph(),
                 'es' => $this->faker->paragraph(),
                 'fr' => $this->faker->paragraph(),
+            ],
+            'translation_metadata' => [
+                'title' => [
+                    'en' => $title,
+                    'es' => $title.' (ES)',
+                    'fr' => $title.' (FR)',
+                ],
+                'access' => [
+                    'requires_subscription' => false,
+                ],
+            ],
+            'credits' => [
+                'cast' => [
+                    ['name' => $this->faker->name(), 'character' => $this->faker->firstName()],
+                ],
+                'crew' => [
+                    ['name' => $this->faker->name(), 'department' => 'Directing', 'job' => 'Director'],
+                ],
+            ],
+            'streaming_links' => [
+                ['provider' => 'FluxStream', 'quality' => '4K'],
+                ['provider' => 'CinePrime', 'quality' => 'HD'],
+            ],
+            'trailers' => [
+                ['title' => 'Official Trailer', 'url' => $this->faker->url()],
             ],
             'plot' => $this->faker->paragraph(),
             'tagline' => $this->faker->sentence(),
@@ -44,7 +69,7 @@ class MovieFactory extends Factory
             'poster_path' => $this->faker->imageUrl(),
             'backdrop_path' => $this->faker->imageUrl(),
             'trailer_url' => $this->faker->url(),
-            'media_type' => $this->faker->randomElement(['movie', 'tv']),
+            'media_type' => 'movie',
             'adult' => $this->faker->boolean(10),
             'video' => $this->faker->boolean(10),
         ];

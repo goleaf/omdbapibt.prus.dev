@@ -1,14 +1,23 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\SignupController;
 use App\Http\Controllers\BillingPortalController;
+use App\Http\Controllers\BrowseController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\AnalyticsDashboard;
 use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\Admin\ParserModerationDashboard;
+use App\Livewire\Admin\UiTranslationManager;
+use App\Livewire\Admin\UserDirectory;
+use App\Livewire\PersonDetail;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
 $supportedLocales = config('translatable.locales', []);
@@ -20,10 +29,17 @@ if ($supportedLocales === []) {
     $supportedLocales[] = $defaultLocale;
 }
 
+URL::defaults(['locale' => $defaultLocale]);
+
 $registerAppRoutes = function (): void {
     Route::view('/', 'pages.home')->name('home');
-    Route::view('/browse', 'pages.browse')->name('browse');
+    Route::get('/browse', BrowseController::class)->name('browse');
     Route::view('/pricing', 'pages.pricing')->name('pricing');
+    Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
+    Route::get('/checkout', CheckoutController::class)->name('checkout');
+    Route::get('/login', LoginController::class)->name('login');
+    Route::get('/signup', SignupController::class)->name('signup');
+    Route::get('/register', SignupController::class)->name('register');
 
     Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
         ->name('movies.show');
@@ -33,6 +49,9 @@ $registerAppRoutes = function (): void {
 
     Route::get('/tv/{show}', TvShowDetail::class)
         ->name('tv.show');
+
+    Route::get('/people/{person}', PersonDetail::class)
+        ->name('people.show');
 
     Route::middleware('auth')->group(function (): void {
         Route::view('/dashboard', 'dashboard')->name('dashboard');
@@ -47,6 +66,9 @@ $registerAppRoutes = function (): void {
 
         Route::post('/subscriptions', [SubscriptionController::class, 'store'])
             ->name('subscriptions.store');
+
+        Route::post('/logout', LogoutController::class)
+            ->name('logout');
     });
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
@@ -56,6 +78,10 @@ $registerAppRoutes = function (): void {
             ->name('admin.horizon-monitor');
         Route::get('/admin/parser-moderation', ParserModerationDashboard::class)
             ->name('admin.parser-moderation');
+        Route::get('/admin/ui-translations', UiTranslationManager::class)
+            ->name('admin.ui-translations');
+        Route::get('/admin/users', UserDirectory::class)
+            ->name('admin.users');
     });
 };
 

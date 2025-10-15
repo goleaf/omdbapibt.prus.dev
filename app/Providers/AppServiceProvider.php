@@ -2,11 +2,16 @@
 
 namespace App\Providers;
 
+use App\Support\RedisStubStore;
+use App\Support\UiTranslationRepository;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,6 +37,10 @@ class AppServiceProvider extends ServiceProvider
                 (string) config('services.omdb.key', ''),
                 (string) config('services.omdb.base_url', 'https://www.omdbapi.com/')
             );
+        });
+
+        $this->app->singleton(UiTranslationRepository::class, function ($app) {
+            return new UiTranslationRepository($app->make(CacheManager::class));
         });
     }
 
@@ -73,6 +82,38 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->configureRateLimiting();
+        $this->registerRedisStubDriver();
+        $this->loadUiTranslations();
+    }
+
+    protected function registerRedisStubDriver(): void
+    {
+        Cache::extend('redis_stub', function ($app) {
+            return Cache::repository(new RedisStubStore);
+        });
+    }
+
+    protected function loadUiTranslations(): void
+    {
+        try {
+            if (! Schema::hasTable('ui_translations')) {
+                return;
+            }
+        } catch (\Throwable $exception) {
+            if (! app()->runningInConsole()) {
+                report($exception);
+            }
+
+            return;
+        }
+
+        try {
+            $this->app->make(UiTranslationRepository::class)->register();
+        } catch (\Throwable $exception) {
+            if (! app()->runningInConsole()) {
+                report($exception);
+            }
+        }
     }
 
     protected function configureRateLimiting(): void

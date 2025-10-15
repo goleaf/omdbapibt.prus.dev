@@ -1,10 +1,25 @@
 <?php
 
 return [
-    'queue' => env('PARSER_QUEUE', 'parsing'),
+    'default_chunk' => (int) env('PARSER_DEFAULT_CHUNK', 25),
 
-    'workloads' => array_values(array_filter(array_map(
-        static fn (string $workload): string => trim($workload),
-        explode(',', (string) env('PARSER_ALLOWED_WORKLOADS', 'movies,tv,people'))
-    ))),
+    'targets' => [
+        'movies' => [
+            'label' => 'movies',
+            'chunk_size' => (int) env('PARSER_MOVIE_CHUNK', 50),
+            'hydrator' => App\Services\Parser\Hydrators\MovieHydrator::class,
+        ],
+
+        'tv' => [
+            'label' => 'TV shows',
+            'chunk_size' => (int) env('PARSER_TV_CHUNK', 25),
+            'hydrator' => App\Services\Parser\Hydrators\TvShowHydrator::class,
+        ],
+
+        'people' => [
+            'label' => 'people',
+            'chunk_size' => (int) env('PARSER_PEOPLE_CHUNK', 40),
+            'hydrator' => App\Services\Parser\Hydrators\PersonHydrator::class,
+        ],
+    ],
 ];

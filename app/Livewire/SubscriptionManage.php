@@ -37,6 +37,14 @@ class SubscriptionManage extends Component
     {
         $user = $this->user();
 
+        if (blank(config('cashier.secret'))) {
+            if ($name = $user->subscriptions()->value('name')) {
+                $this->subscriptionName = $name;
+            }
+
+            return;
+        }
+
         $user->createOrGetStripeCustomer();
 
         if ($name = $user->subscriptions()->value('name')) {
@@ -157,6 +165,10 @@ class SubscriptionManage extends Component
     {
         $user = $this->user();
         $subscription = $this->getSubscription();
+
+        if (blank(config('cashier.secret'))) {
+            return null;
+        }
 
         if (! $user->hasStripeId() || ! $subscription?->stripe_id) {
             return null;
