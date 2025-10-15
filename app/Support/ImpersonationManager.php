@@ -7,6 +7,7 @@ use App\Models\UserManagementLog;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ImpersonationManager
 {
@@ -16,9 +17,7 @@ class ImpersonationManager
 
     public function start(User $actor, User $target): void
     {
-        if (! $actor->canImpersonate() || ! $target->canBeImpersonated()) {
-            abort(403, 'Impersonation is not permitted for this account.');
-        }
+        Gate::forUser($actor)->authorize('impersonate', $target);
 
         $this->session->put(self::SESSION_KEY, $actor->getKey());
         $this->guard()->login($target);
@@ -46,6 +45,8 @@ class ImpersonationManager
         $impersonator = User::find($impersonatorId);
 
         if ($impersonator) {
+            Gate::forUser($impersonator)->authorize('stopImpersonating', User::class);
+
             $this->guard()->login($impersonator);
 
             UserManagementLog::create([
