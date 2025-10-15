@@ -7,6 +7,7 @@ use App\Models\ParserEntry;
 use App\Models\ParserEntryHistory;
 use App\Support\ParserEntryDiffer;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
@@ -15,36 +16,41 @@ use Livewire\Component;
 
 class ParserModerationDashboard extends Component
 {
+    use AuthorizesRequests;
+
     public ?int $selectedEntryId = null;
 
     public string $decisionNotes = '';
 
     public function mount(): void
     {
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorizeReview();
     }
 
     #[On('refresh-parser-entries')]
     public function refreshEntries(): void
     {
+        $this->authorizeReview();
         $this->dispatch('$refresh');
     }
 
     public function selectEntry(int $entryId): void
     {
+        $this->authorizeReview();
         $this->selectedEntryId = $entryId;
         $this->decisionNotes = '';
     }
 
     public function approve(): void
     {
+        $this->authorizeReview();
         $entry = $this->currentEntry();
 
         if (! $entry) {
             return;
         }
+
+        $this->authorize('update', $entry);
 
         $diff = $this->buildDiff($entry);
 
@@ -64,11 +70,14 @@ class ParserModerationDashboard extends Component
 
     public function reject(): void
     {
+        $this->authorizeReview();
         $entry = $this->currentEntry();
 
         if (! $entry) {
             return;
         }
+
+        $this->authorize('update', $entry);
 
         $this->validate([
             'decisionNotes' => ['required', 'string', 'max:2000'],
@@ -92,6 +101,8 @@ class ParserModerationDashboard extends Component
 
     public function render(): View
     {
+        $this->authorizeReview();
+
         $entries = ParserEntry::query()
             ->latest()
             ->with('subject')
@@ -129,6 +140,11 @@ class ParserModerationDashboard extends Component
         }
 
         return ParserEntry::query()->find($this->selectedEntryId);
+    }
+
+    protected function authorizeReview(): void
+    {
+        $this->authorize('review', ParserEntry::class);
     }
 
     protected function buildDiff(ParserEntry $entry): array
