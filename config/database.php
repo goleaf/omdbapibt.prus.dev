@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Str;
-use PDO;
 
 return [
 
@@ -42,7 +41,7 @@ return [
             'synchronous' => null,
             'transaction_mode' => 'DEFERRED',
             'options' => extension_loaded('pdo_sqlite') ? [
-                PDO::ATTR_TIMEOUT => (int) env('DB_PDO_TIMEOUT', 5),
+                \PDO::ATTR_TIMEOUT => (int) env('DB_PDO_TIMEOUT', 5),
             ] : [],
         ],
 

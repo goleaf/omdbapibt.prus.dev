@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -84,6 +85,10 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
         $this->registerRedisStubDriver();
         $this->loadUiTranslations();
+
+        if ($this->app->environment('testing')) {
+            Vite::useBuildDirectory('../tests/fixtures/vite');
+        }
     }
 
     protected function registerRedisStubDriver(): void
