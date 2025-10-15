@@ -128,7 +128,8 @@ class UiTranslationManager extends Component
         }
 
         if ($this->editingId === $this->pendingDeletionId) {
-            $this->startCreate();
+            $this->editingId = null;
+            $this->form->startCreating();
         }
 
         $this->pendingDeletionId = null;

@@ -115,6 +115,30 @@ class UiTranslationManagerTest extends TestCase
         ]);
     }
 
+    public function test_status_message_persists_when_deleting_current_edit_target(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $translation = UiTranslation::factory()->create([
+            'group' => 'nav',
+            'key' => 'cta_label',
+            'value' => ['en' => 'Stream now'],
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(UiTranslationManager::class)
+            ->call('edit', $translation->id)
+            ->set('form.values.en', 'Watch tonight')
+            ->call('save')
+            ->call('confirmDeletion', $translation->id)
+            ->call('deleteConfirmed')
+            ->assertHasNoErrors()
+            ->assertSet('statusMessage', trans('admin.ui_translations.status.deleted'));
+
+        $this->assertDatabaseMissing('ui_translations', [
+            'id' => $translation->id,
+        ]);
+    }
+
     public function test_non_admin_cannot_save_translations(): void
     {
         $admin = User::factory()->admin()->create();
