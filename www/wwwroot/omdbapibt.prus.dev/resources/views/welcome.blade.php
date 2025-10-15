@@ -11,6 +11,7 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
         <!-- Styles / Scripts -->
+        @livewireStyles
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @else
@@ -320,11 +321,40 @@
                 </section>
 
                 </div>
+                <section class="mx-auto mt-16 max-w-6xl px-6 pb-16 lg:px-8">
+                    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                        <div class="space-y-6">
+                            <h2 class="text-2xl font-semibold text-gray-900">Share your review</h2>
+                            <p class="text-sm text-gray-600">Let the community know what you think about the latest films or shows.</p>
+                            @auth
+                                @livewire('reviews.review-form')
+                            @else
+                                <div class="rounded-md bg-yellow-50 p-4 text-sm text-yellow-800">
+                                    <p>
+                                        Please
+                                        @if (Route::has('login'))
+                                            <a class="font-semibold underline" href="{{ route('login') }}">sign in</a>
+                                        @else
+                                            sign in
+                                        @endif
+                                        to share your thoughts about a title.
+                                    </p>
+                                </div>
+                            @endauth
+                        </div>
+                        <div class="space-y-6">
+                            <h2 class="text-2xl font-semibold text-gray-900">Latest community insights</h2>
+                            <p class="text-sm text-gray-600">All reviews are sanitized to remove malicious scripts before they are displayed.</p>
+                            @livewire('reviews.review-list')
+                        </div>
+                    </div>
+                </section>
             </main>
         </div>
 
         @if (Route::has('login'))
             <div class="h-14.5 hidden lg:block"></div>
         @endif
+        @livewireScripts
     </body>
 </html>

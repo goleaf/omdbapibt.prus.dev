@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-debugbar": "^3.16",
+        "ezyang/htmlpurifier": "^4.18",
         "laravel/cashier": "^16.0",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.36",
