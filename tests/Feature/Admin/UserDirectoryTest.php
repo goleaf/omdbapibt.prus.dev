@@ -60,6 +60,18 @@ class UserDirectoryTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_cannot_update_their_own_role(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test(UserDirectory::class)
+            ->call('updateRole', $admin->id, UserRole::Subscriber->value)
+            ->assertForbidden();
+
+        $this->assertSame(UserRole::Admin, $admin->fresh()->role);
+    }
+
     public function test_non_admin_cannot_access_directory(): void
     {
         $user = User::factory()->create();
@@ -139,5 +151,26 @@ class UserDirectoryTest extends TestCase
         $this->assertAuthenticatedAs($target);
 
         $manager->stop($target);
+    }
+
+    public function test_admin_cannot_impersonate_themselves(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test(UserDirectory::class)
+            ->call('impersonate', $admin->id)
+            ->assertForbidden();
+    }
+
+    public function test_admin_cannot_impersonate_other_admins(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $otherAdmin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test(UserDirectory::class)
+            ->call('impersonate', $otherAdmin->id)
+            ->assertForbidden();
     }
 }

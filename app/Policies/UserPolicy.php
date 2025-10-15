@@ -3,12 +3,20 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
 {
-    public function viewAny(?User $user): bool
+    use HandlesAuthorization;
+
+    public function viewAny(User $user): bool
     {
-        return $user?->isAdmin() ?? false;
+        return $user->isAdmin();
+    }
+
+    public function export(User $user): bool
+    {
+        return $user->isAdmin();
     }
 
     public function updateRole(User $user, User $target): bool
@@ -17,12 +25,11 @@ class UserPolicy
             return false;
         }
 
-        return true;
-    }
+        if ($user->is($target)) {
+            return false;
+        }
 
-    public function export(User $user): bool
-    {
-        return $user->isAdmin();
+        return true;
     }
 
     public function impersonate(User $user, User $target): bool

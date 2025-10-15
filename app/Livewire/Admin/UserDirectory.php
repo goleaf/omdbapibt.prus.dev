@@ -150,7 +150,13 @@ class UserDirectory extends Component
 
     public function canImpersonateUser(User $user): bool
     {
-        if (! Gate::allows('impersonate', $user)) {
+        $actor = auth()->user();
+
+        if (! $actor instanceof User) {
+            return false;
+        }
+
+        if (! Gate::forUser($actor)->allows('impersonate', $user)) {
             return false;
         }
 
@@ -182,7 +188,7 @@ class UserDirectory extends Component
 
         $actor = auth()->user();
 
-        if (! $actor) {
+        if (! $actor instanceof User) {
             $this->addError('impersonation', 'Unable to impersonate this user.');
 
             return;
