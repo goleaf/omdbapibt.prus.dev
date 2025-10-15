@@ -8,13 +8,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Laravel\Cashier\SubscriptionBuilder;
 use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class SubscriptionRedirectTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_subscribed_user_is_redirected_with_status_message(): void
+    #[DataProvider('localeProvider')]
+    public function test_subscribed_user_is_redirected_with_status_message(string $locale): void
     {
         $user = User::factory()->create(['stripe_id' => 'cus_existing']);
         $user->subscriptions()->create([
@@ -26,12 +28,24 @@ class SubscriptionRedirectTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->post(route('subscriptions.store', ['locale' => 'en']), [
+            ->post(route('subscriptions.store', ['locale' => $locale]), [
                 'price' => 'price_monthly',
             ]);
 
-        $response->assertRedirect(route('dashboard', ['locale' => 'en']))
-            ->assertSessionHas('status', __('subscriptions.status.already_subscribed'));
+        $response->assertRedirect(route('dashboard', ['locale' => $locale]))
+            ->assertSessionHas('status', trans('subscriptions.status.already_subscribed', locale: $locale));
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function localeProvider(): array
+    {
+        return [
+            'english' => ['en'],
+            'spanish' => ['es'],
+            'french' => ['fr'],
+        ];
     }
 
     public function test_trial_user_is_redirected_to_checkout_session(): void
