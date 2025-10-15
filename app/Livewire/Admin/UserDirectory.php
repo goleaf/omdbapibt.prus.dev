@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Enums\UserManagementAction;
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\UserManagementLog;
@@ -103,7 +104,7 @@ class UserDirectory extends Component
         UserManagementLog::create([
             'actor_id' => $admin->getKey(),
             'user_id' => $user->getKey(),
-            'action' => 'role_updated',
+            'action' => UserManagementAction::RoleUpdated,
             'details' => [
                 'role' => $role->value,
             ],

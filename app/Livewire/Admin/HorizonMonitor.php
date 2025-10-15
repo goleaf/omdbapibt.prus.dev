@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Enums\UserManagementAction;
 use App\Models\UserManagementLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
@@ -57,7 +58,7 @@ class HorizonMonitor extends Component
         UserManagementLog::create([
             'user_id' => Auth::id(),
             'actor_id' => Auth::id(),
-            'action' => 'queued_command',
+            'action' => UserManagementAction::QueuedCommand,
             'details' => [
                 'command' => $command,
             ],
@@ -170,7 +171,7 @@ class HorizonMonitor extends Component
             ->get()
             ->map(fn (UserManagementLog $log) => [
                 'id' => $log->id,
-                'action' => Str::headline($log->action),
+                'action' => Str::headline($log->action?->value ?? ''),
                 'details' => $log->details,
                 'created_at' => optional($log->created_at)->toDateTimeString(),
                 'user' => $log->user ? [
