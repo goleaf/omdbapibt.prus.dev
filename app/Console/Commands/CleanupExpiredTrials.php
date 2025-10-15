@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\SubscriptionStatus;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
@@ -105,7 +106,11 @@ class CleanupExpiredTrials extends Command
         }
 
         $hasEverConverted = $subscriptions->contains(function (Subscription $subscription): bool {
-            return in_array($subscription->stripe_status, ['active', 'past_due'], true);
+            return in_array(
+                $subscription->stripe_status,
+                SubscriptionStatus::values([SubscriptionStatus::Active, SubscriptionStatus::PastDue]),
+                true
+            );
         });
 
         if ($hasEverConverted) {

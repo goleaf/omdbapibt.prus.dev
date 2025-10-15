@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Subscriptions;
 
+use App\Enums\SubscriptionStatus;
 use App\Models\User;
 use App\Support\Subscriptions\BillingState;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,7 +18,7 @@ class BillingStateTest extends TestCase
         $user->subscriptions()->create([
             'type' => 'default',
             'stripe_id' => 'sub_456',
-            'stripe_status' => 'active',
+            'stripe_status' => SubscriptionStatus::Active->value,
             'stripe_price' => 'price_yearly',
             'quantity' => 1,
             'trial_ends_at' => now()->addDays(5)->startOfDay(),

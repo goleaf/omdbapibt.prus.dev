@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\BillingInterval;
+use App\Enums\SubscriptionStatus;
 use App\Livewire\Admin\AnalyticsDashboard;
 use App\Models\User;
 use App\Services\Subscriptions\SubscriptionAnalyticsService;
@@ -26,7 +28,7 @@ class AnalyticsDashboardTest extends TestCase
                 'price_id' => 'price_monthly',
                 'amount' => 1299,
                 'currency' => 'usd',
-                'interval' => 'month',
+                'interval' => BillingInterval::Month,
                 'interval_count' => 1,
             ],
             'premium_yearly' => [
@@ -34,12 +36,15 @@ class AnalyticsDashboardTest extends TestCase
                 'price_id' => 'price_yearly',
                 'amount' => 12999,
                 'currency' => 'usd',
-                'interval' => 'year',
+                'interval' => BillingInterval::Year,
                 'interval_count' => 1,
             ],
         ]);
 
-        config()->set('subscriptions.active_statuses', ['active', 'trialing']);
+        config()->set(
+            'subscriptions.active_statuses',
+            SubscriptionStatus::values([SubscriptionStatus::Active, SubscriptionStatus::Trialing])
+        );
         config()->set('subscriptions.cache.metrics_ttl', 60);
 
         $monthlyUser = User::factory()->create();
@@ -53,7 +58,7 @@ class AnalyticsDashboardTest extends TestCase
                 'user_id' => $monthlyUser->id,
                 'type' => 'default',
                 'stripe_id' => 'sub_monthly',
-                'stripe_status' => 'active',
+                'stripe_status' => SubscriptionStatus::Active->value,
                 'stripe_price' => 'price_monthly',
                 'quantity' => 1,
                 'trial_ends_at' => null,
@@ -66,7 +71,7 @@ class AnalyticsDashboardTest extends TestCase
                 'user_id' => $yearlyUser->id,
                 'type' => 'default',
                 'stripe_id' => 'sub_yearly',
-                'stripe_status' => 'active',
+                'stripe_status' => SubscriptionStatus::Active->value,
                 'stripe_price' => 'price_yearly',
                 'quantity' => 1,
                 'trial_ends_at' => null,
@@ -79,7 +84,7 @@ class AnalyticsDashboardTest extends TestCase
                 'user_id' => $trialUser->id,
                 'type' => 'default',
                 'stripe_id' => 'sub_trial',
-                'stripe_status' => 'trialing',
+                'stripe_status' => SubscriptionStatus::Trialing->value,
                 'stripe_price' => 'price_monthly',
                 'quantity' => 1,
                 'trial_ends_at' => now()->addDays(7),
@@ -92,7 +97,7 @@ class AnalyticsDashboardTest extends TestCase
                 'user_id' => $churnedUser->id,
                 'type' => 'default',
                 'stripe_id' => 'sub_churned',
-                'stripe_status' => 'canceled',
+                'stripe_status' => SubscriptionStatus::Canceled->value,
                 'stripe_price' => 'price_monthly',
                 'quantity' => 1,
                 'trial_ends_at' => null,
@@ -160,7 +165,7 @@ class AnalyticsDashboardTest extends TestCase
             'user_id' => User::factory()->create()->id,
             'type' => 'default',
             'stripe_id' => 'sub_new',
-            'stripe_status' => 'active',
+            'stripe_status' => SubscriptionStatus::Active->value,
             'stripe_price' => 'price_monthly',
             'quantity' => 1,
             'trial_ends_at' => null,
