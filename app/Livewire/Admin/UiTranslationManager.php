@@ -28,8 +28,7 @@ class UiTranslationManager extends Component
 
     public function mount(): void
     {
-        $this->authorize('viewAny', UiTranslation::class);
-        $this->authorize('create', UiTranslation::class);
+        $this->authorize('view', UiTranslation::class);
 
         $configuredLocales = (array) config('translatable.locales', [config('app.locale')]);
         $fallback = (string) config('translatable.fallback_locale', config('app.fallback_locale', 'en'));
@@ -125,7 +124,7 @@ class UiTranslationManager extends Component
 
     public function refreshCache(): void
     {
-        $this->authorize('refreshCache', UiTranslation::class);
+        $this->authorize('update', UiTranslation::class);
 
         $this->repository()->refreshAndRegister();
         $this->statusMessage = __('Translation cache refreshed.');
