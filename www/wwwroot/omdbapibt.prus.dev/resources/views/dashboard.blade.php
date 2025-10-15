@@ -16,6 +16,11 @@
                     <a class="text-blue-600 hover:text-blue-500" href="{{ route('billing.portal') }}">
                         Manage Subscription
                     </a>
+                    @if (auth()->user()?->isAdmin())
+                        <a class="text-blue-600 hover:text-blue-500" href="{{ route('admin.analytics') }}">
+                            Analytics
+                        </a>
+                    @endif
                 </nav>
             </div>
         </header>
