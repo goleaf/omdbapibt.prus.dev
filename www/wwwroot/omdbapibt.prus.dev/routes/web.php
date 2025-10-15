@@ -8,37 +8,52 @@ use App\Livewire\TvShowDetail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
-Route::view('/', 'pages.home')->name('home');
-Route::view('/browse', 'pages.browse')->name('browse');
-Route::view('/pricing', 'pages.pricing')->name('pricing');
+$availableLocales = config('translatable.locales', []);
 
-Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
-    ->name('movies.show');
+if ($availableLocales === []) {
+    $availableLocales = [config('app.fallback_locale', 'en')];
+}
 
-Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))
-    ->name('shows.show');
+$registerAppRoutes = function (): void {
+    Route::view('/', 'pages.home')->name('home');
+    Route::view('/browse', 'pages.browse')->name('browse');
+    Route::view('/pricing', 'pages.pricing')->name('pricing');
 
-Route::get('/tv/{show}', TvShowDetail::class)
-    ->name('tv.show');
+    Route::get('/movies/{slug}', fn (string $slug) => view('pages.movies.show', ['slug' => $slug]))
+        ->name('movies.show');
 
-Route::get('/{locale}/tv/{show}', TvShowDetail::class)
-    ->where('locale', '[a-zA-Z]{2}')
-    ->name('tv.show.localized');
+    Route::get('/shows/{slug}', fn (string $slug) => view('pages.shows.show', ['slug' => $slug]))
+        ->name('shows.show');
 
-Route::middleware('auth')->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
-    Route::view('/account', 'pages.account')->name('account');
+    Route::get('/tv/{show}', TvShowDetail::class)
+        ->name('tv.show');
 
-    Route::get('/billing/portal', BillingPortalController::class)
-        ->name('billing.portal');
+    Route::middleware('auth')->group(function (): void {
+        Route::view('/dashboard', 'dashboard')->name('dashboard');
+        Route::view('/account', 'pages.account')->name('account');
 
-    Route::post('/subscriptions', [SubscriptionController::class, 'store'])
-        ->name('subscriptions.store');
-});
+        Route::get('/billing/portal', BillingPortalController::class)
+            ->name('billing.portal');
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/horizon-monitor', HorizonMonitor::class)
-        ->name('admin.horizon-monitor');
+        Route::post('/subscriptions', [SubscriptionController::class, 'store'])
+            ->name('subscriptions.store');
+    });
+
+    Route::middleware(['auth', 'admin'])->group(function (): void {
+        Route::get('/admin/horizon-monitor', HorizonMonitor::class)
+            ->name('admin.horizon-monitor');
+    });
+};
+
+Route::middleware('set-locale')->group(function () use ($availableLocales, $registerAppRoutes): void {
+    $registerAppRoutes();
+
+    Route::prefix('{locale}')
+        ->whereIn('locale', $availableLocales)
+        ->name('localized.')
+        ->group(function () use ($registerAppRoutes): void {
+            $registerAppRoutes();
+        });
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
