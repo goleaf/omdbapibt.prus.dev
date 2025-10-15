@@ -12,7 +12,7 @@ class ParserEntryDifferTest extends TestCase
         $differ = new ParserEntryDiffer;
 
         $baseline = [
-            'title' => 'Original Title',
+            'title' => ['en' => 'Original Title'],
             'overview' => [
                 'en' => 'Existing overview',
             ],
@@ -21,7 +21,7 @@ class ParserEntryDifferTest extends TestCase
         ];
 
         $incoming = [
-            'title' => 'New Title',
+            'title' => ['en' => 'New Title'],
             'overview' => [
                 'en' => 'Existing overview',
                 'es' => 'Descripción en español',
@@ -34,7 +34,7 @@ class ParserEntryDifferTest extends TestCase
         $diff = $differ->diff($baseline, $incoming);
 
         $this->assertContainsEquals([
-            'key' => 'title',
+            'key' => 'title.en',
             'before' => 'Original Title',
             'after' => 'New Title',
         ], $diff);
@@ -71,12 +71,12 @@ class ParserEntryDifferTest extends TestCase
         $differ = new ParserEntryDiffer;
 
         $baseline = [
-            'title' => 'Same',
+            'title' => ['en' => 'Same'],
             'overview' => ['en' => 'No change'],
         ];
 
         $incoming = [
-            'title' => 'Same',
+            'title' => ['en' => 'Same'],
             'overview' => ['en' => 'No change'],
         ];
 

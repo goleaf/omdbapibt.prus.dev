@@ -34,14 +34,14 @@ class ParserModerationDashboardTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
 
         $movie = Movie::factory()->create([
-            'title' => 'Baseline Film',
+            'title' => ['en' => 'Baseline Film'],
             'overview' => ['en' => 'Original overview'],
             'popularity' => 10,
         ]);
 
         $baseline = $movie->only(['title', 'overview', 'popularity']);
         $payload = $baseline;
-        $payload['title'] = 'Updated Film Title';
+        $payload['title'] = ['en' => 'Updated Film Title'];
         $payload['popularity'] = 42.5;
 
         ParserEntry::factory()
@@ -66,13 +66,13 @@ class ParserModerationDashboardTest extends TestCase
 
         $admin = User::factory()->create(['role' => 'admin']);
         $movie = Movie::factory()->create([
-            'title' => 'Baseline Film',
+            'title' => ['en' => 'Baseline Film'],
             'overview' => ['en' => 'Original overview'],
             'popularity' => 10,
         ]);
 
         $payload = [
-            'title' => 'Approved Title',
+            'title' => ['en' => 'Approved Title'],
             'overview' => ['en' => 'Approved overview'],
             'popularity' => 55.5,
         ];
@@ -118,13 +118,13 @@ class ParserModerationDashboardTest extends TestCase
 
         $admin = User::factory()->create(['role' => 'admin']);
         $movie = Movie::factory()->create([
-            'title' => 'Baseline Film',
+            'title' => ['en' => 'Baseline Film'],
             'overview' => ['en' => 'Original overview'],
             'popularity' => 10,
         ]);
 
         $payload = [
-            'title' => 'Rejected Title',
+            'title' => ['en' => 'Rejected Title'],
             'overview' => ['en' => 'Rejected overview'],
             'popularity' => 5.5,
         ];
@@ -171,7 +171,7 @@ class ParserModerationDashboardTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $moderator = User::factory()->create();
         $movie = Movie::factory()->create([
-            'title' => 'Baseline Film',
+            'title' => ['en' => 'Baseline Film'],
             'overview' => ['en' => 'Original overview'],
             'popularity' => 10,
         ]);

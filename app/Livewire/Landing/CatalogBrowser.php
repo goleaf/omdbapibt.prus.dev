@@ -98,7 +98,7 @@ class CatalogBrowser extends Component
 
             return [
                 'id' => $movie->id,
-                'title' => $movie->title,
+                'title' => $movie->localizedTitle(),
                 'slug' => $movie->slug,
                 'poster_path' => $movie->poster_path,
                 'tagline' => $movie->tagline,

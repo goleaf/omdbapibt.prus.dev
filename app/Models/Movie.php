@@ -59,6 +59,7 @@ class Movie extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'title' => 'array',
         'overview' => 'array',
         'translation_metadata' => 'array',
         'credits' => 'array',
@@ -70,6 +71,48 @@ class Movie extends Model
         'popularity' => 'float',
         'vote_average' => 'float',
     ];
+
+    public function localizedTitle(?string $locale = null): string
+    {
+        $titles = $this->title;
+
+        if (! is_array($titles)) {
+            return is_string($titles) && $titles !== '' ? $titles : 'Untitled';
+        }
+
+        $locale ??= app()->getLocale();
+
+        if ($locale && isset($titles[$locale]) && is_string($titles[$locale]) && $titles[$locale] !== '') {
+            return $titles[$locale];
+        }
+
+        $fallbackLocale = config('app.fallback_locale');
+
+        if ($fallbackLocale && isset($titles[$fallbackLocale]) && is_string($titles[$fallbackLocale]) && $titles[$fallbackLocale] !== '') {
+            return $titles[$fallbackLocale];
+        }
+
+        if (isset($titles['en']) && is_string($titles['en']) && $titles['en'] !== '') {
+            return $titles['en'];
+        }
+
+        foreach ($titles as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return 'Untitled';
+    }
+
+    public function setTitleAttribute($value): void
+    {
+        if (is_string($value)) {
+            $value = ['en' => $value];
+        }
+
+        $this->attributes['title'] = $this->castAttributeAsJson('title', $value);
+    }
 
     /**
      * Scope a query to filter by a minimum rating.

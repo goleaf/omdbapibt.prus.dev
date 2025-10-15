@@ -93,11 +93,9 @@
                     $route = null;
 
                     if ($watchable instanceof Movie) {
-                        $rawTitle = $watchable->title;
-                        if (is_array($rawTitle)) {
-                            $title = $rawTitle[$locale] ?? $rawTitle['en'] ?? reset($rawTitle) ?? 'Untitled movie';
-                        } else {
-                            $title = $rawTitle ?: 'Untitled movie';
+                        $title = $watchable->localizedTitle($locale) ?: 'Untitled movie';
+                        if ($title === 'Untitled') {
+                            $title = 'Untitled movie';
                         }
                         if ($watchable->release_date) {
                             $subtitleParts[] = $watchable->release_date->format('M j, Y');
