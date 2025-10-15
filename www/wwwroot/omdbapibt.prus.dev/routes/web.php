@@ -22,7 +22,7 @@ $localizedRoutes = function (): void {
     });
 };
 
-Route::middleware('set-locale')->group(function () use ($localizedRoutes): void {
+Route::middleware('set-locale')->group(function () use ($availableLocales, $localizedRoutes): void {
     Route::view('/', 'welcome')->name('home');
 
     Route::middleware('auth')->group(function (): void {
