@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('movies', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tmdb_id')->nullable()->unique();
-            $table->string('imdb_id', 20)->nullable()->unique();
+            $table->unsignedBigInteger('tmdb_id')->nullable();
+            $table->string('imdb_id', 20)->nullable();
             $table->string('omdb_id', 50)->nullable()->index();
-            $table->string('slug')->nullable()->unique();
-            $table->string('title');
+            $table->string('slug')->nullable();
+            $table->json('title');
             $table->string('original_title')->nullable();
+            $table->json('overview')->nullable();
             $table->unsignedSmallInteger('year')->nullable();
             $table->unsignedSmallInteger('runtime')->nullable();
             $table->date('release_date')->nullable();
-            $table->text('plot')->nullable();
             $table->string('tagline')->nullable();
             $table->string('homepage')->nullable();
             $table->unsignedBigInteger('budget')->nullable();
@@ -40,9 +40,37 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['title']);
-            $table->index(['popularity']);
-            $table->index(['vote_average']);
+            $table->text('title_search_vector')->storedAs(<<<'SQL'
+trim(
+    concat_ws(
+        ' ',
+        json_unquote(json_extract(`title`, '$."en"')),
+        json_unquote(json_extract(`title`, '$."es"')),
+        json_unquote(json_extract(`title`, '$."fr"'))
+    )
+)
+SQL);
+
+            $table->text('overview_search_vector')->storedAs(<<<'SQL'
+trim(
+    concat_ws(
+        ' ',
+        json_unquote(json_extract(`overview`, '$."en"')),
+        json_unquote(json_extract(`overview`, '$."es"')),
+        json_unquote(json_extract(`overview`, '$."fr"'))
+    )
+)
+SQL);
+
+            $table->index('tmdb_id');
+            $table->index('imdb_id');
+            $table->index('slug');
+            $table->index('popularity');
+            $table->index('vote_average');
+            $table->unique('tmdb_id');
+            $table->unique('imdb_id');
+            $table->unique('slug');
+            $table->fullText(['title_search_vector', 'overview_search_vector'], 'movies_fulltext_translations');
         });
     }
 

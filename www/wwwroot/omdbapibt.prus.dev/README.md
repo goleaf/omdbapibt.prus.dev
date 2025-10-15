@@ -78,3 +78,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Database Querying
+
+The movies schema includes dedicated indexes for identity lookups, leaderboard ordering and multilingual full-text search. Refer to [`docs/database/query-strategies.md`](docs/database/query-strategies.md) for the recommended SQL patterns that take advantage of these indexes.
