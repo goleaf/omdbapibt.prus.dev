@@ -24,6 +24,11 @@ return [
             'dark' => 'Mode sombre',
         ],
         'theme_toggle' => 'Changer de thème',
+        'menu' => [
+            'label' => 'Navigation',
+            'open' => 'Ouvrir la navigation',
+            'close' => 'Fermer la navigation',
+        ],
         'footer' => [
             'terms' => 'Conditions',
             'privacy' => 'Confidentialité',
