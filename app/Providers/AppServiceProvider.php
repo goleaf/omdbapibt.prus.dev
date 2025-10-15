@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -51,22 +54,47 @@ class AppServiceProvider extends ServiceProvider
                 // Optional: allow tuning via env, safe to ignore if unsupported
                 $mmap = (int) env('SQLITE_MMAP_SIZE', 0);
                 if ($mmap > 0) {
-                    DB::statement('PRAGMA mmap_size = ' . $mmap);
+                    DB::statement('PRAGMA mmap_size = '.$mmap);
                 }
 
                 $walCheckpoint = (int) env('SQLITE_WAL_AUTOCHECKPOINT', 1000);
                 if ($walCheckpoint >= 0) {
-                    DB::statement('PRAGMA wal_autocheckpoint = ' . $walCheckpoint);
+                    DB::statement('PRAGMA wal_autocheckpoint = '.$walCheckpoint);
                 }
             }
         } catch (\Throwable $e) {
             // Never break boot on shared hosts; log and continue
-            Log::warning('SQLite PRAGMA setup skipped: ' . $e->getMessage());
+            Log::warning('SQLite PRAGMA setup skipped: '.$e->getMessage());
         }
 
         // Keep DB query log off in production to avoid memory overhead
         if (app()->isProduction()) {
             DB::disableQueryLog();
         }
+
+        $this->configureRateLimiting();
+    }
+
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('movie-lookup', function (Request $request): Limit {
+            return $this->buildRateLimit('movie_lookup')
+                ->by((string) $request->ip());
+        });
+
+        RateLimiter::for('parser-trigger', function (Request $request): Limit {
+            return $this->buildRateLimit('parser_trigger')
+                ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip()));
+        });
+    }
+
+    protected function buildRateLimit(string $key): Limit
+    {
+        $config = (array) config("rate-limiting.{$key}");
+
+        $maxAttempts = max(1, (int) ($config['max_attempts'] ?? 60));
+        $decaySeconds = max(1, (int) ($config['decay_seconds'] ?? 60));
+
+        return Limit::perSecond($maxAttempts, $decaySeconds);
     }
 }

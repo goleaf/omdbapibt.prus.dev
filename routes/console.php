@@ -13,19 +13,19 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('movie:parse-new', function () {
-    ExecuteParserPipeline::dispatch('movies')->onQueue('parsing');
+    ExecuteParserPipeline::dispatch('movies');
 
     $this->info('Dispatched movie parsing pipeline.');
 })->purpose('Dispatch a parsing workload for new movies');
 
 Artisan::command('tv:parse-new', function () {
-    ExecuteParserPipeline::dispatch('tv')->onQueue('parsing');
+    ExecuteParserPipeline::dispatch('tv');
 
     $this->info('Dispatched TV parsing pipeline.');
 })->purpose('Dispatch a parsing workload for new TV shows');
 
 Artisan::command('people:parse-new', function () {
-    ExecuteParserPipeline::dispatch('people')->onQueue('parsing');
+    ExecuteParserPipeline::dispatch('people');
 
     $this->info('Dispatched people parsing pipeline.');
 })->purpose('Dispatch a parsing workload for new people profiles');
@@ -50,6 +50,6 @@ Artisan::command('db:optimize', function () {
         DB::statement('PRAGMA wal_checkpoint(TRUNCATE)');
         $this->info('SQLite optimize + WAL checkpoint done.');
     } catch (\Throwable $e) {
-        $this->error('DB optimize failed: ' . $e->getMessage());
+        $this->error('DB optimize failed: '.$e->getMessage());
     }
 })->purpose('Run SQLite optimize and WAL checkpoint');
