@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\Parsing\ExecuteParserPipeline;
+use App\Models\ParserEntry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,8 @@ class ParserTriggerController extends Controller
         ]);
 
         $workload = $validated['workload'];
+
+        $this->authorize('trigger', ParserEntry::class);
 
         ExecuteParserPipeline::dispatch($workload);
 
