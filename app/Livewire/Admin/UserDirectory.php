@@ -9,6 +9,7 @@ use App\Support\ImpersonationManager;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserDirectory extends Component
 {
+    use AuthorizesRequests;
+
     public string $search = '';
 
     public ?string $roleFilter = null;
@@ -31,7 +34,7 @@ class UserDirectory extends Component
 
     public function mount(): void
     {
-        abort_if(! auth()->user()?->isAdmin(), 403);
+        $this->authorize('viewAny', User::class);
     }
 
     #[Computed]
@@ -78,10 +81,6 @@ class UserDirectory extends Component
 
     public function updateRole(int $userId, string $roleValue): void
     {
-        $admin = auth()->user();
-
-        abort_if(! $admin?->isAdmin(), 403);
-
         $role = UserRole::tryFrom($roleValue);
 
         if (! $role) {
@@ -96,6 +95,11 @@ class UserDirectory extends Component
         if (! $user) {
             return;
         }
+
+        $this->authorize('updateRole', $user);
+
+        /** @var User $admin */
+        $admin = auth()->user();
 
         $user->role = $role;
         $user->save();
@@ -114,6 +118,8 @@ class UserDirectory extends Component
 
     public function exportCsv(): StreamedResponse
     {
+        $this->authorize('export', User::class);
+
         $filename = 'user-directory-'.now()->format('Y-m-d-His').'.csv';
 
         return response()->streamDownload(function () {
@@ -141,24 +147,25 @@ class UserDirectory extends Component
 
     public function impersonate(int $userId): void
     {
-        $admin = auth()->user();
-
-        abort_if(! $admin?->canImpersonate(), 403);
-
         /** @var User|null $target */
         $target = User::query()->find($userId);
 
-        if (! $target || ! $target->canBeImpersonated()) {
-            $this->addError('impersonation', 'Unable to impersonate this user.');
-
+        if (! $target) {
             return;
         }
+
+        $this->authorize('impersonate', $target);
+
+        /** @var User $admin */
+        $admin = auth()->user();
 
         $this->impersonationManager->start($admin, $target);
     }
 
     public function stopImpersonating(): void
     {
+        $this->authorize('stopImpersonating');
+
         $this->impersonationManager->stop();
     }
 
