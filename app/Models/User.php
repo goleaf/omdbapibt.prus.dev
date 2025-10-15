@@ -6,7 +6,7 @@ use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphedByMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
@@ -84,7 +84,7 @@ class User extends Authenticatable
     /**
      * Movies saved to the user's watchlist.
      */
-    public function watchlistedMovies(): MorphedByMany
+    public function watchlistedMovies(): MorphToMany
     {
         return $this->morphedByMany(Movie::class, 'watchlistable', 'user_watchlist')->withTimestamps();
     }
@@ -92,7 +92,7 @@ class User extends Authenticatable
     /**
      * TV shows saved to the user's watchlist.
      */
-    public function watchlistedTvShows(): MorphedByMany
+    public function watchlistedTvShows(): MorphToMany
     {
         return $this->morphedByMany(TvShow::class, 'watchlistable', 'user_watchlist')->withTimestamps();
     }
