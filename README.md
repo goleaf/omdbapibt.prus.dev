@@ -1,84 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# OMDb API BT Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+The OMDb API BT platform is a Laravel 12 application that aggregates metadata from OMDb and TMDb while offering subscription-gated access to premium content. The project couples Laravel Horizon powered queues with Livewire-driven browsing experiences.
 
-## About Laravel
+- **Production**: https://omdbapibt.prus.dev
+- **Stack**: Laravel 12, PHP 8.3, MySQL/MariaDB, Redis, Horizon, Livewire 3, Vite, Tailwind CSS
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Local development
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3 with the extensions defined in `composer.json`
+- Node.js 20+ and npm
+- Composer
+- SQLite (default testing driver) or MySQL/MariaDB for local development
+- Redis (queues, cache, Horizon)
 
-## Environment Variables
+### Bootstrap the project
 
-For local development, copy `.env.example` to `.env` and provide values for the following API keys:
+1. Install PHP dependencies:
+   ```bash
+   composer install
+   ```
+2. Install frontend dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy the environment file and generate an application key:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+4. Populate environment values (see [Configuration](#configuration)).
+5. Run database migrations and seed the baseline catalogues:
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
+6. Compile frontend assets:
+   ```bash
+   npm run dev
+   ```
+7. Start the queue worker and Horizon dashboard when working with background jobs:
+   ```bash
+   php artisan horizon
+   ```
 
-- `STRIPE_KEY` — Stripe publishable key used for the client-side integration.
-- `STRIPE_SECRET` — Stripe secret key used for server-side API calls.
-- `STRIPE_WEBHOOK_SECRET` — Stripe webhook signing secret used to validate incoming webhooks.
-- `OMDB_API_KEY` — OMDb credentials used by the parser service.
-- `TMDB_API_KEY` — TMDb credentials used by the parser service.
+## Configuration
 
-### Obtaining Stripe test credentials
+### Core environment variables
 
-1. Create (or sign in to) a [Stripe account](https://dashboard.stripe.com/register) and switch to **Test mode** in the dashboard.
-2. Navigate to **Developers → API keys** to copy the **Publishable key** and **Secret key** into `STRIPE_KEY` and `STRIPE_SECRET` respectively.
-3. Navigate to **Developers → Webhooks**, create an endpoint that targets your local webhook URL (for example `https://your-domain.test/stripe/webhook`), and copy the **Signing secret** into `STRIPE_WEBHOOK_SECRET`.
-4. If you rotate keys or regenerate the webhook secret, update the corresponding values in your `.env` file and clear the configuration cache (`php artisan config:clear`).
+| Variable | Purpose |
+| --- | --- |
+| `DB_CONNECTION` / `DB_DATABASE` / `DB_HOST` / `DB_PORT` / `DB_USERNAME` / `DB_PASSWORD` | Database connection for application and queue tables. |
+| `CACHE_DRIVER` / `QUEUE_CONNECTION` | Set to `redis` for production so Horizon can supervise queues. |
+| `SESSION_DRIVER` | Use `redis` or `database` in production for horizontal scaling. |
+| `STRIPE_KEY` / `STRIPE_SECRET` | Stripe credentials consumed by Laravel Cashier. |
+| `STRIPE_WEBHOOK_SECRET` | Verifies incoming Stripe webhook signatures. |
+| `OMDB_API_KEY` | Authenticates requests to the OMDb API. |
+| `TMDB_API_KEY` | Authenticates requests to the TMDb API. |
+| `HORIZON_PREFIX` | Optional Redis prefix if sharing infrastructure with other apps. |
 
-The Stripe keys are consumed through the `config('cashier')` configuration, while the OMDb and TMDb keys are available via the `config('services.omdb.key')` and `config('services.tmdb.key')` helper calls.
+> Keep production secrets exclusively in the environment. Never commit them to version control.
 
-## Learning Laravel
+### Baseline data seeders
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+`php artisan db:seed` now invokes three dedicated seeders:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- `LanguageSeeder` — loads ten common ISO 639-1 languages used for localisation workflows.
+- `CountrySeeder` — provisions the initial ISO 3166-1 alpha-2 production countries surfaced in filters.
+- `GenreSeeder` — syncs the canonical TMDb movie genres used by the parser service.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+The seeders use `updateOrCreate` so they can be safely re-run without duplicating records.
 
-## Laravel Sponsors
+## Deployment
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Production deployment script
 
-### Premium Partners
+The repository ships with `scripts/deploy-production.sh`, which performs the idempotent deployment steps:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. Cache configuration for fast bootstrap.
+2. Run database migrations with `--force`.
+3. Seed the baseline catalogues.
+4. Optimise the framework caches.
+5. Signal Horizon to restart so the latest code is loaded.
 
-## Contributing
+Execute the script from the project root on the production server after pulling the latest code:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+./scripts/deploy-production.sh
+```
 
-## Code of Conduct
+### GitHub Actions workflow
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+`.github/workflows/deploy-production.yml` defines a manual **Deploy Production** workflow. It connects to the server over SSH using [`appleboy/ssh-action`](https://github.com/appleboy/ssh-action) and performs the following:
 
-## Security Vulnerabilities
+1. Fetch and reset the server checkout to the requested ref (default `main`).
+2. Install PHP dependencies with optimisations.
+3. Install Node dependencies and build frontend assets.
+4. Call `scripts/deploy-production.sh` to migrate, seed, optimise caches, and restart Horizon.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Provision these secrets in the repository before triggering a deployment:
 
-## License
+| Secret | Description |
+| --- | --- |
+| `PRODUCTION_SSH_HOST` | SSH host of the production server. |
+| `PRODUCTION_SSH_USER` | SSH username with deploy permissions. |
+| `PRODUCTION_SSH_KEY` | Private key for authentication. |
+| `PRODUCTION_SSH_PORT` | Optional SSH port (defaults to 22 if omitted). |
+| `PRODUCTION_APP_PATH` | Absolute path to the deployed application on the server. |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+After the workflow completes, Horizon will be restarted automatically and the catalogue seeders will ensure languages, countries, and genres remain up to date.
 
-## Database Querying
+## Documentation
 
-The movies schema includes dedicated indexes for identity lookups, leaderboard ordering and multilingual full-text search. Refer to [`docs/database/query-strategies.md`](docs/database/query-strategies.md) for the recommended SQL patterns that take advantage of these indexes.
+Additional design notes are available in [`docs/`](docs/).
