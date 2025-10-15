@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\ParsedEntry;
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -52,19 +53,23 @@ class ParsedEntriesReview extends Component
 
     protected function handleDecision(int $entryId, string $status, bool $published): void
     {
-        $entry = ParsedEntry::query()->findOrFail($entryId);
+        $entry = DB::transaction(function () use ($entryId, $status, $published) {
+            $entry = ParsedEntry::query()->lockForUpdate()->findOrFail($entryId);
 
-        $entry->forceFill([
-            'status' => $status,
-            'is_published' => $published,
-            'reviewed_at' => now(),
-            'reviewed_by' => optional(auth())->id(),
-        ])->save();
+            $entry->forceFill([
+                'status' => $status,
+                'is_published' => $published,
+                'reviewed_at' => now(),
+                'reviewed_by' => auth()->id(),
+            ])->save();
 
-        $this->recordHistory($entry, $status, $this->comment ?: null);
+            $this->recordHistory($entry, $status, $this->comment ?: null);
+
+            return $entry;
+        });
 
         $this->comment = '';
-        $this->selectedEntryId = $published ? null : $this->selectedEntryId;
+        $this->selectedEntryId = $published ? null : $entry->id;
 
         $this->dispatch('entry-reviewed');
     }
