@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 
 class ParserTriggerResponse
 {
-    public static function fromWorkload(ParserWorkload $workload, string $queue): JsonResponse
+    public static function from(ParserWorkload $workload, string $queue): JsonResponse
     {
         return response()->json([
             'status' => 'queued',
