@@ -20,6 +20,7 @@ return [
             'required' => 'Selecciona una carga de procesamiento para iniciar.',
             'string' => 'La carga de procesamiento debe enviarse como texto.',
             'enum' => 'La carga de procesamiento seleccionada no es válida.',
+            'in' => 'La carga de procesamiento seleccionada no es válida.',
         ],
     ],
     'attributes' => [

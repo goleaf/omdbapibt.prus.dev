@@ -20,6 +20,7 @@ return [
             'required' => 'Please select a parser workload to trigger.',
             'string' => 'The parser workload must be provided as text.',
             'enum' => 'The selected parser workload is invalid.',
+            'in' => 'The selected parser workload is invalid.',
         ],
     ],
     'attributes' => [
