@@ -1,56 +1,56 @@
-# Laravel + SQLite: практичные рекомендации
+# Laravel + SQLite: Practical Guidance
 
-Коротко о важном для проектов на SQLite в Laravel. Эта заметка служит ориентиром для разработки, миграций и эксплуатации.
+This guide summarizes the key considerations when running SQLite inside a Laravel application. Use it as a checklist for development, migrations, and production operations.
 
-## Когда SQLite уместен
+## When SQLite Fits
 
-- Малые/средние сервисы, CLI/edge, прототипы, приложения с редкими записями и активными чтениями.
-- Тесты и локальная разработка без внешних зависимостей.
-- Не для горячей высококонкурентной записи и сложной репликации.
+- Small or medium services, CLI/edge workloads, prototypes, and apps with infrequent writes but heavy reads.
+- Automated tests and local development where external dependencies are undesirable.
+- Avoid for hot, highly concurrent write workloads or complex replication requirements.
 
-## Базовая настройка
+## Baseline Configuration
 
-- `.env`: `DB_CONNECTION=sqlite`, `DB_DATABASE=/absolute/path/storage/database.sqlite` (создайте файл).
-- Включаем PRAGMA в `AppServiceProvider::boot()` (уже включено в проект):
+- `.env`: `DB_CONNECTION=sqlite`, `DB_DATABASE=/absolute/path/storage/database.sqlite` (create the file ahead of time).
+- Enable PRAGMA settings in `AppServiceProvider::boot()` (already configured in this project):
   - `foreign_keys=ON`, `journal_mode=WAL`, `synchronous=NORMAL`, `temp_store=MEMORY`, `cache_size≈20MB`, `busy_timeout=5000`.
-- `config/database.php`: `foreign_key_constraints=true`, `PDO::ATTR_TIMEOUT=5`.
-- Отключайте лог запросов в проде.
+- `config/database.php`: ensure `foreign_key_constraints=true` and set `PDO::ATTR_TIMEOUT=5`.
+- Disable verbose query logging in production.
 
-## Миграции и схема
+## Migrations and Schema Management
 
-- Изменения колонок в SQLite делайте через стратегию: новая колонка → перенос → удаление старой. Для `renameColumn()`/`change()` используйте `doctrine/dbal`.
-- Индексы: добавляйте на поля `WHERE/JOIN/ORDER BY`. Частичные индексы через `DB::statement('CREATE INDEX ... WHERE ...')`.
-- Внешние ключи объявляйте всегда; PRAGMA `foreign_keys=ON` обязательно.
+- For column changes, follow the pattern: add a new column → copy data → drop the old column. When using `renameColumn()` or `change()`, require `doctrine/dbal`.
+- Add indexes for columns used in `WHERE`/`JOIN`/`ORDER BY` clauses. For partial indexes, call `DB::statement('CREATE INDEX ... WHERE ...')`.
+- Always declare foreign keys; keep `PRAGMA foreign_keys=ON` enforced.
 
-## Производительность
+## Performance Practices
 
-- WAL — must-have (множественные читатели без блокировки).
-- Пакетные вставки/обновления (`Model::insert($bulk)`, `upsert`).
-- Транзакции (`DB::transaction(fn () => ...)`).
-- Обслуживание: периодически `PRAGMA optimize`, `VACUUM`, `PRAGMA wal_checkpoint(TRUNCATE)`.
-- Не используйте SQLite как драйвер `cache/queue/session` в проде — используйте Redis.
+- Write-Ahead Logging (WAL) is essential to allow concurrent readers without heavy locking.
+- Prefer batch inserts/updates (`Model::insert($bulk)`, `upsert`).
+- Wrap multi-step changes inside transactions (`DB::transaction(fn () => ...)`).
+- Maintenance tasks: run `PRAGMA optimize`, `VACUUM`, and `PRAGMA wal_checkpoint(TRUNCATE)` periodically.
+- Do not rely on SQLite for cache/queue/session drivers in production—use Redis instead.
 
-## JSON, CTE, FTS
+## JSON, CTE, and Full-Text Search
 
-- JSON хранится как TEXT; используйте JSON1 и касты в моделях (`array`). Для индексации — сгенерированные колонки + индекс.
-- CTE/рекурсивные запросы поддерживаются; удобно с пакетом `staudenmeir/laravel-cte`.
-- FTS: либо FTS5 (виртуальная таблица + триггеры), либо Laravel Scout + TNTSearch.
+- JSON is stored as `TEXT`; expose it via casts on models (`array`). For indexing, create generated columns plus indexes.
+- Common Table Expressions (including recursive queries) are supported; consider `staudenmeir/laravel-cte` for syntactic sugar.
+- Full-text search: either use FTS5 (virtual table + triggers) or integrate Laravel Scout with TNTSearch.
 
-## Тестирование
+## Testing Workflow
 
-- Быстрый in-memory: `DB_DATABASE=:memory:` + `RefreshDatabase` в тестах.
+- For fast in-memory testing, configure `DB_DATABASE=:memory:` and apply the `RefreshDatabase` trait.
 
-## Что не делать
+## Anti-Patterns
 
-- Не храните большие бинарники в БД — используйте хранилище, а в БД только метаданные.
-- Не полагайтесь на типы, специфичные для других СУБД (enum/jsonb/array).
+- Avoid storing large binaries in the database—use storage disks and keep only metadata in SQLite.
+- Do not depend on data types that only exist in other RDBMS engines (enum/jsonb/array, etc.).
 
-## Чек-лист продакшена
+## Production Checklist
 
-- PRAGMA: WAL, `synchronous=NORMAL|FULL`, `foreign_keys=ON`, `busy_timeout`.
-- Индексы на ключевые поля.
-- Пакетные записи + транзакции.
-- Redis для `cache/queue/session`.
-- Регулярные `VACUUM`/`optimize` + бэкапы.
-- Запросы не логируются, Telescope — только в dev.
-- FTS при необходимости.
+- PRAGMAs: enable WAL, set `synchronous` to `NORMAL` or `FULL`, enforce `foreign_keys=ON`, and define an appropriate `busy_timeout`.
+- Confirm indexes on critical query columns.
+- Use batch writes alongside transactions.
+- Configure Redis for `cache`, `queue`, and `session` drivers.
+- Schedule recurring `VACUUM`/`PRAGMA optimize` routines and maintain backups.
+- Disable verbose query logging and limit Telescope to development environments.
+- Adopt FTS only when the product requirements justify it.
