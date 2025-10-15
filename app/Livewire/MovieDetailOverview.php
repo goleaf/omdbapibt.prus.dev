@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Movie;
 use Livewire\Component;
 
 class MovieDetailOverview extends Component
@@ -10,12 +11,15 @@ class MovieDetailOverview extends Component
 
     public array $movie = [];
 
+    public ?int $movieId = null;
+
     public function mount(string $slug): void
     {
         $this->slug = $slug;
 
         // Fake movie payload for layout scaffolding.
         $this->movie = [
+            'id' => null,
             'title' => 'The Galactic Voyage',
             'tagline' => 'Where destiny meets the edge of the universe',
             'overview' => 'A daring pilot leads a crew of misfits on an impossible mission to chart the uncharted wormholes before a cosmic storm collapses the galaxy gate.',
@@ -34,6 +38,12 @@ class MovieDetailOverview extends Component
             'trailer_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
             'rating' => 8.7,
         ];
+
+        $this->movieId = Movie::where('slug', $slug)->value('id');
+
+        if ($this->movieId) {
+            $this->movie['id'] = $this->movieId;
+        }
     }
 
     public function render()

@@ -8,6 +8,16 @@
                 <p class="text-sm uppercase tracking-widest text-emerald-400">Feature film</p>
                 <h1 class="text-4xl font-bold text-slate-50">{{ $movie['title'] }}</h1>
                 <p class="text-lg text-slate-300">{{ $movie['tagline'] }}</p>
+
+                <div class="pt-2">
+                    @if ($movieId)
+                        <livewire:watchlist :movie-id="$movieId" :key="'movie-watchlist-' . $movieId" />
+                    @else
+                        <span class="inline-flex items-center rounded-full bg-slate-900/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            {{ __('Watchlist available when this title is synced.') }}
+                        </span>
+                    @endif
+                </div>
             </div>
 
             <div class="flex flex-wrap gap-4 text-sm text-slate-300">

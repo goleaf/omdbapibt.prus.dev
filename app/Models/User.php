@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphedByMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
@@ -53,5 +55,37 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Movies saved to the user's watchlist.
+     */
+    public function watchlistedMovies(): MorphedByMany
+    {
+        return $this->morphedByMany(Movie::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+    }
+
+    /**
+     * TV shows saved to the user's watchlist.
+     */
+    public function watchlistedTvShows(): MorphedByMany
+    {
+        return $this->morphedByMany(TvShow::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+    }
+
+    /**
+     * Determine if the given model has been added to the watchlist.
+     */
+    public function hasInWatchlist(Model $model): bool
+    {
+        if ($model instanceof Movie) {
+            return $this->watchlistedMovies()->whereKey($model->getKey())->exists();
+        }
+
+        if ($model instanceof TvShow) {
+            return $this->watchlistedTvShows()->whereKey($model->getKey())->exists();
+        }
+
+        return false;
     }
 }

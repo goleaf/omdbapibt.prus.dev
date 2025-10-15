@@ -101,6 +101,8 @@
             </section>
 
             @livewire('subscription-manage')
+
+            @livewire('watchlist')
         </main>
     </div>
     @livewireScripts
