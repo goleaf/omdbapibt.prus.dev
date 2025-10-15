@@ -88,6 +88,10 @@
 }
 
 @layer components {
+    .focus-card {
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 focus-visible:rounded-3xl;
+    }
+
     .surface-shell {
         background: var(--flux-surface-base);
         border-color: var(--flux-border-soft);
