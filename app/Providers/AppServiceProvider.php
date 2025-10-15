@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,6 +40,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('public-api', function (Request $request): Limit {
+            return Limit::perMinute((int) config('services.rate_limits.public_api', 60))
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('parser-trigger', function (Request $request): Limit {
+            $key = $request->user()?->getAuthIdentifier();
+
+            return Limit::perMinute((int) config('services.rate_limits.parser_trigger', 5))
+                ->by($key ? 'user:'.$key : 'ip:'.$request->ip());
+        });
+
         // SQLite-specific tuning and safety toggles
         try {
             if (config('database.default') === 'sqlite') {
@@ -51,17 +66,17 @@ class AppServiceProvider extends ServiceProvider
                 // Optional: allow tuning via env, safe to ignore if unsupported
                 $mmap = (int) env('SQLITE_MMAP_SIZE', 0);
                 if ($mmap > 0) {
-                    DB::statement('PRAGMA mmap_size = ' . $mmap);
+                    DB::statement('PRAGMA mmap_size = '.$mmap);
                 }
 
                 $walCheckpoint = (int) env('SQLITE_WAL_AUTOCHECKPOINT', 1000);
                 if ($walCheckpoint >= 0) {
-                    DB::statement('PRAGMA wal_autocheckpoint = ' . $walCheckpoint);
+                    DB::statement('PRAGMA wal_autocheckpoint = '.$walCheckpoint);
                 }
             }
         } catch (\Throwable $e) {
             // Never break boot on shared hosts; log and continue
-            Log::warning('SQLite PRAGMA setup skipped: ' . $e->getMessage());
+            Log::warning('SQLite PRAGMA setup skipped: '.$e->getMessage());
         }
 
         // Keep DB query log off in production to avoid memory overhead

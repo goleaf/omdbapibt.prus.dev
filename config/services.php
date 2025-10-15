@@ -76,4 +76,9 @@ return [
         ]),
     ],
 
+    'rate_limits' => [
+        'public_api' => (int) env('PUBLIC_API_RATE_LIMIT', 60),
+        'parser_trigger' => (int) env('PARSER_TRIGGER_RATE_LIMIT', 5),
+    ],
+
 ];

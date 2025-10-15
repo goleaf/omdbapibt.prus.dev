@@ -21,10 +21,7 @@ class ExecuteParserPipeline implements ShouldQueue
      */
     public string $workload;
 
-    /**
-     * The queue that should process the job.
-     */
-    public string $queue = 'parsing';
+    private const QUEUE = 'parsing';
 
     /**
      * The number of times the job may be attempted.
@@ -35,7 +32,7 @@ class ExecuteParserPipeline implements ShouldQueue
     {
         $this->workload = $workload;
 
-        $this->onQueue($this->queue);
+        $this->onQueue(self::QUEUE);
     }
 
     /**
@@ -52,7 +49,7 @@ class ExecuteParserPipeline implements ShouldQueue
     {
         Log::info('Executing parser pipeline', [
             'workload' => $this->workload,
-            'queue' => $this->queue,
+            'queue' => self::QUEUE,
         ]);
     }
 }
