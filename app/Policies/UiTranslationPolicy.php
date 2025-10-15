@@ -7,7 +7,7 @@ use App\Models\User;
 
 class UiTranslationPolicy
 {
-    public function viewAny(?User $user): bool
+    public function view(?User $user, UiTranslation|string|null $translation = null): bool
     {
         return $user?->isAdmin() ?? false;
     }
@@ -23,11 +23,6 @@ class UiTranslationPolicy
     }
 
     public function delete(?User $user, UiTranslation|string|null $translation = null): bool
-    {
-        return $user?->isAdmin() ?? false;
-    }
-
-    public function refreshCache(?User $user): bool
     {
         return $user?->isAdmin() ?? false;
     }
