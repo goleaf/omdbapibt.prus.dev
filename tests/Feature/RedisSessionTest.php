@@ -11,6 +11,10 @@ class RedisSessionTest extends TestCase
     {
         parent::setUp();
 
+        if (! class_exists(\Redis::class)) {
+            $this->markTestSkipped('The phpredis extension is required for Redis session tests.');
+        }
+
         config()->set('session.driver', 'redis');
         config()->set('session.connection', 'default');
     }

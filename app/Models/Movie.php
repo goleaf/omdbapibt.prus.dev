@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Movie extends Model
@@ -91,5 +92,24 @@ class Movie extends Model
     public function countries(): BelongsToMany
     {
         return $this->belongsToMany(Country::class, 'movie_country')->withTimestamps();
+    }
+
+    /**
+     * Watch history entries associated with the movie.
+     */
+    public function watchHistories(): HasMany
+    {
+        return $this->hasMany(WatchHistory::class);
+    }
+
+    /**
+     * Users that have watched the movie.
+     */
+    public function viewers(): BelongsToMany
+    {
+        return $this
+            ->belongsToMany(User::class, 'watch_histories')
+            ->withPivot(['watched_at', 'rewatch_count'])
+            ->withTimestamps();
     }
 }

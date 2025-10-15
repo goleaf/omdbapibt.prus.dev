@@ -10,5 +10,6 @@ return [
     'queries' => [
         'trending' => 60 * 60,
         'popular' => 60 * 60,
+        'recommendations' => 60 * 60,
     ],
 ];

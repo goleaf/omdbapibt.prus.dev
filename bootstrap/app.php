@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\CleanupExpiredTrials;
+use App\Console\Commands\RefreshRecommendationsCache;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Console\Scheduling\Schedule;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         CleanupExpiredTrials::class,
+        RefreshRecommendationsCache::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
@@ -25,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('trials:cleanup')->dailyAt('02:00');
+        $schedule->command('recommendations:refresh')->everySixHours()->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

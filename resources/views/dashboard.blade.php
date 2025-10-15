@@ -100,6 +100,8 @@
                 @endif
             </section>
 
+            @livewire('dashboard-recommendations')
+
             @livewire('subscription-manage')
         </main>
     </div>
