@@ -4,6 +4,7 @@ return [
     'The given data was invalid.' => 'The given data was invalid.',
     '(and :count more error)' => '(and :count more error)',
     '(and :count more errors)' => '(and :count more errors)',
+    'enum' => 'The selected :attribute is invalid.',
     'custom' => [
         'query' => [
             'required' => 'Please enter a search query.',
@@ -15,9 +16,15 @@ return [
             'min' => 'The result limit must be at least :min.',
             'max' => 'The result limit may not be greater than :max.',
         ],
+        'workload' => [
+            'required' => 'Please select a parser workload to trigger.',
+            'string' => 'The parser workload must be provided as text.',
+            'enum' => 'The selected parser workload is invalid.',
+        ],
     ],
     'attributes' => [
         'query' => 'search query',
         'limit' => 'result limit',
+        'workload' => 'parser workload',
     ],
 ];
