@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('tmdb_id')->nullable()->unique();
             $table->string('imdb_id', 20)->nullable()->unique();
-            $table->string('slug')->nullable()->unique();
+            $table->string('slug')->unique();
             $table->string('name');
             $table->json('also_known_as')->nullable();
             $table->json('biography')->nullable();

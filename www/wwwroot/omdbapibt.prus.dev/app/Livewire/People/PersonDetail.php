@@ -27,26 +27,18 @@ class PersonDetail extends Component
     /**
      * Mount the component with the requested person identifier.
      */
-    public function mount(string $person): void
+    public function mount(Person $person): void
     {
-        $this->person = Person::query()
-            ->with([
-                'movieCredits' => fn ($query) => $query
-                    ->select('movies.*')
-                    ->withPivot(['role', 'character', 'job', 'department', 'order'])
-                    ->orderByDesc('release_date'),
-                'tvCredits' => fn ($query) => $query
-                    ->select('tv_shows.*')
-                    ->withPivot(['role', 'character', 'job', 'department', 'order'])
-                    ->orderByDesc('first_air_date'),
-            ])
-            ->when(is_numeric($person), function ($query) use ($person) {
-                $query->where('id', (int) $person)
-                    ->orWhere('slug', $person);
-            }, function ($query) use ($person) {
-                $query->where('slug', $person);
-            })
-            ->firstOrFail();
+        $this->person = $person->load([
+            'movieCredits' => fn ($query) => $query
+                ->select('movies.*')
+                ->withPivot(['role', 'character', 'job', 'department', 'order'])
+                ->orderByDesc('release_date'),
+            'tvCredits' => fn ($query) => $query
+                ->select('tv_shows.*')
+                ->withPivot(['role', 'character', 'job', 'department', 'order'])
+                ->orderByDesc('first_air_date'),
+        ]);
 
         $this->biographyTranslations = $this->prepareBiographyTranslations();
         $this->personalDetails = $this->preparePersonalDetails();

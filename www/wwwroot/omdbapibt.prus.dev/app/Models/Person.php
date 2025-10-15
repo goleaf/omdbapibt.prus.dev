@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -61,6 +62,64 @@ class Person extends Model
     public array $translatable = [
         'biography',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $person): void {
+            if (blank($person->slug) && filled($person->name)) {
+                $person->slug = static::generateUniqueSlug($person->name);
+            }
+        });
+
+        static::updating(function (self $person): void {
+            if (blank($person->slug) && filled($person->name)) {
+                $person->slug = static::generateUniqueSlug($person->name, $person->getKey());
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $query = static::query();
+
+        if ($field) {
+            return $query->where($field, $value)->firstOrFail();
+        }
+
+        return $query
+            ->where('slug', $value)
+            ->when(is_numeric($value), fn ($q) => $q->orWhere('id', (int) $value))
+            ->firstOr(function () use ($value) {
+                throw (new ModelNotFoundException())->setModel(static::class, [$value]);
+            });
+    }
+
+    protected static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name);
+
+        if ($baseSlug === '') {
+            $baseSlug = Str::uuid()->toString();
+        }
+
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (static::withTrashed()
+            ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
+            ->where('slug', $slug)
+            ->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
 
     /**
      * The movies the person is credited on.
