@@ -3,7 +3,6 @@
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\SignupController;
 use App\Http\Controllers\BillingPortalController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Impersonation\StopImpersonationController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
@@ -13,9 +12,10 @@ use App\Livewire\Admin\ParserModerationDashboard;
 use App\Livewire\Admin\UiTranslationManager;
 use App\Livewire\Admin\UserDirectory;
 use App\Livewire\Auth\LoginForm;
+use App\Livewire\Browse\BrowsePage;
+use App\Livewire\Checkout\PlanSelector;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
-use App\Livewire\Browse\BrowsePage;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -36,7 +36,7 @@ $registerAppRoutes = function (): void {
     Route::get('/browse', BrowsePage::class)->name('browse');
     Route::view('/pricing', 'pages.pricing')->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
-    Route::get('/checkout', CheckoutController::class)->name('checkout');
+    Route::get('/checkout', PlanSelector::class)->name('checkout');
     Route::get('/login', LoginForm::class)->name('login');
     Route::get('/signup', SignupController::class)->name('signup');
     Route::get('/register', SignupController::class)->name('register');
