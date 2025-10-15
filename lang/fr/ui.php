@@ -83,4 +83,23 @@ return [
         'results_summary' => 'Filtrage de :type :genre sortis en :year.',
         'apply' => 'Appliquer',
     ],
+    'people' => [
+        'page_title' => 'Fiche de la personne',
+        'no_biography' => 'Biographie encore indisponible.',
+        'profile_alt' => 'Portrait de :name',
+        'poster_alt' => 'Affiche principale de :name',
+        'vitals_heading' => 'Informations clés',
+        'born_label' => 'Naissance',
+        'place_label' => 'Lieu',
+        'known_for_label' => 'Connu pour',
+        'popularity_label' => 'Popularité',
+        'biography_heading' => 'Biographie',
+        'movies_heading' => 'Films',
+        'tv_heading' => 'Télévision',
+        'credits_heading' => 'Crédits :type',
+        'credit_types' => [
+            'cast' => 'Distribution',
+            'crew' => 'Équipe technique',
+        ],
+    ],
 ];

@@ -13,7 +13,6 @@ use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\Admin\ParserModerationDashboard;
 use App\Livewire\Admin\UiTranslationManager;
 use App\Livewire\Admin\UserDirectory;
-use App\Livewire\PersonDetail;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
 use Illuminate\Support\Facades\Route;
@@ -50,7 +49,7 @@ $registerAppRoutes = function (): void {
     Route::get('/tv/{show}', TvShowDetail::class)
         ->name('tv.show');
 
-    Route::get('/people/{person}', PersonDetail::class)
+    Route::get('/people/{person}', fn (string $locale, string $person) => view('pages.people.show', ['person' => $person]))
         ->name('people.show');
 
     Route::middleware('auth')->group(function (): void {
