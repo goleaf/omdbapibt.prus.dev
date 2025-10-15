@@ -7,17 +7,27 @@ use App\Models\User;
 
 class ParserEntryPolicy
 {
+    public function viewAny(?User $user): bool
+    {
+        return $this->canModerate($user);
+    }
+
+    public function view(?User $user, ParserEntry $entry): bool
+    {
+        return $this->canModerate($user);
+    }
+
+    public function review(?User $user, ParserEntry $entry): bool
+    {
+        return $this->canModerate($user);
+    }
+
     public function trigger(?User $user): bool
     {
-        return $user?->isAdmin() ?? false;
+        return $this->canModerate($user);
     }
 
-    public function review(?User $user): bool
-    {
-        return $user?->isAdmin() ?? false;
-    }
-
-    public function update(?User $user, ParserEntry $entry): bool
+    protected function canModerate(?User $user): bool
     {
         return $user?->isAdmin() ?? false;
     }

@@ -27,33 +27,33 @@ class ParserModerationDashboard extends Component
 
     public function mount(): void
     {
-        $this->authorizeReview();
+        $this->authorizeReviewAccess();
     }
 
     #[On('refresh-parser-entries')]
     public function refreshEntries(): void
     {
-        $this->authorizeReview();
+        $this->authorizeReviewAccess();
         $this->dispatch('$refresh');
     }
 
     public function selectEntry(int $entryId): void
     {
-        $this->authorizeReview();
+        $this->authorizeReviewAccess();
         $this->selectedEntryId = $entryId;
         $this->decisionNotes = '';
     }
 
     public function approve(): void
     {
-        $this->authorizeReview();
+        $this->authorizeReviewAccess();
         $entry = $this->currentEntry();
 
         if (! $entry) {
             return;
         }
 
-        $this->authorize('update', $entry);
+        $this->authorize('review', $entry);
 
         $diff = $this->buildDiff($entry);
 
@@ -73,14 +73,14 @@ class ParserModerationDashboard extends Component
 
     public function reject(): void
     {
-        $this->authorizeReview();
+        $this->authorizeReviewAccess();
         $entry = $this->currentEntry();
 
         if (! $entry) {
             return;
         }
 
-        $this->authorize('update', $entry);
+        $this->authorize('review', $entry);
 
         $this->validate([
             'decisionNotes' => ['required', 'string', 'max:2000'],
@@ -104,7 +104,7 @@ class ParserModerationDashboard extends Component
 
     public function render(): View
     {
-        $this->authorizeReview();
+        $this->authorizeReviewAccess();
 
         $entries = ParserEntry::query()
             ->latest()
@@ -142,12 +142,20 @@ class ParserModerationDashboard extends Component
             return null;
         }
 
-        return ParserEntry::query()->find($this->selectedEntryId);
+        $entry = ParserEntry::query()->find($this->selectedEntryId);
+
+        if (! $entry) {
+            return null;
+        }
+
+        $this->authorize('view', $entry);
+
+        return $entry;
     }
 
-    protected function authorizeReview(): void
+    protected function authorizeReviewAccess(): void
     {
-        $this->authorize('review', ParserEntry::class);
+        $this->authorize('viewAny', ParserEntry::class);
     }
 
     protected function buildDiff(ParserEntry $entry): array
