@@ -10,6 +10,7 @@ return [
             'home' => 'Accueil',
             'browse' => 'Explorer',
             'pricing' => 'Tarifs',
+            'support' => 'Assistance',
             'components' => 'Composants UI',
             'account' => 'Compte',
             'admin' => 'Admin',

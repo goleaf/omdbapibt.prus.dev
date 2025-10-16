@@ -26,6 +26,7 @@
                     <a href="{{ route('home') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.home') }}</a>
                     <a href="{{ route('browse') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.browse') }}</a>
                     <a href="{{ route('pricing') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.pricing') }}</a>
+                    <a href="{{ route('support') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.support') }}</a>
                     <a href="{{ route('ui.components') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.components') }}</a>
                     @auth
                         <a href="{{ route('account') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.account') }}</a>
@@ -103,7 +104,7 @@
                 <div class="flex items-center gap-4">
                     <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.terms') }}</a>
                     <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.privacy') }}</a>
-                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.support') }}</a>
+                    <a href="{{ route('support') }}" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.support') }}</a>
                 </div>
             </div>
         </footer>
