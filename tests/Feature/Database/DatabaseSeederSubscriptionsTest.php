@@ -57,6 +57,18 @@ class DatabaseSeederSubscriptionsTest extends TestCase
             $this->assertTrue($user->hasPremiumAccess());
         });
 
+        $adminEmail = config('seeding.accounts.admin.email');
+        $demoEmail = config('seeding.accounts.demo.email');
+
+        $admin = $adminEmail ? User::query()->where('email', $adminEmail)->first() : null;
+        $demo = $demoEmail ? User::query()->where('email', $demoEmail)->first() : null;
+
+        $this->assertNotNull($admin);
+        $this->assertNotNull($demo);
+
+        $this->assertTrue($admin?->hasPremiumAccess() ?? false);
+        $this->assertTrue($demo?->hasPremiumAccess() ?? false);
+
         $monthlyPriceId = config('subscriptions.plans.premium_monthly.price_id');
         $yearlyPriceId = config('subscriptions.plans.premium_yearly.price_id');
 
@@ -92,7 +104,11 @@ class DatabaseSeederSubscriptionsTest extends TestCase
         $this->assertNotEmpty($metrics['plans']);
         $this->assertNotEmpty($metrics['trend']);
 
-        $admin = User::query()->where('role', UserRole::Admin->value)->firstOrFail();
+        $adminEmail = config('seeding.accounts.admin.email');
+
+        $admin = $adminEmail
+            ? User::query()->where('email', $adminEmail)->firstOrFail()
+            : User::query()->where('role', UserRole::Admin->value)->firstOrFail();
 
         Livewire::actingAs($admin)
             ->test(AnalyticsDashboard::class)
