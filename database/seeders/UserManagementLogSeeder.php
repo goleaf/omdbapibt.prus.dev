@@ -26,18 +26,37 @@ class UserManagementLogSeeder extends Seeder
             return;
         }
 
-        $actors = User::query()
-            ->where('role', UserRole::Admin->value)
-            ->get();
+        $adminEmail = (string) config('seeding.accounts.admin.email', '');
+        $demoEmail = (string) config('seeding.accounts.demo.email', '');
+
+        $actorsQuery = User::query()->where('role', UserRole::Admin->value);
+
+        if ($adminEmail !== '') {
+            $actorsQuery->where('email', $adminEmail);
+        }
+
+        $actors = $actorsQuery->get();
 
         $users = User::query()->get();
+
+        $demoUser = $demoEmail !== ''
+            ? $users->firstWhere('email', $demoEmail)
+            : null;
 
         if ($actors->isEmpty() || $users->count() < 2) {
             return;
         }
 
-        $actors->each(function (User $actor) use ($users): void {
+        $actors->each(function (User $actor) use ($users, $demoUser): void {
             $targets = $users->reject(fn (User $user): bool => $user->is($actor));
+
+            if ($demoUser instanceof User && ! $demoUser->is($actor)) {
+                $containsDemo = $targets->contains(fn (User $user): bool => $user->is($demoUser));
+
+                if (! $containsDemo) {
+                    $targets->push($demoUser);
+                }
+            }
 
             if ($targets->isEmpty()) {
                 return;
