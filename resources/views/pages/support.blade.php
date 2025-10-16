@@ -5,21 +5,20 @@
 ])
 
 @section('content')
-    @php($supportEmail = config('support.contact_email', config('mail.from.address', 'support@omdbstream.test')))
-    @php($sections = trans('ui.pages.support.sections'))
-
     <article class="mx-auto max-w-4xl space-y-10 text-sm leading-relaxed text-slate-300">
         <p>{{ trans('ui.pages.support.intro') }}</p>
 
         @foreach ($sections as $section)
             <section class="space-y-3">
-                <h2 class="text-xl font-semibold text-slate-100">{{ $section['title'] }}</h2>
+                @if (! empty($section['title']))
+                    <h2 class="text-xl font-semibold text-slate-100">{{ $section['title'] }}</h2>
+                @endif
 
                 @foreach ($section['paragraphs'] as $paragraph)
                     <p>{{ $paragraph }}</p>
                 @endforeach
 
-                @if (isset($section['items']))
+                @if ($section['items'] !== [])
                     <ul class="list-disc space-y-2 pl-5">
                         @foreach ($section['items'] as $item)
                             <li>{{ $item }}</li>
@@ -27,12 +26,12 @@
                     </ul>
                 @endif
 
-                @if (isset($section['cta']))
+                @if ($section['cta'])
                     <a
-                        href="{{ $section['cta']['href'] ?? 'mailto:'.$supportEmail }}"
+                        href="{{ $section['cta']['href'] }}"
                         class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 transition hover:text-emerald-200"
                     >
-                        {{ $section['cta']['label'] ?? trans('ui.pages.support.default_cta') }}
+                        {{ $section['cta']['label'] }}
                     </a>
                 @endif
             </section>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\StopImpersonationController;
+use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\AnalyticsDashboard;
@@ -39,9 +40,9 @@ $registerAppRoutes = function (): void {
     Route::get('/browse', BrowsePage::class)->name('browse');
     Route::get('/pricing', PricingPage::class)->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
-    Route::view('/terms', 'pages.terms')->name('terms');
-    Route::view('/privacy', 'pages.privacy')->name('privacy');
-    Route::view('/support', 'pages.support')->name('support');
+    Route::get('/terms', [StaticPageController::class, 'terms'])->name('terms');
+    Route::get('/privacy', [StaticPageController::class, 'privacy'])->name('privacy');
+    Route::get('/support', [StaticPageController::class, 'support'])->name('support');
     Route::get('/checkout', PlanSelector::class)->name('checkout');
     Route::get('/login', LoginForm::class)->name('login');
     Route::get('/signup', SignupForm::class)->name('signup');
