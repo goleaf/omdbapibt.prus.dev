@@ -14,6 +14,7 @@ use App\Livewire\Auth\LoginForm;
 use App\Livewire\Auth\SignupForm;
 use App\Livewire\Browse\BrowsePage;
 use App\Livewire\Checkout\PlanSelector;
+use App\Livewire\PricingPage;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
 use Illuminate\Support\Facades\File;
@@ -35,7 +36,7 @@ URL::defaults(['locale' => $defaultLocale]);
 $registerAppRoutes = function (): void {
     Route::view('/', 'pages.home')->name('home');
     Route::get('/browse', BrowsePage::class)->name('browse');
-    Route::view('/pricing', 'pages.pricing')->name('pricing');
+    Route::get('/pricing', PricingPage::class)->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
     Route::get('/checkout', PlanSelector::class)->name('checkout');
     Route::get('/login', LoginForm::class)->name('login');
