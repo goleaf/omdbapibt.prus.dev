@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             LanguageSeeder::class,
             CountrySeeder::class,
             GenreSeeder::class,
+            OmdbApiKeySeeder::class,
+            OmdbApiKeyProgressSeeder::class,
         ]);
 
         if (! Schema::hasTable('users')) {
@@ -28,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             SubscriptionSeeder::class,
+            SubscriptionPaymentSeeder::class,
             PersonSeeder::class,
             MovieSeeder::class,
             TvShowSeeder::class,
