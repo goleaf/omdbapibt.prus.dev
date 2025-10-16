@@ -15,31 +15,34 @@
                         Discover premieres, surface deep cuts, and audit availability in one responsive dashboard. Flux UI drives the layout while Livewire keeps every interaction instantaneous across devices.
                     </p>
                     <div class="flex flex-col gap-3 sm:flex-row">
-                        <flux:button href="{{ route('browse') }}" variant="primary" color="emerald" icon-leading="play">
-                            Start browsing
+                        <flux:button
+                            href="{{ $primaryCta['href'] }}"
+                            variant="primary"
+                            color="emerald"
+                            icon-leading="{{ $primaryCta['icon'] }}"
+                        >
+                            {{ $primaryCta['label'] }}
                         </flux:button>
-                        <flux:button href="{{ route('pricing') }}" variant="ghost" icon-leading="sparkles">
-                            View membership tiers
+                        <flux:button
+                            href="{{ $secondaryCta['href'] }}"
+                            variant="ghost"
+                            icon-leading="{{ $secondaryCta['icon'] }}"
+                        >
+                            {{ $secondaryCta['label'] }}
                         </flux:button>
                     </div>
                 </div>
                 <div class="flex-1 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-inner backdrop-blur">
                     <h2 class="text-sm font-semibold uppercase tracking-[0.35em] text-emerald-200">Realtime highlights</h2>
                     <dl class="mt-5 grid gap-4 text-slate-100 sm:grid-cols-3">
-                        <div class="space-y-2 rounded-2xl border border-white/10 bg-white/10 p-4">
-                            <dt class="text-xs uppercase tracking-[0.35em] text-emerald-200">Streaming regions</dt>
-                            <dd class="text-2xl font-semibold">87</dd>
-                        </div>
-                        <div class="space-y-2 rounded-2xl border border-white/10 bg-white/10 p-4">
-                            <dt class="text-xs uppercase tracking-[0.35em] text-emerald-200">Flux-enabled components</dt>
-                            <dd class="text-2xl font-semibold">42</dd>
-                        </div>
-                        <div class="space-y-2 rounded-2xl border border-white/10 bg-white/10 p-4">
-                            <dt class="text-xs uppercase tracking-[0.35em] text-emerald-200">Library uptime</dt>
-                            <dd class="text-2xl font-semibold">99.9%</dd>
-                        </div>
+                        @foreach ($heroStats as $stat)
+                            <div class="space-y-2 rounded-2xl border border-white/10 bg-white/10 p-4">
+                                <dt class="text-xs uppercase tracking-[0.35em] text-emerald-200">{{ $stat['label'] }}</dt>
+                                <dd class="text-2xl font-semibold">{{ $stat['value'] }}</dd>
+                            </div>
+                        @endforeach
                     </dl>
-                    <p class="mt-6 text-xs text-emerald-100/80">Updated {{ now()->format('M j, Y') }} across all catalog sources.</p>
+                    <p class="mt-6 text-xs text-emerald-100/80">{{ $lastUpdatedLabel }}</p>
                 </div>
             </div>
         </section>

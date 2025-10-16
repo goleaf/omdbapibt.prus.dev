@@ -34,7 +34,7 @@ if ($supportedLocales === []) {
 URL::defaults(['locale' => $defaultLocale]);
 
 $registerAppRoutes = function (): void {
-    Route::view('/', 'pages.home')->name('home');
+    Route::get('/', HomePage::class)->name('home');
     Route::get('/browse', BrowsePage::class)->name('browse');
     Route::get('/pricing', PricingPage::class)->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
