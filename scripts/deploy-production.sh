@@ -17,8 +17,6 @@ if [ -f artisan ]; then
         exit 1
     fi
 
-    npm prune --omit=dev
-
     php <<'PHP'
 <?php
 declare(strict_types=1);
@@ -62,6 +60,17 @@ if ($missing !== []) {
 }
 PHP
 
+    JS_TESTS_PRESENT=0
+    if command -v node >/dev/null 2>&1; then
+        if [ "$(node -pe "(()=>{try{return require('./package.json').scripts?.test ? '1' : ''; } catch (error) { return ''; }})()")" = "1" ]; then
+            JS_TESTS_PRESENT=1
+        fi
+    fi
+
+    if [ "$JS_TESTS_PRESENT" -eq 0 ]; then
+        npm prune --omit=dev
+    fi
+
     # Clear config cache before checking database
     php artisan config:clear
     
@@ -74,9 +83,9 @@ PHP
         chmod 664 database/database.sqlite
         php artisan migrate:fresh --seed --force
     else
-        # Only clear cache if database is healthy
-        php artisan cache:clear
+        # Run migrations before clearing cache to ensure cache table exists
         php artisan migrate --force
+        php artisan cache:clear
         php artisan db:seed --force
     fi
     
@@ -99,6 +108,26 @@ PHP
     php artisan config:cache
     php artisan optimize
     php artisan horizon:terminate || true
+
+    # Run automated tests as a final verification step
+    if command -v composer >/dev/null 2>&1; then
+        COMPOSER_BIN="composer"
+    elif [ -f composer.phar ]; then
+        COMPOSER_BIN="php composer.phar"
+    else
+        echo "Composer is required to run the PHP test suite." >&2
+        exit 1
+    fi
+
+    if ! $COMPOSER_BIN test --ansi; then
+        echo "PHP test suite failed." >&2
+        exit 1
+    fi
+
+    if [ "${JS_TESTS_PRESENT:-0}" -eq 1 ]; then
+        npm run test
+        npm prune --omit=dev
+    fi
 else
     echo "Run this script from the project root where artisan is located." >&2
     exit 1
