@@ -35,37 +35,36 @@ class TvShowTest extends TestCase
     public function test_localized_accessors_return_expected_values(): void
     {
         $show = TvShow::factory()->create([
-            'name' => 'Space Pioneers',
+            'name' => 'Default Name',
             'name_translations' => [
-                'en' => 'Space Pioneers',
-                'es' => 'Pioneros del Espacio',
+                'en' => 'Default Name',
+                'es' => 'Nombre Predeterminado',
+                'fr' => 'Nom Par Défaut',
             ],
-            'overview' => 'English overview',
+            'overview' => 'Base overview',
             'overview_translations' => [
-                'en' => 'English overview',
-                'es' => 'Resumen español',
+                'fr' => 'Vue d\'ensemble française',
             ],
-            'tagline' => 'To the stars',
+            'tagline' => 'Base tagline',
             'tagline_translations' => [
-                'en' => 'To the stars',
-                'es' => 'Hacia las estrellas',
+                'es' => 'Eslogan en español',
             ],
         ]);
 
-        $previousLocale = app()->getLocale();
         app()->setLocale('es');
+        $this->assertSame('Nombre Predeterminado', $show->localizedName());
+        $this->assertSame('Base overview', $show->localizedOverview());
+        $this->assertSame('Eslogan en español', $show->localizedTagline());
 
-        $this->assertSame('Pioneros del Espacio', $show->localizedName());
-        $this->assertSame('Resumen español', $show->localizedOverview());
-        $this->assertSame('Hacia las estrellas', $show->localizedTagline());
+        app()->setLocale('fr');
+        $this->assertSame('Nom Par Défaut', $show->localizedName());
+        $this->assertSame('Vue d\'ensemble française', $show->localizedOverview());
+        $this->assertSame('Base tagline', $show->localizedTagline());
 
         app()->setLocale('de');
-
-        $this->assertSame('Space Pioneers', $show->localizedName());
-        $this->assertSame('English overview', $show->localizedOverview());
-        $this->assertSame('To the stars', $show->localizedTagline());
-
-        app()->setLocale($previousLocale);
+        $this->assertSame('Default Name', $show->localizedName());
+        $this->assertSame('Base overview', $show->localizedOverview());
+        $this->assertSame('Base tagline', $show->localizedTagline());
     }
 
     public function test_watchlist_and_history_relationships(): void

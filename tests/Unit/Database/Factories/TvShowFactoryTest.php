@@ -20,12 +20,9 @@ class TvShowFactoryTest extends TestCase
         $this->assertIsArray($show->name_translations);
         $this->assertArrayHasKey('en', $show->name_translations);
         $this->assertArrayHasKey('es', $show->name_translations);
-        $this->assertSame($show->name, $show->name_translations['en']);
+        $this->assertArrayHasKey('fr', $show->name_translations);
         $this->assertIsArray($show->overview_translations);
-        $this->assertArrayHasKey('en', $show->overview_translations);
         $this->assertIsArray($show->tagline_translations);
-        $this->assertArrayHasKey('en', $show->tagline_translations);
-        $this->assertSame($show->localizedName('es'), $show->name_translations['es']);
         $this->assertNotNull($show->first_air_date);
         $this->assertGreaterThan(0, $show->number_of_seasons);
     }

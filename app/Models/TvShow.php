@@ -159,89 +159,76 @@ class TvShow extends Model
             ->withTimestamps();
     }
 
-    protected function resolveLocalizedValue(?array $translations, ?string $locale, ?string $fallback, ?string $default = null): ?string
+    public function localizedName(?string $locale = null): string
     {
-        if (! is_array($translations) || $translations === []) {
-            return $fallback ?? $default;
+        return $this->localizedText('name_translations', $this->name, $locale, 'Untitled');
+    }
+
+    public function localizedOverview(?string $locale = null): ?string
+    {
+        return $this->localizedText('overview_translations', $this->overview, $locale);
+    }
+
+    public function localizedTagline(?string $locale = null): ?string
+    {
+        return $this->localizedText('tagline_translations', $this->tagline, $locale);
+    }
+
+    protected function localizedText(string $attribute, ?string $fallback, ?string $locale, ?string $default = null): ?string
+    {
+        $translations = $this->getAttribute($attribute);
+
+        if (! is_array($translations) || empty($translations)) {
+            return $this->stringOrDefault($fallback, $default);
         }
 
         $locale ??= app()->getLocale();
 
-        if ($locale && isset($translations[$locale]) && is_string($translations[$locale]) && $translations[$locale] !== '') {
+        if ($locale && $this->hasNonEmptyTranslation($translations, $locale)) {
             return $translations[$locale];
         }
 
         $fallbackLocale = config('app.fallback_locale');
 
-        if ($fallbackLocale && isset($translations[$fallbackLocale]) && is_string($translations[$fallbackLocale]) && $translations[$fallbackLocale] !== '') {
+        if ($fallbackLocale && $this->hasNonEmptyTranslation($translations, $fallbackLocale)) {
             return $translations[$fallbackLocale];
         }
 
-        if (isset($translations['en']) && is_string($translations['en']) && $translations['en'] !== '') {
-            return $translations['en'];
+        if ($this->isNonEmptyString($fallback)) {
+            return $fallback;
+        }
+
+        foreach (['en', 'es', 'fr'] as $preferredLocale) {
+            if ($this->hasNonEmptyTranslation($translations, $preferredLocale)) {
+                return $translations[$preferredLocale];
+            }
         }
 
         foreach ($translations as $value) {
-            if (is_string($value) && $value !== '') {
+            if ($this->isNonEmptyString($value)) {
                 return $value;
             }
         }
 
-        return $fallback ?? $default;
+        return $this->stringOrDefault($fallback, $default);
     }
 
-    protected function storeTranslationAttribute(string $attribute, mixed $value): void
+    protected function hasNonEmptyTranslation(array $translations, string $locale): bool
     {
-        $normalized = $this->normalizeTranslations($value);
-
-        if ($normalized === null) {
-            $this->attributes[$attribute] = null;
-
-            return;
-        }
-
-        $this->attributes[$attribute] = $this->castAttributeAsJson($attribute, $normalized);
+        return array_key_exists($locale, $translations) && $this->isNonEmptyString($translations[$locale]);
     }
 
-    protected function normalizeTranslations(mixed $value): ?array
+    protected function isNonEmptyString(mixed $value): bool
     {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_string($value)) {
-            $value = ['en' => $value];
-        }
-
-        if (! is_array($value)) {
-            return null;
-        }
-
-        $filtered = [];
-
-        foreach ($value as $key => $text) {
-            if (! is_string($key)) {
-                continue;
-            }
-
-            if (! is_string($text)) {
-                continue;
-            }
-
-            $trimmed = trim($text);
-
-            if ($trimmed === '') {
-                continue;
-            }
-
-            $filtered[$key] = $trimmed;
-        }
-
-        return $filtered === [] ? null : $filtered;
+        return is_string($value) && trim($value) !== '';
     }
 
-    protected static function escapeLike(string $value): string
+    protected function stringOrDefault(?string $value, ?string $default): ?string
     {
-        return addcslashes($value, '%_\\');
+        if ($this->isNonEmptyString($value)) {
+            return $value;
+        }
+
+        return $default;
     }
 }

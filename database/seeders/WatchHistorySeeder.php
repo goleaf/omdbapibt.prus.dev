@@ -7,6 +7,8 @@ use App\Models\TvShow;
 use App\Models\User;
 use App\Models\WatchHistory;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class WatchHistorySeeder extends Seeder
 {
@@ -15,6 +17,13 @@ class WatchHistorySeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('watch_histories')
+            || ! Schema::hasTable('users')
+            || ! Schema::hasTable('movies')
+            || ! Schema::hasTable('tv_shows')) {
+            return;
+        }
+
         if (WatchHistory::query()->exists()) {
             return;
         }

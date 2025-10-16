@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class UserSeeder extends Seeder
 {
@@ -16,6 +17,10 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('users')) {
+            return;
+        }
+
         if (User::query()->exists()) {
             return;
         }

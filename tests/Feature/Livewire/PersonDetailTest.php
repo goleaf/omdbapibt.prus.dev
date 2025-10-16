@@ -5,6 +5,7 @@ namespace Tests\Feature\Livewire;
 use App\Livewire\PersonDetail;
 use App\Models\Movie;
 use App\Models\Person;
+use App\Models\TvShow;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -30,6 +31,29 @@ class PersonDetailTest extends TestCase
             ->assertSee($person->name)
             ->assertSee('Navigator')
             ->assertSee('Explorer of cosmic cinema.');
+    }
+
+    public function test_person_detail_displays_localized_tv_show_titles(): void
+    {
+        app()->setLocale('es');
+
+        $person = Person::factory()->create();
+        $show = TvShow::factory()->create([
+            'name' => 'Galactic Crew',
+            'name_translations' => [
+                'en' => 'Galactic Crew',
+                'es' => 'Tripulación Galáctica',
+            ],
+        ]);
+
+        $show->people()->attach($person->id, [
+            'credit_type' => 'cast',
+            'character' => 'Pilot',
+        ]);
+
+        Livewire::test(PersonDetail::class, ['person' => $person->slug])
+            ->assertSee('Tripulación Galáctica')
+            ->assertDontSee('Galactic Crew');
     }
 
     public function test_person_detail_renders_by_id(): void

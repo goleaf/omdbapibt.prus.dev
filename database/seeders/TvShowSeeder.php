@@ -7,6 +7,8 @@ use App\Models\TvShow;
 use App\Models\User;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class TvShowSeeder extends Seeder
 {
@@ -17,6 +19,14 @@ class TvShowSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('tv_shows')
+            || ! Schema::hasTable('people')
+            || ! Schema::hasTable('users')
+            || ! Schema::hasTable('tv_show_person')
+            || ! Schema::hasTable('user_watchlist')) {
+            return;
+        }
+
         if (TvShow::query()->exists()) {
             return;
         }
@@ -24,24 +34,33 @@ class TvShowSeeder extends Seeder
         $personIds = Person::query()->pluck('id');
         $userIds = User::query()->pluck('id');
 
-        $this->forChunkedCount(1_000, 100, function (int $count) use ($personIds, $userIds): void {
-            TvShow::factory()
-                ->count($count)
-                ->create()
-                ->each(function (TvShow $show) use ($personIds, $userIds): void {
-                    $show->forceFill([
-                        'name_translations' => $this->ensureTranslationArray($show->name_translations, $show->name),
-                        'overview_translations' => $this->ensureTranslationArray($show->overview_translations, $show->overview),
-                        'tagline_translations' => $this->ensureTranslationArray($show->tagline_translations, $show->tagline),
-                    ])->saveQuietly();
+        TvShow::factory()
+            ->count(1000)
+            ->create()
+            ->each(function (TvShow $show) use ($people, $users): void {
+                if ($people->isNotEmpty()) {
+                    $creditCount = min($people->count(), random_int(4, 10));
 
-                    if ($personIds->isNotEmpty()) {
-                        $creditCount = min($personIds->count(), random_int(4, 10));
-                        $creditSelection = collect($personIds->random($creditCount))->values();
+                    if ($creditCount > 0) {
+                        $creditPool = Collection::wrap($people->random($creditCount));
 
                         $show->people()->syncWithoutDetaching(
-                            $creditSelection->mapWithKeys(function (int $personId, int $index): array {
+                            $creditPool->values()->mapWithKeys(function (Person $person, int $index): array {
                                 $isCast = $index < 4;
+
+                                return [
+                                    $person->getKey() => [
+                                        'credit_type' => $isCast ? 'cast' : 'crew',
+                                        'department' => $isCast ? 'Acting' : fake()->randomElement(['Directing', 'Production', 'Writing']),
+                                        'character' => $isCast ? fake()->name() : null,
+                                        'job' => $isCast ? null : fake()->randomElement(['Showrunner', 'Producer', 'Writer']),
+                                        'credit_order' => $index + 1,
+                                    ],
+                                ];
+                            })->all()
+                        );
+                    }
+                }
 
                                 return [
                                     $personId => [

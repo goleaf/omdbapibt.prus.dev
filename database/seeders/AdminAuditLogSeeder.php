@@ -8,6 +8,7 @@ use App\Models\AdminAuditLog;
 use App\Models\ParserEntry;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class AdminAuditLogSeeder extends Seeder
 {
@@ -16,6 +17,12 @@ class AdminAuditLogSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('admin_audit_logs')
+            || ! Schema::hasTable('users')
+            || ! Schema::hasTable('parser_entries')) {
+            return;
+        }
+
         if (AdminAuditLog::query()->exists()) {
             return;
         }

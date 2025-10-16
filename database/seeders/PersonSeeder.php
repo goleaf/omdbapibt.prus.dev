@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Person;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class PersonSeeder extends Seeder
 {
@@ -15,6 +16,10 @@ class PersonSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('people')) {
+            return;
+        }
+
         if (Person::query()->exists()) {
             return;
         }

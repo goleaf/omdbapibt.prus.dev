@@ -3,7 +3,6 @@
 namespace Tests\Feature\Parser;
 
 use App\Models\Movie;
-use App\Models\TvShow;
 use App\Services\Parser\MediaUpsertService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +13,7 @@ class MediaUpsertServiceTest extends TestCase
 
     public function test_it_generates_dedup_hash_and_updates_existing_movie(): void
     {
-        $service = new MediaUpsertService();
+        $service = new MediaUpsertService;
 
         $movie = $service->upsertMovie([
             'tmdb_id' => 123456,
@@ -46,7 +45,7 @@ class MediaUpsertServiceTest extends TestCase
 
     public function test_it_handles_unique_conflicts_when_upserting_movies(): void
     {
-        $service = new MediaUpsertService();
+        $service = new MediaUpsertService;
 
         $payload = [
             'tmdb_id' => 98765,
@@ -87,7 +86,7 @@ class MediaUpsertServiceTest extends TestCase
 
     public function test_it_upserts_tv_shows_using_dedup_hash(): void
     {
-        $service = new MediaUpsertService();
+        $service = new MediaUpsertService;
 
         $tvShow = $service->upsertTvShow([
             'tmdb_id' => 1234,
@@ -99,16 +98,25 @@ class MediaUpsertServiceTest extends TestCase
         $expectedHash = md5('imdb_id:tt7654321|tmdb_id:1234');
 
         $this->assertSame($expectedHash, $tvShow->dedup_hash);
+        $this->assertSame(['en' => 'Original Show'], $tvShow->fresh()->name_translations);
 
         $updated = $service->upsertTvShow([
             'tmdb_id' => 1234,
             'imdb_id' => 'tt7654321',
             'name' => 'Updated Show',
+            'name_translations' => [
+                'en' => 'Updated Show',
+                'es' => 'Programa Actualizado',
+            ],
             'slug' => 'updated-show',
         ]);
 
         $this->assertSame($tvShow->id, $updated->id);
         $this->assertDatabaseCount('tv_shows', 1);
         $this->assertSame('Updated Show', $updated->fresh()->name);
+        $this->assertSame([
+            'en' => 'Updated Show',
+            'es' => 'Programa Actualizado',
+        ], $updated->fresh()->name_translations);
     }
 }
