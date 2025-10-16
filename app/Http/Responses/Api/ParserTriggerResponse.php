@@ -13,12 +13,21 @@ class ParserTriggerResponse implements Responsable
         private readonly string $queue,
     ) {}
 
+    public static function from(ParserWorkload $workload, string $queue): JsonResponse
+    {
+        return (new self($workload, $queue))->toResponse(request());
+    }
+
     public function toResponse($request): JsonResponse
     {
         return response()->json([
-            'status' => 'queued',
-            'workload' => $this->workload->value,
-            'queue' => $this->queue,
+            'data' => [
+                'status' => 'queued',
+                'workload' => $this->workload->value,
+            ],
+            'meta' => [
+                'queue' => $this->queue,
+            ],
         ], 202);
     }
 }
