@@ -26,7 +26,6 @@ class CountryFactory extends Factory
         $codeValue = strtoupper(str_pad(base_convert((string) ($identifier % 1296), 10, 36), 2, '0', STR_PAD_LEFT));
 
         return [
-            'name' => $translations['en'],
             'name_translations' => $translations,
             'code' => $codeValue,
             'active' => $this->faker->boolean(90),

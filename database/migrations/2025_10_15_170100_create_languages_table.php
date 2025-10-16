@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -11,10 +9,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('languages', function (Blueprint $table): void {
-            $table->string('native_name')->nullable(false)->change();
-            $table->index('name');
-        });
+        // No-op: legacy columns removed in base migration; keep migration compatible
     }
 
     /**
@@ -22,9 +17,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('languages', function (Blueprint $table): void {
-            $table->dropIndex(['name']);
-            $table->string('native_name')->nullable()->change();
-        });
+        // No-op
     }
 };

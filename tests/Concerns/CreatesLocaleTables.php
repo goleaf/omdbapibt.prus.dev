@@ -7,6 +7,21 @@ use Illuminate\Support\Facades\Schema;
 
 trait CreatesLocaleTables
 {
+    protected function ensureGenresTable(): void
+    {
+        if (Schema::hasTable('genres')) {
+            return;
+        }
+
+        Schema::create('genres', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('tmdb_id')->nullable()->unique();
+            $table->string('slug')->unique();
+            $table->json('name_translations')->nullable();
+            $table->timestamps();
+        });
+    }
+
     protected function ensureLanguagesTable(): void
     {
         if (Schema::hasTable('languages')) {
@@ -15,9 +30,9 @@ trait CreatesLocaleTables
 
         Schema::create('languages', function (Blueprint $table): void {
             $table->id();
-            $table->string('name');
-            $table->json('name_translations')->nullable();
+            $table->string('name')->nullable();
             $table->string('code')->unique();
+            $table->json('name_translations')->nullable();
             $table->string('native_name')->nullable();
             $table->json('native_name_translations')->nullable();
             $table->boolean('active')->default(true);
@@ -33,9 +48,9 @@ trait CreatesLocaleTables
 
         Schema::create('countries', function (Blueprint $table): void {
             $table->id();
-            $table->string('name');
-            $table->json('name_translations')->nullable();
+            $table->string('name')->nullable();
             $table->string('code')->unique();
+            $table->json('name_translations')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

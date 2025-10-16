@@ -16,6 +16,10 @@ class OmdbApiKeyResolver
     public function resolve(): string
     {
         try {
+            if (! \Schema::hasTable('omdb_api_keys')) {
+                return $this->fallback();
+            }
+
             $key = OmdbApiKey::query()
                 ->where('is_working', true)
                 ->orderByDesc('validated_at')

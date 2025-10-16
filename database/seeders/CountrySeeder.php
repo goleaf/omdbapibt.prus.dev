@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Country;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class CountrySeeder extends Seeder
 {
@@ -12,6 +13,8 @@ class CountrySeeder extends Seeder
 
     public function run(): void
     {
+        $hasName = Schema::hasColumn('countries', 'name');
+
         $countries = Country::factory()
             ->count(self::TOTAL_COUNTRIES)
             ->sequence(function (Sequence $sequence): array {
@@ -21,7 +24,6 @@ class CountrySeeder extends Seeder
 
                 return [
                     'code' => $code,
-                    'name' => $label,
                     'name_translations' => [
                         'en' => $label,
                         'es' => sprintf('País %04d', $position),
@@ -31,22 +33,32 @@ class CountrySeeder extends Seeder
                 ];
             })
             ->make()
-            ->map(function (Country $country): array {
-                return [
+            ->map(function (Country $country) use ($hasName): array {
+                $base = [
                     'code' => $country->code,
-                    'name' => $country->getRawOriginal('name') ?? $country->name,
                     'name_translations' => json_encode($country->name_translations, JSON_UNESCAPED_UNICODE),
                     'active' => $country->active,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+
+                if ($hasName) {
+                    $translations = $country->name_translations ?? [];
+                    $base['name'] = $translations['en'] ?? (reset($translations) ?: $country->code);
+                }
+
+                return $base;
             });
 
-        Country::query()->upsert(
-            $countries->all(),
-            ['code'],
-            ['name', 'name_translations', 'active', 'updated_at']
-        );
+        collect($countries->all())
+            ->chunk(200)
+            ->each(function ($chunk): void {
+                Country::query()->upsert(
+                    $chunk->all(),
+                    ['code'],
+                    ['name_translations', 'active', 'updated_at']
+                );
+            });
 
         Country::query()->whereNotIn('code', $countries->pluck('code'))->delete();
     }

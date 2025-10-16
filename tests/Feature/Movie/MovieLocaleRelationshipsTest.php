@@ -27,19 +27,17 @@ class MovieLocaleRelationshipsTest extends TestCase
         $movie = Movie::factory()->create();
 
         $english = Language::query()->create([
-            'name' => 'English',
-            'name_translations' => ['en' => 'English', 'es' => 'Inglés'],
-            'native_name' => 'English',
-            'native_name_translations' => ['en' => 'English', 'es' => 'Inglés'],
             'code' => 'en',
+            'name_translations' => ['en' => 'English', 'es' => 'Inglés'],
+            'native_name_translations' => ['en' => 'English', 'es' => 'Inglés'],
+            'active' => true,
         ]);
 
         $spanish = Language::query()->create([
-            'name' => 'Spanish',
-            'name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
-            'native_name' => 'Español',
-            'native_name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
             'code' => 'es',
+            'name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
+            'native_name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
+            'active' => true,
         ]);
 
         $movie->languages()->attach([$english->id, $spanish->id]);
@@ -62,15 +60,15 @@ class MovieLocaleRelationshipsTest extends TestCase
         $movie = Movie::factory()->create();
 
         $usa = Country::query()->create([
-            'name' => 'United States',
-            'name_translations' => ['en' => 'United States', 'es' => 'Estados Unidos'],
             'code' => 'US',
+            'name_translations' => ['en' => 'United States', 'es' => 'Estados Unidos'],
+            'active' => true,
         ]);
 
         $japan = Country::query()->create([
-            'name' => 'Japan',
-            'name_translations' => ['en' => 'Japan', 'es' => 'Japón'],
             'code' => 'JP',
+            'name_translations' => ['en' => 'Japan', 'es' => 'Japón'],
+            'active' => true,
         ]);
 
         $movie->countries()->attach([$usa->id, $japan->id]);

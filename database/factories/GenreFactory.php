@@ -25,7 +25,6 @@ class GenreFactory extends Factory
         ];
 
         return [
-            'name' => $translations['en'],
             'name_translations' => $translations,
             'slug' => Str::slug($baseName).'-'.$identifier,
             'tmdb_id' => 10_000 + $identifier,
@@ -42,7 +41,6 @@ class GenreFactory extends Factory
             ];
 
             return [
-                'name' => $translations['en'],
                 'name_translations' => $translations,
                 'slug' => Str::slug($name),
                 'tmdb_id' => $tmdbId ?? $this->faker->unique()->numberBetween(1, 9_999),
