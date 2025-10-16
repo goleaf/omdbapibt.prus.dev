@@ -18,6 +18,17 @@ class DatabaseSeeder extends Seeder
             LanguageSeeder::class,
             CountrySeeder::class,
             GenreSeeder::class,
+            UserSeeder::class,
+            PersonSeeder::class,
+            MovieSeeder::class,
+            TvShowSeeder::class,
+            UiTranslationSeeder::class,
+            ReviewSeeder::class,
+            WatchHistorySeeder::class,
+            ParserEntrySeeder::class,
+            ParserEntryHistorySeeder::class,
+            AdminAuditLogSeeder::class,
+            UserManagementLogSeeder::class,
         ]);
     }
 }
