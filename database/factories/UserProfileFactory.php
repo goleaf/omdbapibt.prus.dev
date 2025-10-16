@@ -52,7 +52,38 @@ class UserProfileFactory extends Factory
 
         return [
             'user_id' => User::factory(),
+            // Social profile fields
+            'display_name' => $this->faker->name(),
+            'tagline' => $this->faker->sentence(6),
             'bio' => $this->faker->paragraphs(3, true),
+            'location' => $this->faker->city(),
+            'timezone' => $this->faker->timezone(),
+            'birthday' => $this->faker->date(),
+            // Preferences and settings
+            'preferred_language' => 'English',
+            'preferred_audio_language' => 'English (Dolby Atmos)',
+            'preferred_subtitle_language' => 'English (CC)',
+            'content_maturity' => 'PG-13',
+            'autoplay_next_episode' => $this->faker->boolean(),
+            'autoplay_trailers' => $this->faker->boolean(),
+            'newsletter_opt_in' => $this->faker->boolean(),
+            'marketing_opt_in' => $this->faker->boolean(),
+            // String-based favorites
+            'favorite_genre' => 'Science Fiction',
+            'favorite_movie' => 'Interstellar',
+            'favorite_tv_show' => 'The Expanse',
+            'favorite_actor' => $this->faker->name(),
+            'favorite_director' => $this->faker->name(),
+            'favorite_quote' => 'Stay curious.',
+            // Social media links
+            'website_url' => $this->faker->url(),
+            'twitter_url' => 'https://twitter.com/'.$this->faker->userName(),
+            'instagram_url' => 'https://instagram.com/'.$this->faker->userName(),
+            'tiktok_url' => 'https://tiktok.com/@'.$this->faker->userName(),
+            'youtube_url' => 'https://youtube.com/'.$this->faker->userName(),
+            'letterboxd_url' => 'https://letterboxd.com/'.$this->faker->userName(),
+            'discord_handle' => $this->faker->userName().'#'.$this->faker->numberBetween(1000, 9999),
+            // Relational favorites and preferences
             'home_country_id' => $homeCountry?->getKey(),
             'primary_genre_id' => $primaryGenre?->getKey(),
             'secondary_genre_id' => $secondaryGenre?->getKey(),
@@ -62,6 +93,7 @@ class UserProfileFactory extends Factory
             'primary_language_id' => $primaryLanguage?->getKey(),
             'secondary_language_id' => $secondaryLanguage?->getKey(),
             'subtitle_language_id' => $subtitleLanguage?->getKey(),
+            // Viewer analytics
             'weekly_watch_minutes' => $weeklyMinutes,
             'average_session_minutes' => $sessionMinutes,
             'preferred_watch_hour' => $this->faker->numberBetween(10, 23),

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class UserProfile extends Model
 {
+    /** @use HasFactory<\Database\Factories\UserProfileFactory> */
     use HasFactory;
 
     /**
@@ -16,7 +17,38 @@ class UserProfile extends Model
      */
     protected $fillable = [
         'user_id',
+        // Social profile fields
+        'display_name',
+        'tagline',
         'bio',
+        'location',
+        'timezone',
+        'birthday',
+        // Preferences and settings
+        'preferred_language',
+        'preferred_audio_language',
+        'preferred_subtitle_language',
+        'content_maturity',
+        'autoplay_next_episode',
+        'autoplay_trailers',
+        'newsletter_opt_in',
+        'marketing_opt_in',
+        // String-based favorites
+        'favorite_genre',
+        'favorite_movie',
+        'favorite_tv_show',
+        'favorite_actor',
+        'favorite_director',
+        'favorite_quote',
+        // Social media links
+        'website_url',
+        'twitter_url',
+        'instagram_url',
+        'tiktok_url',
+        'youtube_url',
+        'letterboxd_url',
+        'discord_handle',
+        // Relational favorites and preferences
         'home_country_id',
         'primary_genre_id',
         'secondary_genre_id',
@@ -26,6 +58,7 @@ class UserProfile extends Model
         'primary_language_id',
         'secondary_language_id',
         'subtitle_language_id',
+        // Viewer analytics
         'weekly_watch_minutes',
         'average_session_minutes',
         'preferred_watch_hour',
@@ -41,6 +74,11 @@ class UserProfile extends Model
     protected function casts(): array
     {
         return [
+            'birthday' => 'date',
+            'autoplay_next_episode' => 'boolean',
+            'autoplay_trailers' => 'boolean',
+            'newsletter_opt_in' => 'boolean',
+            'marketing_opt_in' => 'boolean',
             'last_watched_at' => 'datetime',
             'recent_watch_highlights' => 'array',
         ];

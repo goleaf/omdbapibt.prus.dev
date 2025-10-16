@@ -137,6 +137,11 @@ class User extends Authenticatable
         return $this->hasMany(UserManagementLog::class, 'actor_id');
     }
 
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
     public function hasPremiumAccess(string $subscription = 'default'): bool
     {
         if ($this->subscribed($subscription)) {

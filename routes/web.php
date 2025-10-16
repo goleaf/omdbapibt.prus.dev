@@ -59,6 +59,7 @@ $registerAppRoutes = function (): void {
     Route::middleware('auth')->group(function (): void {
         Route::view('/dashboard', 'dashboard')->name('dashboard');
         Route::view('/account', 'pages.account')->name('account');
+        Route::view('/account/profile', 'pages.profile')->name('account.profile');
 
         Route::get('/account/watch-history', WatchHistoryBrowser::class)
             ->middleware('subscriber')
