@@ -33,18 +33,18 @@ class ParserTriggerRequest extends FormRequest
         $enumMessage = __('validation.custom.workload.enum');
 
         return [
-            'workload.required' => __('validation.custom.workload.required'),
-            'workload.string' => __('validation.custom.workload.string'),
-            'workload.enum' => $enumMessage,
-            'workload.Enum' => $enumMessage,
-            'workload.Illuminate\Validation\Rules\Enum' => $enumMessage,
+            'workload.required' => __('parser.trigger.workload_required'),
+            'workload.string' => __('parser.trigger.workload_string'),
+            'workload.enum' => __('parser.trigger.workload_enum'),
         ];
     }
 
     public function workload(): ParserWorkload
     {
-        /** @var string $value */
-        $value = $this->validated('workload');
+        return [
+            'workload' => __('parser.trigger.workload_attribute'),
+        ];
+    }
 
         return ParserWorkload::from($value);
     }

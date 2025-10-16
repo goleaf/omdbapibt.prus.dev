@@ -25,17 +25,9 @@ return [
         ],
     ],
     'trigger' => [
-        'workflow' => [
-            'validation' => [
-                'workload' => [
-                    'required' => 'Selecciona una carga de procesamiento para iniciar.',
-                    'string' => 'La carga de procesamiento debe enviarse como texto.',
-                    'enum' => 'La carga de procesamiento seleccionada no es válida.',
-                ],
-            ],
-            'attributes' => [
-                'workload' => 'carga de procesamiento',
-            ],
-        ],
+        'workload_required' => 'Selecciona una carga de procesamiento para iniciar.',
+        'workload_string' => 'La carga de procesamiento debe enviarse como texto.',
+        'workload_enum' => 'La carga de procesamiento seleccionada no es válida.',
+        'workload_attribute' => 'carga de procesamiento',
     ],
 ];
