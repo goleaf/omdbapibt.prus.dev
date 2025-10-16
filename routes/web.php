@@ -18,9 +18,12 @@ use App\Livewire\HomePage;
 use App\Livewire\PricingPage;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
 $supportedLocales = config('translatable.locales', []);
@@ -118,7 +121,7 @@ Route::get('{locale}/build/{path}', function (string $locale, string $path) use 
         'Content-Type' => File::mimeType($fullPath) ?: 'application/octet-stream',
         'Cache-Control' => 'public, max-age=31536000',
     ]);
-})->where('path', '.*');
+})->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])->where('path', '.*');
 
 Route::prefix('{locale}')
     ->middleware(['validate-locale', 'set-locale'])

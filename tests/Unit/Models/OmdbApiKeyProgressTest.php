@@ -4,7 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\OmdbApiKeyProgress;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\CarbonImmutable;
+use Carbon\CarbonImmutable;
 use Tests\TestCase;
 
 class OmdbApiKeyProgressTest extends TestCase

@@ -344,8 +344,20 @@ class OmdbApiKeyManager
             return false;
         }
 
+        $titleTranslations = $movie->title;
+
+        if (! is_array($titleTranslations)) {
+            $titleTranslations = is_string($titleTranslations) && $titleTranslations !== ''
+                ? ['en' => $titleTranslations]
+                : [];
+        }
+
+        if (isset($payload['Title']) && is_string($payload['Title']) && $payload['Title'] !== '') {
+            $titleTranslations['en'] = $payload['Title'];
+        }
+
         $movie->forceFill([
-            'title' => $payload['Title'] ?? $movie->title,
+            'title' => $titleTranslations,
             'year' => $payload['Year'] ?? $movie->year,
             'plot' => $payload['Plot'] ?? $movie->plot,
             'poster_path' => $payload['Poster'] ?? $movie->poster_path,

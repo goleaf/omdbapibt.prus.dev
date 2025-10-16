@@ -16,10 +16,10 @@
                         Tailwind cinematic utilities keep every card, badge, and tab in sync across light and dark themes.
                     </p>
                     <div class="flex flex-col gap-3 sm:flex-row">
-                        <flux:button href="{{ route('browse') }}" variant="primary" color="emerald" icon-leading="play">
+                        <flux:button href="{{ localized_route('browse') }}" variant="primary" color="emerald" icon-leading="play">
                             {{ __('ui.nav.links.browse') }}
                         </flux:button>
-                        <flux:button href="{{ route('pricing') }}" variant="ghost" icon-leading="sparkles">
+                        <flux:button href="{{ localized_route('pricing') }}" variant="ghost" icon-leading="sparkles">
                             {{ __('ui.nav.links.pricing') }}
                         </flux:button>
                     </div>

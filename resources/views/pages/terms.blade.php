@@ -7,15 +7,16 @@
 @section('content')
     @php($supportEmail = config('support.contact_email', config('mail.from.address', 'support@omdbstream.test')))
     @php($sections = trans('ui.pages.terms.sections'))
+    @php($sections = is_array($sections) ? $sections : [])
 
     <article class="mx-auto max-w-4xl space-y-10 text-sm leading-relaxed text-slate-300">
         <p>{{ trans('ui.pages.terms.intro') }}</p>
 
         @foreach ($sections as $section)
             <section class="space-y-3">
-                <h2 class="text-xl font-semibold text-slate-100">{{ $section['title'] }}</h2>
+                <h2 class="text-xl font-semibold text-slate-100">{{ $section['title'] ?? '' }}</h2>
 
-                @foreach ($section['paragraphs'] as $paragraph)
+                @foreach ($section['paragraphs'] ?? [] as $paragraph)
                     <p>{{ $paragraph }}</p>
                 @endforeach
             </section>

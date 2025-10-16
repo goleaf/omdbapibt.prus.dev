@@ -28,7 +28,7 @@
                 </svg>
             </button>
 
-            <a href="{{ route('home') }}" class="flex items-center gap-2 text-lg font-semibold tracking-wide">
+            <a href="{{ localized_route('home') }}" class="flex items-center gap-2 text-lg font-semibold tracking-wide">
                 <span class="text-emerald-400">◎</span>
                 <span>{{ __('ui.nav.brand.primary') }}<span class="text-emerald-400">{{ __('ui.nav.brand.secondary') }}</span></span>
             </a>
@@ -66,17 +66,17 @@
 
                 @if ($user)
                     <span class="flux-text-muted">{{ $userName }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="md:flex md:items-center">
+                    <form method="POST" action="{{ localized_route('logout') }}" class="md:flex md:items-center">
                         @csrf
                         <button type="submit" class="rounded-full border border-[color:var(--flux-border-soft)] px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.nav.auth.logout') }}</button>
                     </form>
                 @else
                     <div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-3">
                         @if ($hasLogin)
-                            <a href="{{ route('login') }}" class="rounded-full border border-[color:var(--flux-border-soft)] px-4 py-1.5 text-center transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.nav.auth.login') }}</a>
+                            <a href="{{ localized_route('login') }}" class="rounded-full border border-[color:var(--flux-border-soft)] px-4 py-1.5 text-center transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.nav.auth.login') }}</a>
                         @endif
                         @if ($hasRegister)
-                            <a href="{{ route('register') }}" class="rounded-full bg-emerald-500 px-4 py-1.5 text-center font-semibold text-emerald-950 transition hover:bg-emerald-400">{{ __('ui.nav.auth.register') }}</a>
+                            <a href="{{ localized_route('register') }}" class="rounded-full bg-emerald-500 px-4 py-1.5 text-center font-semibold text-emerald-950 transition hover:bg-emerald-400">{{ __('ui.nav.auth.register') }}</a>
                         @endif
                     </div>
                 @endif

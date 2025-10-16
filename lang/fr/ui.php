@@ -36,6 +36,12 @@ return [
             'copyright' => '© :year OMDb Stream. Tous droits réservés.',
         ],
     ],
+    'impersonation' => [
+        'banner_title' => 'Impersonation de :name',
+        'banner_help' => 'Vous naviguez sur le site en tant que cet utilisateur. Une fois terminé, revenez à votre compte administrateur.',
+        'stop' => 'Arrêter l’impersonation',
+        'stopped' => 'Session d’impersonation terminée. Vous êtes de retour sur votre compte administrateur.',
+    ],
     'dashboard' => [
         'title' => 'Tableau de bord',
         'layout' => [

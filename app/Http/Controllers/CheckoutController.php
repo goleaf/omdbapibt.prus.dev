@@ -13,11 +13,11 @@ class CheckoutController extends Controller
         $user = $request->user();
 
         if (! $user) {
-            return redirect()->route('login');
+            return redirect()->to(localized_route('login'));
         }
 
         if ($user->hasPremiumAccess()) {
-            return redirect()->route('browse')->with('status', __('messages.subscription.already_active'));
+            return redirect()->to(localized_route('browse'))->with('status', __('messages.subscription.already_active'));
         }
 
         $plans = array_filter([

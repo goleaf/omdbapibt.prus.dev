@@ -1,7 +1,7 @@
 <section aria-labelledby="trending-heading" class="space-y-6">
     <div class="flex items-center justify-between">
         <h2 id="trending-heading" class="text-xl font-semibold tracking-tight text-slate-50">Trending now</h2>
-        <a href="{{ route('browse') }}" class="text-sm font-medium text-emerald-400 transition hover:text-emerald-300">See all</a>
+        <a href="{{ localized_route('browse') }}" class="text-sm font-medium text-emerald-400 transition hover:text-emerald-300">See all</a>
     </div>
 
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

@@ -9,13 +9,13 @@
             </div>
 
             <div class="flex flex-col justify-center gap-3 sm:flex-row">
-                <a href="{{ route('login') }}" class="rounded-full border border-slate-700 px-6 py-2 text-sm font-semibold text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200">
+                <a href="{{ localized_route('login') }}" class="rounded-full border border-slate-700 px-6 py-2 text-sm font-semibold text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200">
                     {{ __('Sign in to continue') }}
                 </a>
-                <a href="{{ route('register') }}" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
+                <a href="{{ localized_route('register') }}" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
                     {{ __('Create an account') }}
                 </a>
-                <a href="{{ route('pricing') }}" class="rounded-full border border-emerald-400/50 px-6 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300">
+                <a href="{{ localized_route('pricing') }}" class="rounded-full border border-emerald-400/50 px-6 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300">
                     {{ __('Compare plans') }}
                 </a>
             </div>
@@ -40,7 +40,7 @@
                     <p class="mt-3 text-sm text-slate-300">
                         {{ __('Visit checkout to finalize billing and unlock access immediately.') }}
                     </p>
-                    <a href="{{ route('checkout') }}" class="mt-3 inline-flex rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
+                    <a href="{{ localized_route('checkout') }}" class="mt-3 inline-flex rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
                         {{ __('Go to checkout') }}
                     </a>
                 </div>

@@ -9,7 +9,7 @@ class SubscriptionRedirectResponse
     public static function alreadySubscribed(): RedirectResponse
     {
         return redirect()
-            ->route('dashboard')
+            ->to(localized_route('dashboard'))
             ->with('status', __('subscriptions.status.already_subscribed'));
     }
 }
