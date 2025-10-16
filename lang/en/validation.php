@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'enum' => 'The selected :attribute is invalid.',
     'custom' => [
         'workload' => [
             'required' => 'A parser workload is required.',

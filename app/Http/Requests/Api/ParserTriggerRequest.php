@@ -30,21 +30,26 @@ class ParserTriggerRequest extends FormRequest
 
     public function messages(): array
     {
-        $enumMessage = __('validation.custom.workload.enum');
-
         return [
-            'workload.required' => __('parser.trigger.workload_required'),
-            'workload.string' => __('parser.trigger.workload_string'),
-            'workload.enum' => __('parser.trigger.workload_enum'),
+            'workload.required' => __('validation.custom.workload.required'),
+            'workload.string' => __('validation.custom.workload.string'),
+            'workload.enum' => __('validation.custom.workload.enum'),
         ];
     }
 
-    public function workload(): ParserWorkload
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
     {
         return [
             'workload' => __('parser.trigger.workload_attribute'),
         ];
     }
+
+    public function workload(): ParserWorkload
+    {
+        $value = $this->input('workload');
 
         return ParserWorkload::from($value);
     }
