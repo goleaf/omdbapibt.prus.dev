@@ -20,28 +20,28 @@ class AdminAuditLogSeeder extends Seeder
             return;
         }
 
-        $admins = User::query()
+        $adminIds = User::query()
             ->where('role', UserRole::Admin->value)
-            ->get();
+            ->pluck('id');
 
-        $parserEntries = ParserEntry::query()->get();
-
-        if ($admins->isEmpty() || $parserEntries->isEmpty()) {
+        if ($adminIds->isEmpty() || ParserEntry::query()->doesntExist()) {
             return;
         }
 
-        $parserEntries->each(function (ParserEntry $entry) use ($admins): void {
-            $admin = $admins->random();
-
-            AdminAuditLog::query()->create([
-                'user_id' => $admin->getKey(),
-                'action' => AdminAuditAction::ParserEntryReviewed->value,
-                'details' => [
-                    'parser_entry_id' => $entry->getKey(),
-                    'status' => $entry->status->value ?? $entry->status,
-                    'notes' => fake()->sentence(),
-                ],
-            ]);
-        });
+        ParserEntry::query()
+            ->orderBy('id')
+            ->chunkById(200, function ($entries) use ($adminIds): void {
+                $entries->each(function (ParserEntry $entry) use ($adminIds): void {
+                    AdminAuditLog::query()->create([
+                        'user_id' => $adminIds->random(),
+                        'action' => AdminAuditAction::ParserEntryReviewed->value,
+                        'details' => [
+                            'parser_entry_id' => $entry->getKey(),
+                            'status' => $entry->status->value ?? $entry->status,
+                            'notes' => fake()->sentence(),
+                        ],
+                    ]);
+                });
+            });
     }
 }

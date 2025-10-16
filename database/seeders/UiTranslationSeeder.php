@@ -16,6 +16,6 @@ class UiTranslationSeeder extends Seeder
             return;
         }
 
-        UiTranslation::factory()->count(40)->create();
+        UiTranslation::factory()->count(1_000)->create();
     }
 }

@@ -20,34 +20,40 @@ class ParserEntryHistorySeeder extends Seeder
             return;
         }
 
-        $entries = ParserEntry::query()->get();
-        $users = User::query()->get();
-
-        if ($entries->isEmpty() || $users->isEmpty()) {
+        if (ParserEntry::query()->doesntExist()) {
             return;
         }
 
-        $entries->each(function (ParserEntry $entry) use ($users): void {
-            $historyCount = random_int(1, 3);
+        $userIds = User::query()->pluck('id');
 
-            Collection::times($historyCount, fn () => true)->each(function () use ($entry, $users): void {
-                $actor = $users->random();
-                $action = collect(ParserReviewAction::cases())->random();
+        if ($userIds->isEmpty()) {
+            return;
+        }
 
-                ParserEntryHistory::query()->create([
-                    'parser_entry_id' => $entry->getKey(),
-                    'user_id' => $actor->getKey(),
-                    'action' => $action->value,
-                    'changes' => [
-                        [
-                            'key' => 'popularity',
-                            'before' => fake()->randomFloat(2, 0, 500),
-                            'after' => fake()->randomFloat(2, 0, 500),
-                        ],
-                    ],
-                    'notes' => fake()->boolean(50) ? fake()->sentence() : null,
-                ]);
+        ParserEntry::query()
+            ->orderBy('id')
+            ->chunkById(200, function ($entries) use ($userIds): void {
+                $entries->each(function (ParserEntry $entry) use ($userIds): void {
+                    $historyCount = random_int(1, 3);
+
+                    Collection::times($historyCount, fn () => true)->each(function () use ($entry, $userIds): void {
+                        $action = collect(ParserReviewAction::cases())->random();
+
+                        ParserEntryHistory::query()->create([
+                            'parser_entry_id' => $entry->getKey(),
+                            'user_id' => $userIds->random(),
+                            'action' => $action->value,
+                            'changes' => [
+                                [
+                                    'key' => 'popularity',
+                                    'before' => fake()->randomFloat(2, 0, 500),
+                                    'after' => fake()->randomFloat(2, 0, 500),
+                                ],
+                            ],
+                            'notes' => fake()->boolean(50) ? fake()->sentence() : null,
+                        ]);
+                    });
+                });
             });
-        });
     }
 }
