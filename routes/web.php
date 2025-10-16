@@ -14,6 +14,7 @@ use App\Livewire\Auth\LoginForm;
 use App\Livewire\Auth\SignupForm;
 use App\Livewire\Browse\BrowsePage;
 use App\Livewire\Checkout\PlanSelector;
+use App\Livewire\HomePage;
 use App\Livewire\PricingPage;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
