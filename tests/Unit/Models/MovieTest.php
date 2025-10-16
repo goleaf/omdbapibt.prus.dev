@@ -67,21 +67,16 @@ class MovieTest extends TestCase
         $movie = Movie::factory()->create();
         $genre = Genre::factory()->create();
         $language = Language::create([
-            'name_translations' => [
-                'en' => 'English',
-                'es' => 'Inglés',
-            ],
-            'code' => 'EN01',
-            'native_name_translations' => [
-                'en' => 'English',
-            ],
+            'name' => 'English',
+            'name_translations' => ['en' => 'English', 'es' => 'Inglés'],
+            'code' => 'en',
+            'native_name' => 'English',
+            'native_name_translations' => ['en' => 'English', 'es' => 'Inglés'],
             'active' => true,
         ]);
         $country = Country::create([
-            'name_translations' => [
-                'en' => 'United States',
-                'es' => 'Estados Unidos',
-            ],
+            'name' => 'United States',
+            'name_translations' => ['en' => 'United States', 'es' => 'Estados Unidos'],
             'code' => 'US',
             'active' => true,
         ]);

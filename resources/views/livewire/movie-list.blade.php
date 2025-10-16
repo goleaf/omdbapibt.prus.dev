@@ -14,11 +14,11 @@
 
         @php
             $activeFilters = collect([
-                'genreId' => optional($genres->firstWhere('id', $genreId))->localizedName(),
+                'genreId' => optional($genres->firstWhere('id', $genreId))?->localizedName(),
                 'year' => $year,
                 'rating' => $rating ? number_format($rating, 1) . '+' : null,
-                'languageId' => optional($languages->firstWhere('id', $languageId))->localizedName(),
-                'countryId' => optional($countries->firstWhere('id', $countryId))->localizedName(),
+                'languageId' => optional($languages->firstWhere('id', $languageId))?->localizedName(),
+                'countryId' => optional($countries->firstWhere('id', $countryId))?->localizedName(),
             ])->filter();
         @endphp
 
@@ -193,7 +193,7 @@
                         @if ($movie->genres->isNotEmpty())
                             <div class="flex flex-wrap gap-2">
                                 @foreach ($movie->genres->take(3) as $movieGenre)
-                                    <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-200">{{ $movieGenre->localizedName() }}</span>
+                                    <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-200">{{ $movieGenre->name }}</span>
                                 @endforeach
                             </div>
                         @endif
@@ -204,13 +204,13 @@
                             @if ($movie->countries->isNotEmpty())
                                 <span class="inline-flex items-center gap-1">
                                     <span aria-hidden="true">🌍</span>
-                                    {{ $movie->countries->map(fn ($country) => $country->localizedName())->filter()->take(2)->implode(', ') }}
+                                    {{ $movie->countries->pluck('name')->take(2)->join(', ') }}
                                 </span>
                             @endif
                             @if ($movie->languages->isNotEmpty())
                                 <span class="inline-flex items-center gap-1">
                                     <span aria-hidden="true">💬</span>
-                                    {{ $movie->languages->map(fn ($language) => $language->localizedName())->filter()->take(2)->implode(', ') }}
+                                    {{ $movie->languages->pluck('name')->take(2)->join(', ') }}
                                 </span>
                             @endif
                         </div>

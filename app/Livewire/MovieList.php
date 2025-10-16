@@ -8,7 +8,6 @@ use App\Models\Language;
 use App\Models\Movie;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -80,9 +79,9 @@ class MovieList extends Component
     {
         return Movie::query()
             ->with([
-                'genres:id,slug,name_translations',
-                'languages:id,code,name_translations,native_name_translations',
-                'countries:id,code,name_translations',
+                'genres:id,name,name_translations,slug',
+                'languages:id,name,name_translations,native_name,native_name_translations,code',
+                'countries:id,name,name_translations,code',
             ])
             ->when($this->genreId, function (Builder $query): Builder {
                 return $query->whereHas('genres', fn (Builder $genreQuery) => $genreQuery->whereKey($this->genreId));
@@ -122,28 +121,11 @@ class MovieList extends Component
     {
         $movies = $this->movies();
 
-        $locale = app()->getLocale() ?? config('app.fallback_locale', 'en');
-
-        $genres = Genre::query()
-            ->get(['id', 'slug', 'name_translations'])
-            ->sortBy(fn (Genre $genre) => Str::lower($genre->localizedName($locale) ?? ''))
-            ->values();
-
-        $languages = Language::query()
-            ->get(['id', 'code', 'name_translations', 'native_name_translations'])
-            ->sortBy(fn (Language $language) => Str::lower($language->localizedName($locale) ?? ''))
-            ->values();
-
-        $countries = Country::query()
-            ->get(['id', 'code', 'name_translations'])
-            ->sortBy(fn (Country $country) => Str::lower($country->localizedName($locale) ?? ''))
-            ->values();
-
         return view('livewire.movie-list', [
             'movies' => $movies,
-            'genres' => $genres,
-            'languages' => $languages,
-            'countries' => $countries,
+            'genres' => Genre::query()->orderBy('name')->get(['id', 'name', 'name_translations']),
+            'languages' => Language::query()->orderBy('name')->get(['id', 'name', 'name_translations', 'native_name', 'native_name_translations', 'code']),
+            'countries' => Country::query()->orderBy('name')->get(['id', 'name', 'name_translations', 'code']),
             'availableYears' => Movie::query()
                 ->selectRaw('DISTINCT COALESCE(year, YEAR(release_date)) as filter_year')
                 ->where(function ($query): void {

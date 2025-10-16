@@ -23,16 +23,11 @@ class LanguageTest extends TestCase
     public function test_active_flag_is_cast_to_boolean(): void
     {
         $language = Language::create([
-            'name_translations' => [
-                'en' => 'Spanish',
-                'es' => 'Español',
-                'fr' => 'Espagnol',
-            ],
-            'code' => 'ES01',
-            'native_name_translations' => [
-                'en' => 'Spanish',
-                'es' => 'Español',
-            ],
+            'name' => 'Spanish',
+            'name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
+            'code' => 'es',
+            'native_name' => 'Español',
+            'native_name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
             'active' => 0,
         ]);
 
@@ -43,20 +38,31 @@ class LanguageTest extends TestCase
     {
         $movie = Movie::factory()->create();
         $language = Language::create([
-            'name_translations' => [
-                'en' => 'German',
-                'es' => 'Alemán',
-            ],
-            'code' => 'DE01',
-            'native_name_translations' => [
-                'en' => 'German',
-                'de' => 'Deutsch',
-            ],
+            'name' => 'German',
+            'name_translations' => ['en' => 'German', 'de' => 'Deutsch'],
+            'code' => 'de',
+            'native_name' => 'Deutsch',
+            'native_name_translations' => ['en' => 'German', 'de' => 'Deutsch'],
             'active' => true,
         ]);
 
         $language->movies()->attach($movie);
 
         $this->assertTrue($language->movies->contains($movie));
+    }
+
+    public function test_localized_helpers_return_translated_values(): void
+    {
+        $language = Language::create([
+            'name' => 'French',
+            'name_translations' => ['en' => 'French', 'es' => 'Francés', 'fr' => 'Français'],
+            'code' => 'fr',
+            'native_name' => 'Français',
+            'native_name_translations' => ['en' => 'French', 'es' => 'Francés', 'fr' => 'Français'],
+            'active' => true,
+        ]);
+
+        $this->assertSame('Francés', $language->localizedName('es'));
+        $this->assertSame('Français', $language->localizedNativeName('fr'));
     }
 }
