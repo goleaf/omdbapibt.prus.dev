@@ -6,31 +6,22 @@
 @section('content')
     <div class="space-y-12">
         <x-flux.card heading="{{ __('ui.dashboard.welcome_heading') }}" subheading="{{ __('ui.dashboard.welcome_body') }}" elevated>
-            @php
-                $user = auth()->user();
-                $subscription = $user?->subscription('default');
-                $trialEndsAt = $subscription?->trial_ends_at?->setTimezone(config('app.timezone'));
-                $graceEndsAt = $subscription?->ends_at?->setTimezone(config('app.timezone'));
-                $trialDays = (int) config('services.stripe.trial_days', 7);
-                $priceId = config('services.stripe.prices.monthly');
-            @endphp
-
-            @if (session('status'))
+            @if ($statusMessage)
                 <div class="rounded-2xl border border-emerald-400/50 bg-emerald-500/15 px-4 py-3 text-sm text-emerald-100">
-                    {{ session('status') }}
+                    {{ $statusMessage }}
                 </div>
             @endif
 
             <div class="grid gap-6 md:grid-cols-2">
                 <div class="space-y-4 text-sm text-slate-200">
-                    @if ($subscription?->onTrial())
+                    @if ($subscriptionState === 'trial')
                         <div class="rounded-2xl border border-amber-300/60 bg-amber-400/15 p-5 text-amber-100">
                             <p class="font-semibold">{{ __('ui.dashboard.trial.active_title') }}</p>
                             <p class="mt-1">
-                                {!! __('ui.dashboard.trial.active_body', ['date' => '<span class="font-semibold">'.$trialEndsAt?->toDayDateTimeString().'</span>']) !!}
+                                {!! __('ui.dashboard.trial.active_body', ['date' => '<span class="font-semibold">'.$trialEndsAtLabel.'</span>']) !!}
                             </p>
                         </div>
-                    @elseif (! $subscription)
+                    @elseif ($subscriptionState === 'none')
                         <div class="rounded-2xl border border-dashed border-amber-300/60 bg-amber-400/10 p-5 text-amber-100">
                             <p class="font-semibold">{{ __('ui.dashboard.trial.intro_title', ['days' => $trialDays]) }}</p>
                             <p class="mt-2">{{ __('ui.dashboard.trial.intro_body') }}</p>
@@ -55,16 +46,16 @@
 
                             <p class="mt-2 text-[0.7rem] uppercase tracking-[0.4em]">{{ __('ui.dashboard.trial.cancel_notice') }}</p>
                         </div>
-                    @elseif ($subscription->active())
+                    @elseif ($subscriptionState === 'active')
                         <div class="rounded-2xl border border-emerald-400/50 bg-emerald-500/15 p-5 text-emerald-100">
                             <p class="font-semibold">{{ __('ui.dashboard.subscriber.thanks_title') }}</p>
                             <p class="mt-1">{{ __('ui.dashboard.subscriber.thanks_body') }}</p>
                         </div>
-                    @elseif ($subscription->onGracePeriod())
+                    @elseif ($subscriptionState === 'grace')
                         <div class="rounded-2xl border border-yellow-300/60 bg-yellow-400/15 p-5 text-yellow-100">
                             <p class="font-semibold">{{ __('ui.dashboard.grace.title') }}</p>
                             <p class="mt-1">
-                                {!! __('ui.dashboard.grace.body', ['date' => '<span class="font-semibold">'.$graceEndsAt?->toDayDateTimeString().'</span>']) !!}
+                                {!! __('ui.dashboard.grace.body', ['date' => '<span class="font-semibold">'.$graceEndsAtLabel.'</span>']) !!}
                             </p>
                         </div>
                     @else
@@ -81,7 +72,7 @@
                         <dl class="mt-4 grid gap-3 text-sm text-slate-300">
                             <div class="flex items-center justify-between">
                                 <dt>{{ __('ui.dashboard.insights_card.subscription_status') }}</dt>
-                                <dd class="font-semibold text-emerald-200">{{ $subscription?->status ?? 'inactive' }}</dd>
+                                <dd class="font-semibold text-emerald-200">{{ $subscriptionStatus }}</dd>
                             </div>
                             <div class="flex items-center justify-between">
                                 <dt>{{ __('ui.dashboard.insights_card.trial_days') }}</dt>
@@ -89,7 +80,7 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <dt>{{ __('ui.dashboard.insights_card.next_invoice') }}</dt>
-                                <dd>{{ optional($subscription?->nextPaymentAttempt())->toDateTimeString() ?? '—' }}</dd>
+                                <dd>{{ $nextInvoiceLabel }}</dd>
                             </div>
                         </dl>
                     </div>
