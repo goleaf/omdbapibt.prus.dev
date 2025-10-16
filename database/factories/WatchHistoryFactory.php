@@ -41,7 +41,7 @@ class WatchHistoryFactory extends Factory
      */
     public function forTvShow(?TvShow $tvShow = null): self
     {
-        return $this->state(fn () => [
+        return $this->state(fn (array $attributes) => [
             'watchable_type' => TvShow::class,
             'watchable_id' => $tvShow?->getKey() ?? TvShow::factory(),
         ]);
@@ -52,9 +52,20 @@ class WatchHistoryFactory extends Factory
      */
     public function forMovie(?Movie $movie = null): self
     {
-        return $this->state(fn () => [
+        return $this->state(fn (array $attributes) => [
             'watchable_type' => Movie::class,
             'watchable_id' => $movie?->getKey() ?? Movie::factory(),
+        ]);
+    }
+
+    /**
+     * Indicate that the watch history entry belongs to any watchable model.
+     */
+    public function forWatchable(Movie|TvShow $watchable): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'watchable_type' => get_class($watchable),
+            'watchable_id' => $watchable->getKey(),
         ]);
     }
 }

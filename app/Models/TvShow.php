@@ -136,6 +136,56 @@ class TvShow extends Model
         $this->storeTranslationAttribute('tagline_translations', $value);
     }
 
+    protected function storeTranslationAttribute(string $attribute, mixed $value): void
+    {
+        $normalized = $this->normalizeTranslations($value);
+
+        if ($normalized === null) {
+            $this->attributes[$attribute] = null;
+
+            return;
+        }
+
+        $this->attributes[$attribute] = $this->castAttributeAsJson($attribute, $normalized);
+    }
+
+    protected function normalizeTranslations(mixed $value): ?array
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = ['en' => $value];
+        }
+
+        if (! is_array($value)) {
+            return null;
+        }
+
+        $filtered = [];
+
+        foreach ($value as $key => $text) {
+            if (! is_string($key)) {
+                continue;
+            }
+
+            if (! is_string($text)) {
+                continue;
+            }
+
+            $trimmed = trim($text);
+
+            if ($trimmed === '') {
+                continue;
+            }
+
+            $filtered[$key] = $trimmed;
+        }
+
+        return $filtered === [] ? null : $filtered;
+    }
+
     /**
      * Users who have added this TV show to their watchlist.
      */
@@ -157,21 +207,6 @@ class TvShow extends Model
         return $this->belongsToMany(Person::class, 'tv_show_person')
             ->withPivot(['credit_type', 'department', 'character', 'job', 'credit_order'])
             ->withTimestamps();
-    }
-
-    public function localizedName(?string $locale = null): string
-    {
-        return $this->localizedText('name_translations', $this->name, $locale, 'Untitled');
-    }
-
-    public function localizedOverview(?string $locale = null): ?string
-    {
-        return $this->localizedText('overview_translations', $this->overview, $locale);
-    }
-
-    public function localizedTagline(?string $locale = null): ?string
-    {
-        return $this->localizedText('tagline_translations', $this->tagline, $locale);
     }
 
     protected function localizedText(string $attribute, ?string $fallback, ?string $locale, ?string $default = null): ?string

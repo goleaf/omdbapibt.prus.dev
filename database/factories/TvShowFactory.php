@@ -38,23 +38,6 @@ class TvShowFactory extends Factory
             ? $this->faker->dateTimeBetween($firstAirDate, 'now')
             : null;
 
-        $nameTranslations = [
-            'en' => $name,
-            'es' => $spanishFaker->sentence(3),
-        ];
-
-        $overview = $this->faker->paragraph();
-        $overviewTranslations = [
-            'en' => $overview,
-            'es' => $spanishFaker->paragraph(),
-        ];
-
-        $tagline = $this->faker->sentence();
-        $taglineTranslations = [
-            'en' => $tagline,
-            'es' => $spanishFaker->sentence(),
-        ];
-
         return [
             'tmdb_id' => null,
             'imdb_id' => null,

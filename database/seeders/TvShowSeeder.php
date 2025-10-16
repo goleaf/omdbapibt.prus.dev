@@ -37,30 +37,16 @@ class TvShowSeeder extends Seeder
         TvShow::factory()
             ->count(1000)
             ->create()
-            ->each(function (TvShow $show) use ($people, $users): void {
-                if ($people->isNotEmpty()) {
-                    $creditCount = min($people->count(), random_int(4, 10));
+            ->each(function (TvShow $show) use ($personIds, $userIds): void {
+                if ($personIds->isNotEmpty()) {
+                    $creditCount = min($personIds->count(), random_int(4, 10));
 
                     if ($creditCount > 0) {
-                        $creditPool = Collection::wrap($people->random($creditCount));
+                        $creditPool = Collection::wrap($personIds->random($creditCount));
 
                         $show->people()->syncWithoutDetaching(
-                            $creditPool->values()->mapWithKeys(function (Person $person, int $index): array {
+                            $creditPool->values()->mapWithKeys(function (int $personId, int $index): array {
                                 $isCast = $index < 4;
-
-                                return [
-                                    $person->getKey() => [
-                                        'credit_type' => $isCast ? 'cast' : 'crew',
-                                        'department' => $isCast ? 'Acting' : fake()->randomElement(['Directing', 'Production', 'Writing']),
-                                        'character' => $isCast ? fake()->name() : null,
-                                        'job' => $isCast ? null : fake()->randomElement(['Showrunner', 'Producer', 'Writer']),
-                                        'credit_order' => $index + 1,
-                                    ],
-                                ];
-                            })->all()
-                        );
-                    }
-                }
 
                                 return [
                                     $personId => [
@@ -74,17 +60,17 @@ class TvShowSeeder extends Seeder
                             })->all()
                         );
                     }
+                }
 
-                    if ($userIds->isNotEmpty()) {
-                        $watchlistCount = min($userIds->count(), random_int(0, 5));
+                if ($userIds->isNotEmpty()) {
+                    $watchlistCount = min($userIds->count(), random_int(0, 5));
 
-                        if ($watchlistCount > 0) {
-                            $selectedUsers = collect($userIds->random($watchlistCount))->values()->all();
-                            $show->watchlistedBy()->syncWithoutDetaching($selectedUsers);
-                        }
+                    if ($watchlistCount > 0) {
+                        $selectedUsers = collect($userIds->random($watchlistCount))->values()->all();
+                        $show->watchlistedBy()->syncWithoutDetaching($selectedUsers);
                     }
-                });
-        });
+                }
+            });
     }
 
     private function ensureTranslationArray(?array $translations, ?string $fallback): ?array
