@@ -1,18 +1,4 @@
-@props([
-    'layout' => 'horizontal',
-    'linkClass' => 'flux-text-muted transition hover:text-emerald-300',
-])
-
-@php
-    $baseClasses = [
-        'horizontal' => 'flex items-center gap-8 text-sm font-medium',
-        'vertical' => 'flex flex-col gap-6 text-base font-medium',
-    ];
-
-    $containerClasses = $baseClasses[$layout] ?? $baseClasses['horizontal'];
-@endphp
-
-<nav {{ $attributes->class($containerClasses) }}>
+<nav {{ $attributes->class($containerClass) }}>
     <a href="{{ route('home') }}" class="{{ $linkClass }}">{{ __('ui.nav.links.home') }}</a>
     <a href="{{ route('browse') }}" class="{{ $linkClass }}">{{ __('ui.nav.links.browse') }}</a>
     <a href="{{ route('pricing') }}" class="{{ $linkClass }}">{{ __('ui.nav.links.pricing') }}</a>
