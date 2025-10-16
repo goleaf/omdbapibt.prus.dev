@@ -5,21 +5,20 @@
 ])
 
 @section('content')
-    @php($supportEmail = config('support.contact_email', config('mail.from.address', 'support@omdbstream.test')))
-    @php($sections = trans('ui.pages.privacy.sections'))
-
     <article class="mx-auto max-w-4xl space-y-10 text-sm leading-relaxed text-slate-300">
         <p>{{ trans('ui.pages.privacy.intro') }}</p>
 
         @foreach ($sections as $section)
             <section class="space-y-3">
-                <h2 class="text-xl font-semibold text-slate-100">{{ $section['title'] }}</h2>
+                @if (! empty($section['title']))
+                    <h2 class="text-xl font-semibold text-slate-100">{{ $section['title'] }}</h2>
+                @endif
 
                 @foreach ($section['paragraphs'] as $paragraph)
                     <p>{{ $paragraph }}</p>
                 @endforeach
 
-                @if (isset($section['items']))
+                @if ($section['items'] !== [])
                     <ul class="list-disc space-y-2 pl-5">
                         @foreach ($section['items'] as $item)
                             <li>{{ $item }}</li>
