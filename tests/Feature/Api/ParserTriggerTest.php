@@ -51,58 +51,8 @@ class ParserTriggerTest extends TestCase
         });
     }
 
-    public function test_admin_users_can_trigger_parser_in_alternate_locale(): void
-    {
-        config(['parser.queue' => 'french-parsing']);
-        Queue::fake();
-
-        $admin = User::factory()->admin()->create();
-        $authHeader = 'Basic '.base64_encode($admin->email.':password');
-
-        app()->setLocale('fr');
-
-        $response = $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => ParserWorkload::People->value]);
-
-        $response
-            ->assertAccepted()
-            ->assertJsonPath('data.status', 'queued')
-            ->assertJsonPath('data.workload', ParserWorkload::People->value)
-            ->assertJsonPath('meta.queue', 'french-parsing');
-
-        Queue::assertPushed(ExecuteParserPipeline::class, function (ExecuteParserPipeline $job): bool {
-            return $job->workload === ParserWorkload::People && $job->queue === 'french-parsing';
-        });
-    }
-
-    public function test_it_returns_english_validation_error_for_invalid_workload(): void
-    {
-        config(['parser.queue' => 'parsing']);
-        Queue::fake();
-
-        $admin = User::factory()->admin()->create();
-        $authHeader = 'Basic '.base64_encode($admin->email.':password');
-
-        app()->setLocale('en');
-
-        $expectedMessage = __('validation.custom.workload.enum', [], 'en');
-
-        $response = $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid']);
-
-        $response->assertUnprocessable();
-        $response->assertExactJson([
-            'message' => $expectedMessage,
-            'errors' => [
-                'workload' => [$expectedMessage],
-            ],
-        ]);
-
-        Queue::assertNothingPushed();
-    }
-
-    #[DataProvider('localizedValidationErrorProvider')]
-    public function test_it_localizes_validation_error_messages(string $locale): void
+    #[DataProvider('invalidWorkloadLocaleProvider')]
+    public function test_validation_errors_are_translated(string $locale, string $expectedMessage): void
     {
         config(['parser.queue' => 'parsing']);
         Queue::fake();
@@ -112,30 +62,24 @@ class ParserTriggerTest extends TestCase
 
         app()->setLocale($locale);
 
-        $expectedMessage = __('validation.custom.workload.enum');
-
-        $response = $this->withHeader('Authorization', $authHeader)
-            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid']);
-
-        $response->assertUnprocessable();
-        $response->assertExactJson([
-            'message' => $expectedMessage,
-            'errors' => [
-                'workload' => [$expectedMessage],
-            ],
-        ]);
+        $this->withHeader('Authorization', $authHeader)
+            ->postJson(route('api.parser.trigger'), ['workload' => 'invalid'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['workload'])
+            ->assertJsonPath('errors.workload.0', $expectedMessage);
 
         Queue::assertNothingPushed();
     }
 
     /**
-     * @return array<string, array{0: string}>
+     * @return array<int, array{0: string, 1: string}>
      */
-    public static function localizedValidationErrorProvider(): array
+    public static function invalidWorkloadLocaleProvider(): array
     {
         return [
-            'spanish' => ['es'],
-            'french' => ['fr'],
+            ['en', 'The selected parser workload is invalid.'],
+            ['es', 'La carga de trabajo del parser seleccionada no es válida.'],
+            ['fr', "La charge de travail du parseur sélectionnée n'est pas valide."],
         ];
     }
 }

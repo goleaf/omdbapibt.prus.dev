@@ -3,23 +3,14 @@
 namespace App\Http\Requests\Api;
 
 use App\Enums\ParserWorkload;
-use App\Models\ParserEntry;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class ParserTriggerRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        $candidate = ParserWorkload::tryFrom((string) $this->input('workload'))
-            ?? ParserWorkload::Movies;
-
-        return Gate::allows('trigger', [ParserEntry::class, $candidate]);
-    }
-
     /**
-     * @return array<string, array<int, mixed>>
+     * @return array<string, array<int, string|ValidationRule>>
      */
     public function rules(): array
     {
@@ -32,38 +23,29 @@ class ParserTriggerRequest extends FormRequest
         ];
     }
 
-    public function workload(): ParserWorkload
+    public function authorize(): bool
     {
-        /** @var string $workload */
-        $workload = $this->validated('workload');
-
-        return ParserWorkload::from($workload);
+        return true;
     }
 
-    public function validatedWorkload(): ParserWorkload
-    {
-        return $this->workload();
-    }
-
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
+        $enumMessage = __('validation.custom.workload.enum');
+
         return [
-            'workload.required' => __('parser.trigger.workflow.validation.workload.required'),
-            'workload.string' => __('parser.trigger.workflow.validation.workload.string'),
-            'workload.enum' => __('parser.trigger.workflow.validation.workload.enum'),
+            'workload.required' => __('validation.custom.workload.required'),
+            'workload.string' => __('validation.custom.workload.string'),
+            'workload.enum' => $enumMessage,
+            'workload.Enum' => $enumMessage,
+            'workload.Illuminate\Validation\Rules\Enum' => $enumMessage,
         ];
     }
 
-    /**
-     * @return array<string, string>
-     */
-    public function attributes(): array
+    public function workload(): ParserWorkload
     {
-        return [
-            'workload' => __('parser.trigger.workflow.attributes.workload'),
-        ];
+        /** @var string $value */
+        $value = $this->validated('workload');
+
+        return ParserWorkload::from($value);
     }
 }

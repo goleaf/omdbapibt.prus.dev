@@ -7,11 +7,10 @@ use App\Http\Requests\Api\ParserTriggerRequest;
 use App\Http\Responses\Api\ParserTriggerResponse;
 use App\Jobs\Parsing\ExecuteParserPipeline;
 use App\Models\ParserEntry;
-use Illuminate\Http\JsonResponse;
 
 class ParserTriggerController extends Controller
 {
-    public function __invoke(ParserTriggerRequest $request): JsonResponse
+    public function __invoke(ParserTriggerRequest $request): ParserTriggerResponse
     {
         $workload = $request->workload();
 
@@ -19,9 +18,6 @@ class ParserTriggerController extends Controller
 
         ExecuteParserPipeline::dispatch($workload);
 
-        return ParserTriggerResponse::from(
-            $workload,
-            (string) config('parser.queue', 'parsing'),
-        );
+        return new ParserTriggerResponse($workload, (string) config('parser.queue'));
     }
 }
