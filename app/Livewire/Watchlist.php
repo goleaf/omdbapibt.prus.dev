@@ -146,7 +146,7 @@ class Watchlist extends Component
         $shows = $user->watchlistedTvShows()
             ->withPivot('created_at')
             ->orderByDesc('user_watchlist.created_at')
-            ->get(['id', 'name', 'poster_path', 'slug', 'first_air_date']);
+            ->get(['id', 'name', 'name_translations', 'poster_path', 'slug', 'first_air_date']);
 
         $this->items = [
             'movies' => $movies->map(function (Movie $movie): array {
@@ -161,7 +161,7 @@ class Watchlist extends Component
             'shows' => $shows->map(function (TvShow $show): array {
                 return [
                     'id' => $show->getKey(),
-                    'title' => $show->name,
+                    'title' => $show->localizedName(),
                     'slug' => $show->slug,
                     'poster' => $show->poster_path,
                     'year' => $show->first_air_date ? $show->first_air_date->format('Y') : null,

@@ -23,7 +23,7 @@ class TvShowSeeder extends Seeder
         $users = User::query()->get();
 
         TvShow::factory()
-            ->count(18)
+            ->count(1000)
             ->create()
             ->each(function (TvShow $show) use ($people, $users): void {
                 if ($people->isNotEmpty()) {
