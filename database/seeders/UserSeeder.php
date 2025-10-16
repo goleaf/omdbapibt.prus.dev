@@ -4,15 +4,12 @@ namespace Database\Seeders;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
-    private const TOTAL_USERS = 1000;
-
-    private const ADMIN_COUNT = 2;
-
-    private const CHUNK_SIZE = 250;
+    use HandlesSeederChunks;
 
     /**
      * Seed application users including administrative accounts.
@@ -23,31 +20,18 @@ class UserSeeder extends Seeder
             return;
         }
 
-        $this->seedUsersInChunks(self::TOTAL_USERS);
+        $totalUsers = 1_000;
 
-        if (self::ADMIN_COUNT > 0) {
-            User::query()
-                ->orderBy('id')
-                ->limit(self::ADMIN_COUNT)
-                ->get()
-                ->each(function (User $user): void {
-                    $user->forceFill(['role' => UserRole::Admin->value])->save();
-                });
-        }
-    }
+        $this->forChunkedCount($totalUsers, 250, function (int $count): void {
+            User::factory()->count($count)->create();
+        });
 
-    private function seedUsersInChunks(int $total): void
-    {
-        $remaining = $total;
-
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
-            User::factory()
-                ->count($batchSize)
-                ->create();
-
-            $remaining -= $batchSize;
-        }
+        User::query()
+            ->orderBy('id')
+            ->limit(2)
+            ->get()
+            ->each(function (User $user): void {
+                $user->forceFill(['role' => UserRole::Admin])->save();
+            });
     }
 }

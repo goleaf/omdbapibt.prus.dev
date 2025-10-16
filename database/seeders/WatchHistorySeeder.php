@@ -7,12 +7,9 @@ use App\Models\TvShow;
 use App\Models\User;
 use App\Models\WatchHistory;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 
 class WatchHistorySeeder extends Seeder
 {
-    private const CHUNK_SIZE = 100;
-
     /**
      * Seed watch activity for existing users across movies and TV shows.
      */
@@ -22,20 +19,20 @@ class WatchHistorySeeder extends Seeder
             return;
         }
 
-        $movies = Movie::query()->get();
-        $shows = TvShow::query()->get();
+        $movies = Movie::query()->select(['id'])->get();
+        $shows = TvShow::query()->select(['id'])->get();
 
-        if (! User::query()->exists()) {
+        if (User::query()->doesntExist()) {
             return;
         }
 
         User::query()
             ->orderBy('id')
-            ->chunkById(self::CHUNK_SIZE, function (Collection $users) use ($movies, $shows): void {
+            ->chunkById(100, function ($users) use ($movies, $shows): void {
                 $users->each(function (User $user) use ($movies, $shows): void {
                     if ($movies->isNotEmpty()) {
                         $movieCount = min($movies->count(), random_int(1, 4));
-                        $movieSelection = Collection::wrap($movies->random($movieCount));
+                        $movieSelection = collect($movies->random($movieCount))->values();
 
                         $movieSelection->each(function (Movie $movie, int $index) use ($user): void {
                             WatchHistory::factory()
@@ -51,7 +48,7 @@ class WatchHistorySeeder extends Seeder
                         $showCount = min($shows->count(), random_int(0, 3));
 
                         if ($showCount > 0) {
-                            $showSelection = Collection::wrap($shows->random($showCount));
+                            $showSelection = collect($shows->random($showCount))->values();
 
                             $showSelection->each(function (TvShow $show, int $index) use ($user): void {
                                 WatchHistory::factory()

@@ -12,8 +12,6 @@ use Illuminate\Support\Collection;
 
 class ParserEntrySeeder extends Seeder
 {
-    private const CHUNK_SIZE = 100;
-
     /**
      * Seed parser entries for existing media that simulate ingestion runs.
      */
@@ -23,7 +21,7 @@ class ParserEntrySeeder extends Seeder
             return;
         }
 
-        if (! Movie::query()->exists()) {
+        if (Movie::query()->doesntExist()) {
             return;
         }
 
@@ -33,7 +31,7 @@ class ParserEntrySeeder extends Seeder
 
         Movie::query()
             ->orderBy('id')
-            ->chunkById(self::CHUNK_SIZE, function (Collection $movies) use ($reviewers): void {
+            ->chunkById(100, function ($movies) use ($reviewers): void {
                 $movies->each(function (Movie $movie) use ($reviewers): void {
                     $entryTotal = random_int(1, 2);
 

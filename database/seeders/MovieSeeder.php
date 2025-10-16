@@ -8,14 +8,12 @@ use App\Models\Language;
 use App\Models\Movie;
 use App\Models\Person;
 use App\Models\User;
+use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
 
 class MovieSeeder extends Seeder
 {
-    private const TOTAL_MOVIES = 1000;
-
-    private const CHUNK_SIZE = 100;
+    use HandlesSeederChunks;
 
     /**
      * Seed feature films with related catalogue data.
@@ -26,70 +24,65 @@ class MovieSeeder extends Seeder
             return;
         }
 
-        $genreIds = Genre::query()->pluck('id')->all();
-        $languageIds = Language::query()->pluck('id')->all();
-        $countryIds = Country::query()->pluck('id')->all();
-        $peopleIds = Person::query()->pluck('id')->all();
-        $userIds = User::query()->pluck('id')->all();
+        $genreIds = Genre::query()->pluck('id');
+        $languageIds = Language::query()->pluck('id');
+        $countryIds = Country::query()->pluck('id');
+        $personIds = Person::query()->pluck('id');
+        $userIds = User::query()->pluck('id');
 
-        $remaining = self::TOTAL_MOVIES;
-
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
+        $this->forChunkedCount(1_000, 100, function (int $count) use ($genreIds, $languageIds, $countryIds, $personIds, $userIds): void {
             Movie::factory()
-                ->count($batchSize)
+                ->count($count)
                 ->create()
-                ->each(function (Movie $movie) use ($genreIds, $languageIds, $countryIds, $peopleIds, $userIds): void {
-                    if ($genreIds !== []) {
-                        $genreCount = min(count($genreIds), random_int(2, 4));
-                        $selected = Arr::wrap(Arr::random($genreIds, $genreCount));
-                        $movie->genres()->syncWithoutDetaching($selected);
+                ->each(function (Movie $movie) use ($genreIds, $languageIds, $countryIds, $personIds, $userIds): void {
+                    if ($genreIds->isNotEmpty()) {
+                        $genreCount = min($genreIds->count(), random_int(2, 4));
+                        $selectedGenres = collect($genreIds->random($genreCount))->values()->all();
+                        $movie->genres()->syncWithoutDetaching($selectedGenres);
                     }
 
-                    if ($languageIds !== []) {
-                        $languageCount = min(count($languageIds), random_int(1, 3));
-                        $selected = Arr::wrap(Arr::random($languageIds, $languageCount));
-                        $movie->languages()->syncWithoutDetaching($selected);
+                    if ($languageIds->isNotEmpty()) {
+                        $languageCount = min($languageIds->count(), random_int(1, 3));
+                        $selectedLanguages = collect($languageIds->random($languageCount))->values()->all();
+                        $movie->languages()->syncWithoutDetaching($selectedLanguages);
                     }
 
-                    if ($countryIds !== []) {
-                        $countryCount = min(count($countryIds), random_int(1, 2));
-                        $selected = Arr::wrap(Arr::random($countryIds, $countryCount));
-                        $movie->countries()->syncWithoutDetaching($selected);
+                    if ($countryIds->isNotEmpty()) {
+                        $countryCount = min($countryIds->count(), random_int(1, 2));
+                        $selectedCountries = collect($countryIds->random($countryCount))->values()->all();
+                        $movie->countries()->syncWithoutDetaching($selectedCountries);
                     }
 
-                    if ($peopleIds !== []) {
-                        $creditCount = min(count($peopleIds), random_int(4, 8));
-                        $creditIds = array_values(Arr::wrap(Arr::random($peopleIds, $creditCount)));
-                        $pivotData = [];
+                    if ($personIds->isNotEmpty()) {
+                        $creditCount = min($personIds->count(), random_int(4, 8));
+                        $creditSelection = collect($personIds->random($creditCount))->values();
 
-                        foreach ($creditIds as $index => $personId) {
-                            $isCast = $index < 3;
+                        $movie->people()->syncWithoutDetaching(
+                            $creditSelection->mapWithKeys(function (int $personId, int $index): array {
+                                $isCast = $index < 3;
 
-                            $pivotData[$personId] = [
-                                'credit_type' => $isCast ? 'cast' : 'crew',
-                                'department' => $isCast ? 'Acting' : Arr::random(['Directing', 'Production', 'Writing']),
-                                'character' => $isCast ? fake()->name() : null,
-                                'job' => $isCast ? null : Arr::random(['Director', 'Producer', 'Writer']),
-                                'credit_order' => $index + 1,
-                            ];
-                        }
-
-                        $movie->people()->syncWithoutDetaching($pivotData);
+                                return [
+                                    $personId => [
+                                        'credit_type' => $isCast ? 'cast' : 'crew',
+                                        'department' => $isCast ? 'Acting' : fake()->randomElement(['Directing', 'Production', 'Writing']),
+                                        'character' => $isCast ? fake()->name() : null,
+                                        'job' => $isCast ? null : fake()->randomElement(['Director', 'Producer', 'Writer']),
+                                        'credit_order' => $index + 1,
+                                    ],
+                                ];
+                            })->all()
+                        );
                     }
 
-                    if ($userIds !== []) {
-                        $watchlistCount = min(count($userIds), random_int(0, 5));
+                    if ($userIds->isNotEmpty()) {
+                        $watchlistCount = min($userIds->count(), random_int(0, 5));
 
                         if ($watchlistCount > 0) {
-                            $selected = Arr::wrap(Arr::random($userIds, $watchlistCount));
-                            $movie->watchlistedBy()->syncWithoutDetaching($selected);
+                            $selectedUsers = collect($userIds->random($watchlistCount))->values()->all();
+                            $movie->watchlistedBy()->syncWithoutDetaching($selectedUsers);
                         }
                     }
                 });
-
-            $remaining -= $batchSize;
-        }
+        });
     }
 }

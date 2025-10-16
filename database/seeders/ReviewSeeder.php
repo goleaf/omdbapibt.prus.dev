@@ -5,13 +5,12 @@ namespace Database\Seeders;
 use App\Models\Movie;
 use App\Models\Review;
 use App\Models\User;
+use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
 
 class ReviewSeeder extends Seeder
 {
-    private const TOTAL_REVIEWS = 1000;
-
-    private const CHUNK_SIZE = 200;
+    use HandlesSeederChunks;
 
     /**
      * Seed community reviews tied to existing users.
@@ -22,34 +21,25 @@ class ReviewSeeder extends Seeder
             return;
         }
 
-        $users = User::query()->select('id')->get();
-        $movies = Movie::query()->select(['id', 'title'])->get();
+        $userIds = User::query()->pluck('id');
+        $movies = Movie::query()->get();
 
-        if ($users->isEmpty() || $movies->isEmpty()) {
+        if ($userIds->isEmpty() || $movies->isEmpty()) {
             return;
         }
 
-        $remaining = self::TOTAL_REVIEWS;
-
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
+        $this->forChunkedCount(1_000, 200, function (int $count) use ($userIds, $movies): void {
             Review::factory()
-                ->count($batchSize)
+                ->count($count)
                 ->make(['user_id' => null])
-                ->each(function (Review $review) use ($users, $movies): void {
-                    $user = $users->random();
+                ->each(function (Review $review) use ($userIds, $movies): void {
                     $movie = $movies->random();
 
-                    $review->user_id = $user->getKey();
-                    $review->movie_title = is_array($movie->title)
-                        ? ($movie->title['en'] ?? collect($movie->title)->first())
-                        : (string) $movie->title;
+                    $review->user_id = $userIds->random();
+                    $review->movie_title = $movie->localizedTitle('en');
 
                     $review->save();
                 });
-
-            $remaining -= $batchSize;
-        }
+        });
     }
 }

@@ -11,8 +11,6 @@ use Illuminate\Support\Collection;
 
 class ParserEntryHistorySeeder extends Seeder
 {
-    private const CHUNK_SIZE = 250;
-
     /**
      * Seed parser entry review history logs linked to seeded users.
      */
@@ -22,29 +20,28 @@ class ParserEntryHistorySeeder extends Seeder
             return;
         }
 
-        $users = User::query()->select('id')->get();
-
-        if ($users->isEmpty()) {
+        if (ParserEntry::query()->doesntExist()) {
             return;
         }
 
-        if (! ParserEntry::query()->exists()) {
+        $userIds = User::query()->pluck('id');
+
+        if ($userIds->isEmpty()) {
             return;
         }
 
         ParserEntry::query()
             ->orderBy('id')
-            ->chunkById(self::CHUNK_SIZE, function (Collection $entries) use ($users): void {
-                $entries->each(function (ParserEntry $entry) use ($users): void {
+            ->chunkById(200, function ($entries) use ($userIds): void {
+                $entries->each(function (ParserEntry $entry) use ($userIds): void {
                     $historyCount = random_int(1, 3);
 
-                    Collection::times($historyCount, fn () => true)->each(function () use ($entry, $users): void {
-                        $actor = $users->random();
+                    Collection::times($historyCount, fn () => true)->each(function () use ($entry, $userIds): void {
                         $action = collect(ParserReviewAction::cases())->random();
 
                         ParserEntryHistory::query()->create([
                             'parser_entry_id' => $entry->getKey(),
-                            'user_id' => $actor->getKey(),
+                            'user_id' => $userIds->random(),
                             'action' => $action->value,
                             'changes' => [
                                 [

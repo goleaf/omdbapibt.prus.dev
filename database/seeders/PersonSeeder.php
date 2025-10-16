@@ -3,13 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Person;
+use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
 
 class PersonSeeder extends Seeder
 {
-    private const TOTAL_PEOPLE = 1000;
-
-    private const CHUNK_SIZE = 250;
+    use HandlesSeederChunks;
 
     /**
      * Seed a catalog of people that can be attached to media credits.
@@ -20,16 +19,8 @@ class PersonSeeder extends Seeder
             return;
         }
 
-        $remaining = self::TOTAL_PEOPLE;
-
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
-            Person::factory()
-                ->count($batchSize)
-                ->create();
-
-            $remaining -= $batchSize;
-        }
+        $this->forChunkedCount(1_000, 250, function (int $count): void {
+            Person::factory()->count($count)->create();
+        });
     }
 }
