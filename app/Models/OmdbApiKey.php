@@ -17,8 +17,11 @@ class OmdbApiKey extends Model
     use HasFactory;
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_VALID = 'valid';
+
     public const STATUS_INVALID = 'invalid';
+
     public const STATUS_UNKNOWN = 'unknown';
 
     /**
@@ -29,8 +32,10 @@ class OmdbApiKey extends Model
     protected $fillable = [
         'key',
         'status',
+        'first_seen_at',
         'last_checked_at',
         'last_confirmed_at',
+        'last_response_code',
     ];
 
     /**
@@ -39,6 +44,7 @@ class OmdbApiKey extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'first_seen_at' => 'datetime',
         'last_checked_at' => 'datetime',
         'last_confirmed_at' => 'datetime',
     ];
@@ -51,5 +57,13 @@ class OmdbApiKey extends Model
         return $query->where(function (Builder $builder): void {
             $builder->whereNull('status')->orWhere('status', self::STATUS_PENDING);
         });
+    }
+
+    /**
+     * Scope a query to only include valid API keys.
+     */
+    public function scopeValid(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_VALID);
     }
 }

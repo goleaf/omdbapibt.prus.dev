@@ -53,11 +53,22 @@ return [
 
     'omdb' => [
         'key' => env('OMDB_API_KEY'),
-        'base_url' => rtrim(env('OMDB_BASE_URL', 'https://www.omdbapi.com'), '/').'/',
+        'base_url' => rtrim(env('OMDB_BASE_URL', 'http://www.omdbapi.com'), '/'),
         'query' => [
             'apikey' => env('OMDB_API_KEY'),
         ],
         'max_requests_per_minute' => (int) env('OMDB_MAX_REQUESTS_PER_MINUTE', 60),
+        'validation' => [
+            'test_imdb_id' => 'tt3896198', // Guardians of the Galaxy Vol. 2
+            'batch_size' => 50,
+            'timeout' => 10,
+        ],
+        'bruteforce' => [
+            'charset' => '0123456789abcdefghijklmnopqrstuvwxyz',
+            'key_length' => 8,
+            'min_pending_keys' => 10000,
+            'generation_batch' => 1000,
+        ],
     ],
 
     'justwatch' => [

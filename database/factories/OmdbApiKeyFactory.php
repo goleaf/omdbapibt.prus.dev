@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\OmdbApiKey;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends Factory<OmdbApiKey>
@@ -15,16 +14,25 @@ class OmdbApiKeyFactory extends Factory
 
     public function definition(): array
     {
+        // Generate 8-character alphanumeric key (0-9a-z)
+        $charset = '0123456789abcdefghijklmnopqrstuvwxyz';
+        $key = '';
+        for ($i = 0; $i < 8; $i++) {
+            $key .= $charset[random_int(0, strlen($charset) - 1)];
+        }
+
         return [
-            'key' => Str::upper(Str::random(24)),
+            'key' => $key,
             'status' => $this->faker->randomElement([
                 OmdbApiKey::STATUS_PENDING,
                 OmdbApiKey::STATUS_VALID,
                 OmdbApiKey::STATUS_INVALID,
                 OmdbApiKey::STATUS_UNKNOWN,
             ]),
-            'last_checked_at' => $this->faker->dateTimeBetween('-2 days', 'now'),
+            'first_seen_at' => $this->faker->optional()->dateTimeBetween('-7 days', 'now'),
+            'last_checked_at' => $this->faker->optional()->dateTimeBetween('-2 days', 'now'),
             'last_confirmed_at' => $this->faker->optional()->dateTimeBetween('-2 days', 'now'),
+            'last_response_code' => $this->faker->optional()->randomElement([200, 401, 500]),
         ];
     }
 

@@ -13,8 +13,9 @@ return new class extends Migration
             $table->string('key', 8)->unique();
             $table->timestampTz('first_seen_at')->nullable();
             $table->timestampTz('last_checked_at')->nullable();
+            $table->timestampTz('last_confirmed_at')->nullable();
             $table->unsignedSmallInteger('last_response_code')->nullable();
-            $table->enum('status', ['working', 'dead'])->default('working')->index();
+            $table->enum('status', ['pending', 'valid', 'invalid', 'unknown'])->nullable()->index();
             $table->timestampsTz();
         });
     }
