@@ -27,15 +27,24 @@ class MovieLocaleRelationshipsTest extends TestCase
         $movie = Movie::factory()->create();
 
         $english = Language::query()->create([
-            'name' => 'English',
-            'native_name' => 'English',
-            'code' => 'en',
+            'name_translations' => [
+                'en' => 'English',
+            ],
+            'native_name_translations' => [
+                'en' => 'English',
+            ],
+            'code' => 'EN01',
         ]);
 
         $spanish = Language::query()->create([
-            'name' => 'Spanish',
-            'native_name' => 'Español',
-            'code' => 'es',
+            'name_translations' => [
+                'en' => 'Spanish',
+                'es' => 'Español',
+            ],
+            'native_name_translations' => [
+                'es' => 'Español',
+            ],
+            'code' => 'ES01',
         ]);
 
         $movie->languages()->attach([$english->id, $spanish->id]);
@@ -58,12 +67,17 @@ class MovieLocaleRelationshipsTest extends TestCase
         $movie = Movie::factory()->create();
 
         $usa = Country::query()->create([
-            'name' => 'United States',
+            'name_translations' => [
+                'en' => 'United States',
+            ],
             'code' => 'US',
         ]);
 
         $japan = Country::query()->create([
-            'name' => 'Japan',
+            'name_translations' => [
+                'en' => 'Japan',
+                'ja' => '日本',
+            ],
             'code' => 'JP',
         ]);
 
@@ -90,9 +104,9 @@ class MovieLocaleRelationshipsTest extends TestCase
 
         Schema::create('languages', function (Blueprint $table): void {
             $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
-            $table->string('native_name')->nullable();
+            $table->json('name_translations');
+            $table->json('native_name_translations');
+            $table->string('code', 5)->unique();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });
@@ -106,8 +120,8 @@ class MovieLocaleRelationshipsTest extends TestCase
 
         Schema::create('countries', function (Blueprint $table): void {
             $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
+            $table->string('code', 2)->unique();
+            $table->json('name_translations');
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

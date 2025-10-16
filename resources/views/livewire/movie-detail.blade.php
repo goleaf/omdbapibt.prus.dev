@@ -7,7 +7,7 @@
                     <x-flux.rating-badge :score="$movieModel->vote_average ?? 'N/A'" label="Rating" />
                     <span class="rounded-full border border-slate-700/60 px-3 py-1 text-xs uppercase tracking-[0.35em]">{{ $movieModel->year }}</span>
                     <span class="rounded-full border border-slate-700/60 px-3 py-1 text-xs uppercase tracking-[0.35em]">{{ $movieModel->runtime }} min</span>
-                    <span class="text-xs text-slate-400">{{ $movieModel->genres->pluck('name')->implode(', ') }}</span>
+                    <span class="text-xs text-slate-400">{{ $movieModel->genres->map(fn ($genre) => $genre->localizedName())->filter()->implode(', ') }}</span>
                 </div>
                 <p class="text-base text-slate-200">{{ $movieModel->tagline }}</p>
                 <p class="text-sm leading-relaxed text-slate-300">{{ $movieModel->overview['en'] ?? $movieModel->plot }}</p>

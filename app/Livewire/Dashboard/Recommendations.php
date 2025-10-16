@@ -71,7 +71,7 @@ class Recommendations extends Component
                 'poster_path' => $movie->poster_path,
                 'vote_average' => $movie->vote_average,
                 'popularity' => $movie->popularity,
-                'genres' => $movie->genres->pluck('name')->take(3)->implode(', '),
+                'genres' => $movie->genres->map(fn ($genre) => $genre->localizedName())->filter()->take(3)->implode(', '),
                 'slug' => $movie->slug,
             ]);
 

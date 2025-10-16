@@ -10,8 +10,8 @@ use Tests\TestCase;
 
 class LanguageTest extends TestCase
 {
-    use RefreshDatabase;
     use CreatesLocaleTables;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -23,9 +23,16 @@ class LanguageTest extends TestCase
     public function test_active_flag_is_cast_to_boolean(): void
     {
         $language = Language::create([
-            'name' => 'Spanish',
-            'code' => 'es',
-            'native_name' => 'Español',
+            'name_translations' => [
+                'en' => 'Spanish',
+                'es' => 'Español',
+                'fr' => 'Espagnol',
+            ],
+            'code' => 'ES01',
+            'native_name_translations' => [
+                'en' => 'Spanish',
+                'es' => 'Español',
+            ],
             'active' => 0,
         ]);
 
@@ -36,9 +43,15 @@ class LanguageTest extends TestCase
     {
         $movie = Movie::factory()->create();
         $language = Language::create([
-            'name' => 'German',
-            'code' => 'de',
-            'native_name' => 'Deutsch',
+            'name_translations' => [
+                'en' => 'German',
+                'es' => 'Alemán',
+            ],
+            'code' => 'DE01',
+            'native_name_translations' => [
+                'en' => 'German',
+                'de' => 'Deutsch',
+            ],
             'active' => true,
         ]);
 
