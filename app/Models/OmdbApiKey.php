@@ -36,6 +36,8 @@ class OmdbApiKey extends Model
         'last_checked_at',
         'last_confirmed_at',
         'last_response_code',
+        'consecutive_failures',
+        'disabled_until',
     ];
 
     /**
@@ -47,6 +49,8 @@ class OmdbApiKey extends Model
         'first_seen_at' => 'datetime',
         'last_checked_at' => 'datetime',
         'last_confirmed_at' => 'datetime',
+        'disabled_until' => 'datetime',
+        'consecutive_failures' => 'integer',
     ];
 
     /**

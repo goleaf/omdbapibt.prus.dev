@@ -2,8 +2,10 @@
 
 namespace App\Services\Clients;
 
+use App\Services\OmdbApiKeyResolver;
 use Closure;
 use Illuminate\Cache\CacheManager;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
@@ -14,13 +16,20 @@ class OmdbClient
 {
     protected Closure $apiKeyResolver;
 
+    protected ?OmdbApiKeyResolver $resolverInstance = null;
+
     public function __construct(
         protected HttpFactory $http,
         protected CacheManager $cache,
-        callable $apiKeyResolver,
+        OmdbApiKeyResolver|callable $apiKeyResolver,
         protected string $baseUrl = 'https://www.omdbapi.com/'
     ) {
-        $this->apiKeyResolver = Closure::fromCallable($apiKeyResolver);
+        if ($apiKeyResolver instanceof OmdbApiKeyResolver) {
+            $this->resolverInstance = $apiKeyResolver;
+            $this->apiKeyResolver = Closure::fromCallable([$apiKeyResolver, 'resolve']);
+        } else {
+            $this->apiKeyResolver = Closure::fromCallable($apiKeyResolver);
+        }
     }
 
     /**
@@ -50,13 +59,29 @@ class OmdbClient
     {
         $this->enforceRateLimit();
 
-        $payload = Arr::prepend($parameters, $this->resolveApiKey(), 'apikey');
+        $key = $this->resolveApiKey();
+        $payload = Arr::prepend($parameters, $key, 'apikey');
 
-        return $this->http
-            ->baseUrl($this->baseUrl)
-            ->acceptJson()
-            ->get('', $payload)
-            ->throw();
+        try {
+            $response = $this->http
+                ->baseUrl($this->baseUrl)
+                ->acceptJson()
+                ->get('', $payload);
+        } catch (ConnectionException $exception) {
+            $this->reportFailure($key, null, $exception->getMessage());
+
+            throw $exception;
+        }
+
+        if ($response->failed()) {
+            $this->reportFailure($key, $response->status(), $response->body());
+
+            return tap($response, static fn (Response $response) => $response->throw());
+        }
+
+        $this->reportSuccess($key, $response->status());
+
+        return $response;
     }
 
     protected function cacheKey(string $namespace, array $parameters): string
@@ -87,5 +112,15 @@ class OmdbClient
         $resolver = $this->apiKeyResolver;
 
         return (string) $resolver();
+    }
+
+    protected function reportSuccess(string $key, ?int $statusCode = null): void
+    {
+        $this->resolverInstance?->reportSuccess($key, $statusCode);
+    }
+
+    protected function reportFailure(string $key, ?int $statusCode = null, ?string $reason = null): void
+    {
+        $this->resolverInstance?->reportFailure($key, $statusCode, $reason);
     }
 }

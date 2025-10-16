@@ -4,8 +4,10 @@ namespace Tests\Unit\Services\Clients;
 
 use App\Services\Clients\OmdbClient;
 use Illuminate\Cache\CacheManager;
+use App\Services\OmdbApiKeyResolver;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
@@ -83,5 +85,59 @@ class OmdbClientTest extends TestCase
 
         $this->assertSame('first-key', $firstQuery['apikey'] ?? null);
         $this->assertSame('second-key', $secondQuery['apikey'] ?? null);
+    }
+
+    public function test_it_reports_request_health_to_resolver(): void
+    {
+        $http = new Factory;
+
+        $http->fake([
+            'https://omdb.test/*' => $http->sequence()
+                ->push(['error' => 'rate limited'], 500)
+                ->push(['Title' => 'Example'], 200),
+        ]);
+
+        $cache = new CacheManager(app());
+
+        $resolver = new class extends OmdbApiKeyResolver
+        {
+            public array $events = [];
+
+            public function __construct()
+            {
+                // Intentionally bypass parent constructor – this fake does not
+                // interact with cache or the database.
+            }
+
+            public function resolve(): string
+            {
+                return 'test-key';
+            }
+
+            public function reportSuccess(string $key, ?int $statusCode = null): void
+            {
+                $this->events[] = ['success', $key, $statusCode];
+            }
+
+            public function reportFailure(string $key, ?int $statusCode = null, ?string $reason = null): void
+            {
+                $this->events[] = ['failure', $key, $statusCode, $reason];
+            }
+        };
+
+        $client = new OmdbClient($http, $cache, $resolver, 'https://omdb.test/');
+
+        try {
+            $client->get(['t' => 'Inception']);
+        } catch (RequestException $exception) {
+            // Expected failure from first mocked response.
+        }
+
+        $client->get(['t' => 'Interstellar']);
+
+        $this->assertSame([
+            ['failure', 'test-key', 500, json_encode(['error' => 'rate limited'])],
+            ['success', 'test-key', 200],
+        ], $resolver->events);
     }
 }

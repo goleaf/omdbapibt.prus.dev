@@ -33,6 +33,8 @@ class OmdbApiKeyFactory extends Factory
             'last_checked_at' => $this->faker->optional()->dateTimeBetween('-2 days', 'now'),
             'last_confirmed_at' => $this->faker->optional()->dateTimeBetween('-2 days', 'now'),
             'last_response_code' => $this->faker->optional()->randomElement([200, 401, 500]),
+            'consecutive_failures' => $this->faker->numberBetween(0, 5),
+            'disabled_until' => $this->faker->optional()->dateTimeBetween('now', '+2 hours'),
         ];
     }
 
