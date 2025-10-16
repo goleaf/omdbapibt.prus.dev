@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -121,9 +122,9 @@ class User extends Authenticatable
         return $this->hasMany(WatchHistory::class);
     }
 
-    public function subscriptionPayments(): HasMany
+    public function profile(): HasOne
     {
-        return $this->hasMany(SubscriptionPayment::class);
+        return $this->hasOne(UserProfile::class);
     }
 
     public function managementLogs(): HasMany

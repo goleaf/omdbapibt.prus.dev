@@ -64,13 +64,58 @@ The OMDb API BT platform is a Laravel 12 application that aggregates metadata fr
 
 ### Baseline data seeders
 
-`php artisan db:seed` now invokes three dedicated seeders:
+`php artisan db:seed` now orchestrates the core catalogue data and demo accounts in one run:
 
 - `LanguageSeeder` — loads ten common ISO 639-1 languages used for localisation workflows.
 - `CountrySeeder` — provisions the initial ISO 3166-1 alpha-2 production countries surfaced in filters.
 - `GenreSeeder` — syncs the canonical TMDb movie genres used by the parser service.
+- `UserSeeder` — generates 1,000 accounts and promotes the first two to administrators so the back office is available immediately after seeding. All generated users share the factory default `password`, which means you can sign in with any seeded address before tailoring credentials locally.
 
-The seeders use `updateOrCreate` so they can be safely re-run without duplicating records.
+To locate the seeded admins quickly, run:
+
+```bash
+php artisan tinker --execute="App\\Models\\User::where('role', App\\Enums\\UserRole::Admin->value)->pluck('email')"
+```
+
+> **Need deterministic demo credentials?** Update the returned admin record(s) with your preferred email/password combination via `tinker` before handing credentials to teammates.
+
+When your checkout includes the optional billing seeders (`SubscriptionSeeder`, `PaymentHistorySeeder`), run them after the baseline call to populate Cashier's tables with a demo subscription and synthetic invoice history. Configure the Stripe plan identifiers exposed in `config/subscriptions.php` (`STRIPE_MONTHLY_PRICE`, `STRIPE_YEARLY_PRICE`, and related amount/currency overrides) first so the seeded billing data matches your environment.
+
+Each seeder is written to be re-runnable, either by upserting rows or short-circuiting when data already exists, so you can refresh demo content without creating duplicates.
+
+## Viewer preference intelligence
+
+### Profile data model
+
+The application now persists rich viewer metadata in the dedicated `user_profiles` table. Each profile links to core catalogue
+entities so preferences remain consistent with the rest of the dataset:
+
+- Foreign keys point to `genres`, `languages`, `countries`, `movies`, `tv_shows`, and `people` records instead of storing free-form
+  JSON payloads.
+- New pivot tables (`user_profile_genre_preferences`, `user_profile_language_preferences`, and
+  `user_profile_person_favorites`) record ranked preferences with weightings and audit timestamps so the recommendation engine can
+  reason about strength of affinity.
+- Derived behavioural metrics (weekly and session watch minutes, binge/rewatch scores, recent highlights, etc.) are refreshed in
+  factories and seeders to keep dashboards and analytics consistent.
+
+Running `php artisan db:seed --class=UserSeeder` now creates 100 users with fully-related profiles, populating preference pivots
+and generating watch-history highlights for each user.
+
+### Recommendation engine
+
+`App\Services\Movies\RecommendationService` now merges watch-history analytics with declared profile preferences. Scoring combines
+genre affinity, language alignment, favourite collaborators, regional availability, and similarity to favourited titles. Candidate
+selection prefers language matches while gracefully falling back to popular catalogue items, and the caching signature now includes
+profile versioning so updates invalidate stale recommendations.
+
+### Quality gates
+
+Run the dedicated tests to validate the preference pipeline:
+
+```bash
+php artisan test tests/Feature/Seeders/UserSeederTest.php
+php artisan test tests/Unit/Services/RecommendationServiceTest.php
+```
 
 ## Deployment
 
