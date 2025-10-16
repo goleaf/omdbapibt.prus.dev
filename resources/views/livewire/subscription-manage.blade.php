@@ -95,6 +95,54 @@
                         <p class="mt-2 text-sm text-gray-600">No upcoming invoices are scheduled right now.</p>
                     @endif
                 </div>
+
+                <div class="mt-6">
+                    <h3 class="text-sm font-semibold text-gray-800">Payment history</h3>
+
+                    @if ($payments->isEmpty())
+                        <p class="mt-2 text-sm text-gray-600">No payments have been recorded yet for this subscription.</p>
+                    @else
+                        <div class="mt-3 overflow-hidden rounded-lg border border-gray-200">
+                            <div class="max-h-72 overflow-y-auto">
+                                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                    <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+                                        <tr>
+                                            <th scope="col" class="px-4 py-3 text-left">Invoice</th>
+                                            <th scope="col" class="px-4 py-3 text-left">Status</th>
+                                            <th scope="col" class="px-4 py-3 text-left">Amount</th>
+                                            <th scope="col" class="px-4 py-3 text-left">Paid at</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                        @foreach ($payments as $payment)
+                                            <tr class="hover:bg-gray-50/80">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-medium text-gray-900">{{ $payment->invoice_number ?? $payment->invoice_id }}</div>
+                                                    @if ($payment->invoice_number && $payment->invoice_id)
+                                                        <div class="text-xs text-gray-500">{{ $payment->invoice_id }}</div>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-3 text-gray-700">
+                                                    <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                                                        {{ $payment->statusLabel() }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3 font-medium text-gray-900">{{ $payment->formattedAmount() }}</td>
+                                                <td class="px-4 py-3 text-gray-700">
+                                                    @php
+                                                        $paidAt = $payment->paid_at?->setTimezone(config('app.timezone'));
+                                                    @endphp
+
+                                                    {{ $paidAt ? $paidAt->toDayDateTimeString() : '—' }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+                </div>
             @else
                 <p class="text-sm text-gray-600">
                     You do not currently have an active subscription. Start a plan to unlock premium features and see billing details here.
