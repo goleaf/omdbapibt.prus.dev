@@ -5,10 +5,14 @@ namespace Database\Seeders;
 use App\Models\Movie;
 use App\Models\Review;
 use App\Models\User;
+use Database\Seeders\Concerns\SeedsModelsInChunks;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 class ReviewSeeder extends Seeder
 {
+    use SeedsModelsInChunks;
+
     private const TOTAL_REVIEWS = 1000;
 
     private const CHUNK_SIZE = 200;
@@ -29,27 +33,51 @@ class ReviewSeeder extends Seeder
             return;
         }
 
-        $remaining = self::TOTAL_REVIEWS;
+        $locales = $this->supportedLocales();
+        $fallbackLocale = $this->fallbackLocale();
 
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
-            Review::factory()
-                ->count($batchSize)
+        $this->seedInChunks(self::TOTAL_REVIEWS, self::CHUNK_SIZE, function (int $count) use ($users, $movies, $locales, $fallbackLocale): void {
+            $payloads = Review::factory()
+                ->count($count)
                 ->make(['user_id' => null])
-                ->each(function (Review $review) use ($users, $movies): void {
+                ->map(function (Review $review) use ($users, $movies, $locales, $fallbackLocale): array {
                     $user = $users->random();
                     $movie = $movies->random();
 
-                    $review->user_id = $user->getKey();
-                    $review->movie_title = is_array($movie->title)
-                        ? ($movie->title['en'] ?? collect($movie->title)->first())
-                        : (string) $movie->title;
+                    $movieTitle = $movie->title;
+                    $localizedTitle = is_array($movieTitle)
+                        ? ($movieTitle[$fallbackLocale] ?? reset($movieTitle) ?: 'Untitled')
+                        : (string) $movieTitle;
 
-                    $review->save();
+                    return [
+                        'user_id' => $user->getKey(),
+                        'movie_title' => $localizedTitle,
+                        'rating' => $review->rating,
+                        'body' => $this->buildLocalizedReviewBody($locales, $fallbackLocale),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
                 });
 
-            $remaining -= $batchSize;
-        }
+            $this->chunkedInsert($payloads, 500, static fn (array $chunk): bool => Review::query()->insert($chunk));
+        });
+    }
+
+    /**
+     * @param  list<string>  $locales
+     */
+    private function buildLocalizedReviewBody(array $locales, string $fallbackLocale): string
+    {
+        return Collection::make($locales)
+            ->map(function (string $locale) use ($fallbackLocale): string {
+                $paragraphs = $locale === $fallbackLocale
+                    ? fake($this->fakerLocale($locale))->paragraphs(2)
+                    : fake($this->fakerLocale($locale))->paragraphs(2);
+
+                return Collection::make($paragraphs)
+                    ->map(fn (string $paragraph): string => sprintf('<p lang="%s">%s</p>', $locale, $paragraph))
+                    ->implode('');
+            })
+            ->implode('');
     }
 }

@@ -4,10 +4,13 @@ namespace Database\Seeders;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Database\Seeders\Concerns\SeedsModelsInChunks;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
+    use SeedsModelsInChunks;
+
     private const TOTAL_USERS = 1000;
 
     private const ADMIN_COUNT = 2;
@@ -23,7 +26,16 @@ class UserSeeder extends Seeder
             return;
         }
 
-        $this->seedUsersInChunks(self::TOTAL_USERS);
+        $locales = $this->supportedLocales();
+
+        $this->seedInChunks(self::TOTAL_USERS, self::CHUNK_SIZE, function (int $count) use ($locales): void {
+            User::factory()
+                ->count($count)
+                ->state(fn (): array => [
+                    'preferred_locale' => $locales[array_rand($locales)] ?? $this->fallbackLocale(),
+                ])
+                ->create();
+        });
 
         if (self::ADMIN_COUNT > 0) {
             User::query()
@@ -33,21 +45,6 @@ class UserSeeder extends Seeder
                 ->each(function (User $user): void {
                     $user->forceFill(['role' => UserRole::Admin->value])->save();
                 });
-        }
-    }
-
-    private function seedUsersInChunks(int $total): void
-    {
-        $remaining = $total;
-
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
-            User::factory()
-                ->count($batchSize)
-                ->create();
-
-            $remaining -= $batchSize;
         }
     }
 }

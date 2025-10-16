@@ -5,11 +5,14 @@ namespace Database\Seeders;
 use App\Models\Person;
 use App\Models\TvShow;
 use App\Models\User;
+use Database\Seeders\Concerns\SeedsModelsInChunks;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 
 class TvShowSeeder extends Seeder
 {
+    use SeedsModelsInChunks;
+
     private const TOTAL_SHOWS = 1000;
 
     private const CHUNK_SIZE = 100;
@@ -26,19 +29,35 @@ class TvShowSeeder extends Seeder
         $peopleIds = Person::query()->pluck('id')->all();
         $userIds = User::query()->pluck('id')->all();
 
-        $remaining = self::TOTAL_SHOWS;
+        $fallbackLocale = $this->fallbackLocale();
 
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
+        $this->seedInChunks(self::TOTAL_SHOWS, self::CHUNK_SIZE, function (int $count) use ($peopleIds, $userIds, $fallbackLocale): void {
             TvShow::factory()
-                ->count($batchSize)
+                ->count($count)
                 ->create()
-                ->each(function (TvShow $show) use ($peopleIds, $userIds): void {
+                ->each(function (TvShow $show) use ($peopleIds, $userIds, $fallbackLocale): void {
                     $show->forceFill([
-                        'name_translations' => $this->ensureTranslationArray($show->name_translations, $show->name),
-                        'overview_translations' => $this->ensureTranslationArray($show->overview_translations, $show->overview),
-                        'tagline_translations' => $this->ensureTranslationArray($show->tagline_translations, $show->tagline),
+                        'name_translations' => $this->fillTranslations(
+                            $show->name_translations,
+                            $this->translationFallback($show->name_translations ?? []) ?? $show->name,
+                            fn (string $locale, ?string $fallback) => $locale === $fallbackLocale && $fallback !== null
+                                ? $fallback
+                                : $this->localizedSentence($locale)
+                        ),
+                        'overview_translations' => $this->fillTranslations(
+                            $show->overview_translations,
+                            $this->translationFallback($show->overview_translations ?? []) ?? ($show->overview ?? null),
+                            fn (string $locale, ?string $fallback) => $locale === $fallbackLocale && $fallback !== null
+                                ? $fallback
+                                : $this->localizedParagraph($locale)
+                        ),
+                        'tagline_translations' => $this->fillTranslations(
+                            $show->tagline_translations,
+                            $this->translationFallback($show->tagline_translations ?? []) ?? ($show->tagline ?? null),
+                            fn (string $locale, ?string $fallback) => $locale === $fallbackLocale && $fallback !== null
+                                ? $fallback
+                                : $this->localizedSentence($locale)
+                        ),
                     ])->saveQuietly();
 
                     if ($peopleIds !== []) {
@@ -58,7 +77,7 @@ class TvShowSeeder extends Seeder
                             ];
                         }
 
-                        $show->people()->syncWithoutDetaching($pivotData);
+                        $show->people()->sync($pivotData, false);
                     }
 
                     if ($userIds !== []) {
@@ -66,23 +85,10 @@ class TvShowSeeder extends Seeder
 
                         if ($watchlistCount > 0) {
                             $selected = Arr::wrap(Arr::random($userIds, $watchlistCount));
-                            $show->watchlistedBy()->syncWithoutDetaching($selected);
+                            $show->watchlistedBy()->sync($selected, false);
                         }
                     }
                 });
-
-            $remaining -= $batchSize;
-        }
-    }
-
-    private function ensureTranslationArray(?array $translations, ?string $fallback): ?array
-    {
-        $normalized = is_array($translations) ? $translations : [];
-
-        if ($fallback !== null && $fallback !== '') {
-            $normalized['en'] ??= $fallback;
-        }
-
-        return $normalized === [] ? null : $normalized;
+        });
     }
 }

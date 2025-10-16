@@ -8,11 +8,14 @@ use App\Models\Language;
 use App\Models\Movie;
 use App\Models\Person;
 use App\Models\User;
+use Database\Seeders\Concerns\SeedsModelsInChunks;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 
 class MovieSeeder extends Seeder
 {
+    use SeedsModelsInChunks;
+
     private const TOTAL_MOVIES = 1000;
 
     private const CHUNK_SIZE = 100;
@@ -32,31 +35,46 @@ class MovieSeeder extends Seeder
         $peopleIds = Person::query()->pluck('id')->all();
         $userIds = User::query()->pluck('id')->all();
 
-        $remaining = self::TOTAL_MOVIES;
+        $fallbackLocale = $this->fallbackLocale();
 
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
+        $this->seedInChunks(self::TOTAL_MOVIES, self::CHUNK_SIZE, function (int $count) use ($genreIds, $languageIds, $countryIds, $peopleIds, $userIds, $fallbackLocale): void {
             Movie::factory()
-                ->count($batchSize)
+                ->count($count)
                 ->create()
-                ->each(function (Movie $movie) use ($genreIds, $languageIds, $countryIds, $peopleIds, $userIds): void {
+                ->each(function (Movie $movie) use ($genreIds, $languageIds, $countryIds, $peopleIds, $userIds, $fallbackLocale): void {
+                    $movie->forceFill([
+                        'title' => $this->fillTranslations(
+                            is_array($movie->title) ? $movie->title : [],
+                            $this->translationFallback($movie->title),
+                            fn (string $locale, ?string $fallback) => $locale === $fallbackLocale && $fallback !== null
+                                ? $fallback
+                                : $this->localizedSentence($locale)
+                        ),
+                        'overview' => $this->fillTranslations(
+                            is_array($movie->overview) ? $movie->overview : [],
+                            $this->translationFallback($movie->overview),
+                            fn (string $locale, ?string $fallback) => $locale === $fallbackLocale && $fallback !== null
+                                ? $fallback
+                                : $this->localizedParagraph($locale)
+                        ),
+                    ])->saveQuietly();
+
                     if ($genreIds !== []) {
                         $genreCount = min(count($genreIds), random_int(2, 4));
                         $selected = Arr::wrap(Arr::random($genreIds, $genreCount));
-                        $movie->genres()->syncWithoutDetaching($selected);
+                        $movie->genres()->sync($selected, false);
                     }
 
                     if ($languageIds !== []) {
                         $languageCount = min(count($languageIds), random_int(1, 3));
                         $selected = Arr::wrap(Arr::random($languageIds, $languageCount));
-                        $movie->languages()->syncWithoutDetaching($selected);
+                        $movie->languages()->sync($selected, false);
                     }
 
                     if ($countryIds !== []) {
                         $countryCount = min(count($countryIds), random_int(1, 2));
                         $selected = Arr::wrap(Arr::random($countryIds, $countryCount));
-                        $movie->countries()->syncWithoutDetaching($selected);
+                        $movie->countries()->sync($selected, false);
                     }
 
                     if ($peopleIds !== []) {
@@ -76,7 +94,7 @@ class MovieSeeder extends Seeder
                             ];
                         }
 
-                        $movie->people()->syncWithoutDetaching($pivotData);
+                        $movie->people()->sync($pivotData, false);
                     }
 
                     if ($userIds !== []) {
@@ -84,12 +102,10 @@ class MovieSeeder extends Seeder
 
                         if ($watchlistCount > 0) {
                             $selected = Arr::wrap(Arr::random($userIds, $watchlistCount));
-                            $movie->watchlistedBy()->syncWithoutDetaching($selected);
+                            $movie->watchlistedBy()->sync($selected, false);
                         }
                     }
                 });
-
-            $remaining -= $batchSize;
-        }
+        });
     }
 }

@@ -6,11 +6,14 @@ use App\Enums\ParserReviewAction;
 use App\Models\ParserEntry;
 use App\Models\ParserEntryHistory;
 use App\Models\User;
+use Database\Seeders\Concerns\SeedsModelsInChunks;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
 class ParserEntryHistorySeeder extends Seeder
 {
+    use SeedsModelsInChunks;
+
     private const CHUNK_SIZE = 250;
 
     /**
@@ -35,14 +38,16 @@ class ParserEntryHistorySeeder extends Seeder
         ParserEntry::query()
             ->orderBy('id')
             ->chunkById(self::CHUNK_SIZE, function (Collection $entries) use ($users): void {
-                $entries->each(function (ParserEntry $entry) use ($users): void {
+                $payloads = Collection::make();
+
+                $entries->each(function (ParserEntry $entry) use (&$payloads, $users): void {
                     $historyCount = random_int(1, 3);
 
-                    Collection::times($historyCount, fn () => true)->each(function () use ($entry, $users): void {
+                    Collection::times($historyCount, fn () => true)->each(function () use (&$payloads, $entry, $users): void {
                         $actor = $users->random();
                         $action = collect(ParserReviewAction::cases())->random();
 
-                        ParserEntryHistory::query()->create([
+                        $payloads->push([
                             'parser_entry_id' => $entry->getKey(),
                             'user_id' => $actor->getKey(),
                             'action' => $action->value,
@@ -54,9 +59,21 @@ class ParserEntryHistorySeeder extends Seeder
                                 ],
                             ],
                             'notes' => fake()->boolean(50) ? fake()->sentence() : null,
+                            'created_at' => now(),
+                            'updated_at' => now(),
                         ]);
                     });
                 });
+
+                if ($payloads->isNotEmpty()) {
+                    $normalized = $payloads->map(function (array $attributes): array {
+                        $attributes['changes'] = json_encode($attributes['changes']);
+
+                        return $attributes;
+                    });
+
+                    $this->chunkedInsert($normalized, 500, static fn (array $chunk): bool => ParserEntryHistory::query()->insert($chunk));
+                }
             });
     }
 }
