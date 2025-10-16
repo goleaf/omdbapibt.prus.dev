@@ -188,6 +188,13 @@ class RecommendationService
             $ratingAlignment = max(0.0, 1 - min($difference, 5) / 5);
         }
 
+        $releaseAlignment = 0.0;
+
+        if (! is_null($profile['average_year'] ?? null) && ! is_null($movie->year)) {
+            $difference = abs((float) $movie->year - (float) $profile['average_year']);
+            $releaseAlignment = max(0.0, 1 - min($difference, 20) / 20);
+        }
+
         return ($normalizedGenreScore * 0.45)
             + ($rating * 0.2)
             + ($ratingAlignment * 0.15)
@@ -341,17 +348,6 @@ class RecommendationService
             ->map(fn (int $id) => $movies->get($id))
             ->filter()
             ->values();
-    }
-
-    protected function recencyWeight(?CarbonInterface $watchedAt, CarbonInterface $reference): float
-    {
-        if (! $watchedAt) {
-            return 1.0;
-        }
-
-        $days = max($watchedAt->diffInDays($reference), 0);
-
-        return round(1 / (1 + ($days / 14)), 4);
     }
 
     protected function rememberCachedLimit(CacheRepository $cache, int $userId, int $limit, Carbon $expiresAt): void
