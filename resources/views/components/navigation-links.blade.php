@@ -6,7 +6,7 @@
     @auth
         <a href="{{ route('account') }}" class="{{ $linkClass }}">{{ __('ui.nav.links.account') }}</a>
         @if (auth()->user()?->isAdmin())
-            <a href="{{ route('admin.analytics') }}" class="{{ $linkClass }}">{{ __('ui.nav.links.admin') }}</a>
+            <a href="{{ route('admin.panel') }}" class="{{ $linkClass }}">{{ __('ui.nav.links.admin') }}</a>
         @endif
     @endauth
 </nav>

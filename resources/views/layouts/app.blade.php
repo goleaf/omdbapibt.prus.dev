@@ -30,7 +30,7 @@
                     @auth
                         <a href="{{ route('account') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.account') }}</a>
                         @if (auth()->user()?->isAdmin())
-                            <a href="{{ route('admin.analytics') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.admin') }}</a>
+                            <a href="{{ route('admin.panel') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.admin') }}</a>
                         @endif
                     @endauth
                 </nav>
