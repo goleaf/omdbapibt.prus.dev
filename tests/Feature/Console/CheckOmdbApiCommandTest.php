@@ -136,6 +136,31 @@ class CheckOmdbApiCommandTest extends TestCase
         $this->assertSame('tt7654321', $this->invokeProtectedMethod($command, 'determineTestImdbId'));
     }
 
+    public function test_command_handles_unexpected_http_responses(): void
+    {
+        config([
+            'services.omdb.base_url' => 'https://omdb.test/api',
+            'services.omdb.validation.batch_size' => 1,
+        ]);
+
+        $key = OmdbApiKey::factory()->create([
+            'status' => OmdbApiKey::STATUS_PENDING,
+            'key' => 'problematic',
+        ]);
+
+        Http::fake(['https://omdb.test/api*' => Http::response('Server error', 500)]);
+
+        $this->artisan('checkapi', ['--batch' => 1])
+            ->expectsOutputToContain('Processing 1 key(s)')
+            ->expectsOutputToContain('Received unexpected response for key')
+            ->assertSuccessful();
+
+        $this->assertSame(
+            OmdbApiKey::STATUS_UNKNOWN,
+            $key->fresh()->status
+        );
+    }
+
     protected function makeCommand(array $options): CheckOmdbApi
     {
         $command = app(CheckOmdbApi::class);

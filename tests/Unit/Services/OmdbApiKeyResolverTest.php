@@ -4,7 +4,9 @@ namespace Tests\Unit\Services;
 
 use App\Models\OmdbApiKey;
 use App\Services\OmdbApiKeyResolver;
+use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -22,8 +24,11 @@ class OmdbApiKeyResolverTest extends TestCase
             $table->string('status')->nullable();
             $table->timestamp('last_checked_at')->nullable();
             $table->timestamp('last_confirmed_at')->nullable();
+            $table->unsignedSmallInteger('last_response_code')->nullable();
             $table->timestamps();
         });
+
+        Cache::forget('services:omdb:resolver:last_used');
     }
 
     protected function tearDown(): void
@@ -51,7 +56,7 @@ class OmdbApiKeyResolverTest extends TestCase
             'last_confirmed_at' => now(),
         ]);
 
-        $resolver = new OmdbApiKeyResolver;
+        $resolver = $this->makeResolver();
 
         $this->assertSame('second-key', $resolver->resolve());
     }
@@ -60,7 +65,7 @@ class OmdbApiKeyResolverTest extends TestCase
     {
         config()->set('services.omdb.key', 'fallback-key');
 
-        $resolver = new OmdbApiKeyResolver;
+        $resolver = $this->makeResolver();
 
         $this->assertSame('fallback-key', $resolver->resolve());
     }
@@ -83,7 +88,7 @@ class OmdbApiKeyResolverTest extends TestCase
             'last_confirmed_at' => now()->subMinute(),
         ]);
 
-        $resolver = new OmdbApiKeyResolver;
+        $resolver = $this->makeResolver();
 
         $this->assertSame('working-key', $resolver->resolve());
     }
@@ -94,8 +99,54 @@ class OmdbApiKeyResolverTest extends TestCase
 
         Schema::drop('omdb_api_keys');
 
-        $resolver = new OmdbApiKeyResolver;
+        $resolver = $this->makeResolver();
 
         $this->assertSame('fallback-key', $resolver->resolve());
+    }
+
+    public function test_it_rotates_through_valid_keys(): void
+    {
+        config()->set('services.omdb.key', 'fallback-key');
+
+        OmdbApiKey::query()->create([
+            'key' => 'key-one',
+            'status' => OmdbApiKey::STATUS_VALID,
+            'last_checked_at' => now(),
+            'last_confirmed_at' => now(),
+        ]);
+
+        OmdbApiKey::query()->create([
+            'key' => 'key-two',
+            'status' => OmdbApiKey::STATUS_VALID,
+            'last_checked_at' => now()->subMinute(),
+            'last_confirmed_at' => now()->subMinute(),
+        ]);
+
+        $resolver = $this->makeResolver();
+
+        $this->assertSame('key-one', $resolver->resolve());
+        $this->assertSame('key-two', $resolver->resolve());
+        $this->assertSame('key-one', $resolver->resolve());
+    }
+
+    public function test_it_uses_fallback_when_valid_keys_are_stale(): void
+    {
+        config()->set('services.omdb.key', 'fallback-key');
+        config()->set('services.omdb.validation.health_grace_minutes', 5);
+
+        OmdbApiKey::query()->create([
+            'key' => 'stale-key',
+            'status' => OmdbApiKey::STATUS_VALID,
+            'last_confirmed_at' => now()->subMinutes(10),
+        ]);
+
+        $resolver = $this->makeResolver();
+
+        $this->assertSame('fallback-key', $resolver->resolve());
+    }
+
+    protected function makeResolver(): OmdbApiKeyResolver
+    {
+        return new OmdbApiKeyResolver(app(CacheRepository::class));
     }
 }

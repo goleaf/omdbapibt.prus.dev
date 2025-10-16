@@ -62,6 +62,7 @@ return [
             'test_imdb_id' => 'tt3896198', // Guardians of the Galaxy Vol. 2
             'batch_size' => 50,
             'timeout' => 10,
+            'health_grace_minutes' => 30,
         ],
         'bruteforce' => [
             'charset' => '0123456789abcdefghijklmnopqrstuvwxyz',

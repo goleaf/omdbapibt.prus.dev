@@ -2,6 +2,9 @@
 
 use App\Console\Commands\CheckOmdbApi;
 use App\Console\Commands\CleanupExpiredTrials;
+use App\Console\Commands\Omdb\FetchOmdbKeysFromRemote;
+use App\Console\Commands\Omdb\GenerateOmdbKeys;
+use App\Console\Commands\Omdb\ParseMoviesWithApiKeys;
 use App\Console\Commands\Parser\HydrateMovies;
 use App\Console\Commands\Parser\HydratePeople;
 use App\Console\Commands\Parser\HydrateTvShows;
@@ -37,6 +40,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withCommands([
         CheckOmdbApi::class,
+        GenerateOmdbKeys::class,
+        FetchOmdbKeysFromRemote::class,
+        ParseMoviesWithApiKeys::class,
         CleanupExpiredTrials::class,
         HydrateMovies::class,
         HydrateTvShows::class,
