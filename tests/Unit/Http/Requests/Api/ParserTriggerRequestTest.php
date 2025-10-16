@@ -17,7 +17,7 @@ class ParserTriggerRequestTest extends TestCase
 
         $validator = Validator::make([
             'workload' => $workload,
-        ], $request->rules(), $request->messages());
+        ], $request->rules(), $request->messages(), $request->attributes());
 
         $this->assertTrue($validator->passes());
     }
@@ -39,12 +39,24 @@ class ParserTriggerRequestTest extends TestCase
 
         $validator = Validator::make([
             'workload' => 'invalid',
-        ], $request->rules(), $request->messages());
+        ], $request->rules(), $request->messages(), $request->attributes());
 
         $this->assertFalse($validator->passes());
         $this->assertSame(
-            trans('validation.custom.workload.enum'),
+            trans('parser.trigger.workload_enum'),
             $validator->errors()->first('workload'),
         );
+    }
+
+    public function test_workload_accessor_returns_enum_instance(): void
+    {
+        $request = new ParserTriggerRequest;
+        $expected = ParserWorkload::Movies;
+
+        $request->merge([
+            'workload' => $expected->value,
+        ]);
+
+        $this->assertSame($expected, $request->workload());
     }
 }
