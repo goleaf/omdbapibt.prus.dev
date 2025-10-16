@@ -21,8 +21,8 @@ class OmdbApiKeyResolver
             }
 
             $key = OmdbApiKey::query()
-                ->where('is_working', true)
-                ->orderByDesc('validated_at')
+                ->where('status', OmdbApiKey::STATUS_VALID)
+                ->orderByDesc('last_confirmed_at')
                 ->orderByDesc('updated_at')
                 ->value('key');
         } catch (Throwable $exception) {

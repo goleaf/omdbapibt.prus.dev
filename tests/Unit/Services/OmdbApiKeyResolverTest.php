@@ -19,8 +19,9 @@ class OmdbApiKeyResolverTest extends TestCase
         Schema::create('omdb_api_keys', function (Blueprint $table): void {
             $table->id();
             $table->string('key')->unique();
-            $table->boolean('is_working')->default(false);
-            $table->timestamp('validated_at')->nullable();
+            $table->string('status')->nullable();
+            $table->timestamp('last_checked_at')->nullable();
+            $table->timestamp('last_confirmed_at')->nullable();
             $table->timestamps();
         });
     }
@@ -38,14 +39,16 @@ class OmdbApiKeyResolverTest extends TestCase
 
         OmdbApiKey::query()->create([
             'key' => 'first-key',
-            'is_working' => true,
-            'validated_at' => now()->subDay(),
+            'status' => OmdbApiKey::STATUS_VALID,
+            'last_checked_at' => now()->subDay(),
+            'last_confirmed_at' => now()->subDay(),
         ]);
 
         OmdbApiKey::query()->create([
             'key' => 'second-key',
-            'is_working' => true,
-            'validated_at' => now(),
+            'status' => OmdbApiKey::STATUS_VALID,
+            'last_checked_at' => now(),
+            'last_confirmed_at' => now(),
         ]);
 
         $resolver = new OmdbApiKeyResolver;
@@ -68,14 +71,16 @@ class OmdbApiKeyResolverTest extends TestCase
 
         OmdbApiKey::query()->create([
             'key' => 'failing-key',
-            'is_working' => false,
-            'validated_at' => now(),
+            'status' => OmdbApiKey::STATUS_INVALID,
+            'last_checked_at' => now(),
+            'last_confirmed_at' => null,
         ]);
 
         OmdbApiKey::query()->create([
             'key' => 'working-key',
-            'is_working' => true,
-            'validated_at' => now()->subMinute(),
+            'status' => OmdbApiKey::STATUS_VALID,
+            'last_checked_at' => now()->subMinute(),
+            'last_confirmed_at' => now()->subMinute(),
         ]);
 
         $resolver = new OmdbApiKeyResolver;

@@ -17,6 +17,7 @@ trait CreatesLocaleTables
             $table->id();
             $table->unsignedBigInteger('tmdb_id')->nullable()->unique();
             $table->string('slug')->unique();
+            $table->string('name')->nullable();
             $table->json('name_translations')->nullable();
             $table->timestamps();
         });
@@ -52,22 +53,6 @@ trait CreatesLocaleTables
             $table->string('code')->unique();
             $table->json('name_translations')->nullable();
             $table->boolean('active')->default(true);
-            $table->timestamps();
-        });
-    }
-
-    protected function ensureGenresTable(): void
-    {
-        if (Schema::hasTable('genres')) {
-            return;
-        }
-
-        Schema::create('genres', function (Blueprint $table): void {
-            $table->id();
-            $table->string('name');
-            $table->json('name_translations')->nullable();
-            $table->string('slug')->unique();
-            $table->unsignedBigInteger('tmdb_id')->nullable();
             $table->timestamps();
         });
     }

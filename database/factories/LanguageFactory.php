@@ -30,10 +30,8 @@ class LanguageFactory extends Factory
         ];
 
         return [
-            'name' => $nameTranslations['en'],
             'name_translations' => $nameTranslations,
             'code' => 'l'.str_pad((string) $identifier, 4, '0', STR_PAD_LEFT),
-            'native_name' => $nativeTranslations['en'],
             'native_name_translations' => $nativeTranslations,
             'active' => $this->faker->boolean(90),
         ];
