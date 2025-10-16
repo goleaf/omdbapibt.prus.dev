@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\UserRole;
+use App\Models\UserProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -50,5 +51,16 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::Admin->value,
         ]);
+    }
+
+    /**
+     * Attach a related profile populated with viewer preferences.
+     */
+    public function withProfile(array $attributes = []): static
+    {
+        return $this->has(
+            UserProfile::factory()->state($attributes),
+            'profile'
+        );
     }
 }

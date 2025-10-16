@@ -25,10 +25,10 @@ class UserSeeder extends Seeder
             return;
         }
 
-        $totalUsers = 1_000;
+        $totalUsers = 100;
 
-        $this->forChunkedCount($totalUsers, 250, function (int $count): void {
-            User::factory()->count($count)->create();
+        $this->forChunkedCount($totalUsers, 25, function (int $count): void {
+            User::factory()->count($count)->withProfile()->create();
         });
 
         User::query()
