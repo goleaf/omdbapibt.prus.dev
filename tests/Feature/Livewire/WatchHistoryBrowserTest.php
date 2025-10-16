@@ -32,55 +32,71 @@ class WatchHistoryBrowserTest extends TestCase
 
     public function test_subscriber_can_filter_and_search_watch_history(): void
     {
-        $user = User::factory()->create([
-            'stripe_id' => 'cus_test_123',
-        ]);
+        $defaultLocale = app()->getLocale();
+        app()->setLocale('es');
 
-        $user->subscriptions()->create([
-            'type' => 'default',
-            'stripe_id' => 'sub_test_123',
-            'stripe_status' => SubscriptionStatus::Active->value,
-            'stripe_price' => 'price_basic',
-            'quantity' => 1,
-        ]);
+        try {
+            $user = User::factory()->create([
+                'stripe_id' => 'cus_test_123',
+            ]);
 
-        $movie = Movie::factory()->create([
-            'title' => ['en' => 'The Testing Movie'],
-        ]);
+            $user->subscriptions()->create([
+                'type' => 'default',
+                'stripe_id' => 'sub_test_123',
+                'stripe_status' => SubscriptionStatus::Active->value,
+                'stripe_price' => 'price_basic',
+                'quantity' => 1,
+            ]);
 
-        $show = TvShow::factory()->create([
-            'name' => 'Laravel Adventures',
-        ]);
+            $movie = Movie::factory()->create([
+                'title' => ['en' => 'The Testing Movie'],
+            ]);
 
-        WatchHistory::factory()->create([
-            'user_id' => $user->id,
-            'watchable_type' => Movie::class,
-            'watchable_id' => $movie->id,
-            'watched_at' => Carbon::now()->subDays(3),
-        ]);
+            $show = TvShow::factory()->create([
+                'name' => 'Laravel Adventures',
+                'name_translations' => [
+                    'en' => 'Laravel Adventures',
+                    'es' => 'Aventuras de Laravel',
+                ],
+            ]);
 
-        WatchHistory::factory()->create([
-            'user_id' => $user->id,
-            'watchable_type' => TvShow::class,
-            'watchable_id' => $show->id,
-            'watched_at' => Carbon::now()->subDay(),
-        ]);
+            $localizedShowTitle = $show->localizedName();
 
-        Livewire::actingAs($user)
-            ->test(WatchHistoryBrowser::class)
-            ->assertSee('Browse history')
-            ->assertSee($movie->localizedTitle())
-            ->assertSee($show->name)
-            ->set('type', 'movie')
-            ->assertSee($movie->localizedTitle())
-            ->assertDontSee($show->name)
-            ->set('type', 'tv')
-            ->assertSee($show->name)
-            ->assertDontSee($movie->localizedTitle())
-            ->set('type', 'all')
-            ->set('search', 'Testing Movie')
-            ->assertSee($movie->localizedTitle())
-            ->assertDontSee($show->name);
+            WatchHistory::factory()->create([
+                'user_id' => $user->id,
+                'watchable_type' => Movie::class,
+                'watchable_id' => $movie->id,
+                'watched_at' => Carbon::now()->subDays(3),
+            ]);
+
+            WatchHistory::factory()->create([
+                'user_id' => $user->id,
+                'watchable_type' => TvShow::class,
+                'watchable_id' => $show->id,
+                'watched_at' => Carbon::now()->subDay(),
+            ]);
+
+            Livewire::actingAs($user)
+                ->test(WatchHistoryBrowser::class)
+                ->assertSee('Browse history')
+                ->assertSee($movie->localizedTitle())
+                ->assertSee($localizedShowTitle)
+                ->set('type', 'movie')
+                ->assertSee($movie->localizedTitle())
+                ->assertDontSee($localizedShowTitle)
+                ->set('type', 'tv')
+                ->assertSee($localizedShowTitle)
+                ->assertDontSee($movie->localizedTitle())
+                ->set('type', 'all')
+                ->set('search', 'Testing Movie')
+                ->assertSee($movie->localizedTitle())
+                ->assertDontSee($localizedShowTitle)
+                ->set('search', 'Aventuras')
+                ->assertSee($localizedShowTitle)
+                ->assertDontSee($movie->localizedTitle());
+        } finally {
+            app()->setLocale($defaultLocale);
+        }
     }
 
     public function test_watch_history_links_use_localized_movie_routes(): void

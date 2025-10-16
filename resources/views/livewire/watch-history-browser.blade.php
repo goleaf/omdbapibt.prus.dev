@@ -109,7 +109,7 @@
                         $typeLabel = 'Movie';
                         $route = route('movies.show', ['locale' => $locale, 'movie' => $watchable->slug]);
                     } elseif ($watchable instanceof TvShow) {
-                        $title = $watchable->name ?: 'Untitled series';
+                        $title = $watchable->localizedName($locale);
                         if ($watchable->first_air_date) {
                             $subtitleParts[] = $watchable->first_air_date->format('Y');
                         }

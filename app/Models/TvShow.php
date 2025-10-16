@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -33,7 +34,9 @@ class TvShow extends Model
         'episode_run_time',
         'status',
         'overview',
+        'overview_translations',
         'tagline',
+        'tagline_translations',
         'homepage',
         'popularity',
         'vote_average',
@@ -42,6 +45,7 @@ class TvShow extends Model
         'backdrop_path',
         'media_type',
         'adult',
+        'name_translations',
     ];
 
     /**
@@ -55,7 +59,82 @@ class TvShow extends Model
         'last_air_date' => 'date',
         'popularity' => 'float',
         'vote_average' => 'float',
+        'name_translations' => 'array',
+        'overview_translations' => 'array',
+        'tagline_translations' => 'array',
     ];
+
+    public function localizedName(?string $locale = null): string
+    {
+        $value = $this->resolveLocalizedValue(
+            $this->name_translations,
+            $locale,
+            is_string($this->name) ? $this->name : null,
+            'Untitled series'
+        );
+
+        return $value ?? 'Untitled series';
+    }
+
+    public function localizedOverview(?string $locale = null): ?string
+    {
+        return $this->resolveLocalizedValue(
+            $this->overview_translations,
+            $locale,
+            is_string($this->overview) ? $this->overview : null
+        );
+    }
+
+    public function localizedTagline(?string $locale = null): ?string
+    {
+        return $this->resolveLocalizedValue(
+            $this->tagline_translations,
+            $locale,
+            is_string($this->tagline) ? $this->tagline : null
+        );
+    }
+
+    public function scopeWhereLocalizedNameLike(Builder $query, string $term, ?string $locale = null): Builder
+    {
+        return static::applyLocalizedNameFilter($query, $term, $locale);
+    }
+
+    public static function applyLocalizedNameFilter(Builder $query, string $term, ?string $locale = null): Builder
+    {
+        $escaped = '%'.static::escapeLike($term).'%';
+        $locale ??= app()->getLocale();
+        $fallbackLocale = config('app.fallback_locale');
+
+        return $query->where(function (Builder $innerQuery) use ($escaped, $locale, $fallbackLocale): void {
+            $innerQuery
+                ->where('name', 'like', $escaped)
+                ->orWhere('original_name', 'like', $escaped)
+                ->orWhere('slug', 'like', $escaped);
+
+            if ($locale) {
+                $innerQuery->orWhere("name_translations->{$locale}", 'like', $escaped);
+            }
+
+            if ($fallbackLocale && $fallbackLocale !== $locale) {
+                $innerQuery->orWhere("name_translations->{$fallbackLocale}", 'like', $escaped);
+            }
+        });
+    }
+
+    public function setNameTranslationsAttribute($value): void
+    {
+        $this->storeTranslationAttribute('name_translations', $value);
+    }
+
+    public function setOverviewTranslationsAttribute($value): void
+    {
+        $this->storeTranslationAttribute('overview_translations', $value);
+    }
+
+    public function setTaglineTranslationsAttribute($value): void
+    {
+        $this->storeTranslationAttribute('tagline_translations', $value);
+    }
 
     /**
      * Users who have added this TV show to their watchlist.
@@ -78,5 +157,91 @@ class TvShow extends Model
         return $this->belongsToMany(Person::class, 'tv_show_person')
             ->withPivot(['credit_type', 'department', 'character', 'job', 'credit_order'])
             ->withTimestamps();
+    }
+
+    protected function resolveLocalizedValue(?array $translations, ?string $locale, ?string $fallback, ?string $default = null): ?string
+    {
+        if (! is_array($translations) || $translations === []) {
+            return $fallback ?? $default;
+        }
+
+        $locale ??= app()->getLocale();
+
+        if ($locale && isset($translations[$locale]) && is_string($translations[$locale]) && $translations[$locale] !== '') {
+            return $translations[$locale];
+        }
+
+        $fallbackLocale = config('app.fallback_locale');
+
+        if ($fallbackLocale && isset($translations[$fallbackLocale]) && is_string($translations[$fallbackLocale]) && $translations[$fallbackLocale] !== '') {
+            return $translations[$fallbackLocale];
+        }
+
+        if (isset($translations['en']) && is_string($translations['en']) && $translations['en'] !== '') {
+            return $translations['en'];
+        }
+
+        foreach ($translations as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return $fallback ?? $default;
+    }
+
+    protected function storeTranslationAttribute(string $attribute, mixed $value): void
+    {
+        $normalized = $this->normalizeTranslations($value);
+
+        if ($normalized === null) {
+            $this->attributes[$attribute] = null;
+
+            return;
+        }
+
+        $this->attributes[$attribute] = $this->castAttributeAsJson($attribute, $normalized);
+    }
+
+    protected function normalizeTranslations(mixed $value): ?array
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = ['en' => $value];
+        }
+
+        if (! is_array($value)) {
+            return null;
+        }
+
+        $filtered = [];
+
+        foreach ($value as $key => $text) {
+            if (! is_string($key)) {
+                continue;
+            }
+
+            if (! is_string($text)) {
+                continue;
+            }
+
+            $trimmed = trim($text);
+
+            if ($trimmed === '') {
+                continue;
+            }
+
+            $filtered[$key] = $trimmed;
+        }
+
+        return $filtered === [] ? null : $filtered;
+    }
+
+    protected static function escapeLike(string $value): string
+    {
+        return addcslashes($value, '%_\\');
     }
 }
