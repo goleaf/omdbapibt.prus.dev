@@ -76,47 +76,106 @@
                 class="fixed inset-y-0 left-0 z-40 hidden w-full max-w-xs transform bg-slate-950/95 p-6 text-slate-100 shadow-2xl transition-transform duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 lg:static lg:z-auto lg:block lg:max-w-none lg:translate-x-0 lg:bg-transparent lg:p-0 lg:shadow-none"
                 aria-label="Curated collections"
             >
-                <div class="space-y-5 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-5 lg:sticky lg:top-24">
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300">Collections</p>
+                <div class="space-y-6 rounded-3xl border border-slate-800/80 bg-slate-950/70 p-6 shadow-inner shadow-emerald-500/5 ring-1 ring-slate-800/60 lg:sticky lg:top-24">
+                    <header class="flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-4">
+                            <span class="flex size-11 items-center justify-center rounded-2xl bg-emerald-400/10 ring-1 ring-inset ring-emerald-400/40">
+                                <flux:icon icon="sparkles" class="size-5 text-emerald-200" />
+                            </span>
+                            <div class="space-y-1.5">
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300">Collections</p>
+                                <h3 class="text-lg font-semibold text-white">Explore curated journeys</h3>
+                                <p class="text-sm text-slate-300/90">
+                                    Pick a collection to refresh the feed with a distinct programming mood.
+                                </p>
+                            </div>
+                        </div>
                         <flux:button
                             variant="ghost"
                             size="xs"
                             icon-leading="x-mark"
                             data-catalog-sidebar-close
                             aria-controls="catalog-sidebar-{{ $this->getId() }}"
+                            class="shrink-0"
                         >
                             Close
                         </flux:button>
-                    </div>
-                    <ul class="space-y-2">
+                    </header>
+
+                    <ul class="space-y-3">
                         @foreach ($collections as $collectionKey => $collection)
                             @php
                                 $isActive = $activeCollection === $collectionKey;
+
+                                $metaTags = collect([
+                                    ! empty($collection['minimum_rating'])
+                                        ? 'Rating ≥ '.number_format((float) $collection['minimum_rating'], 1)
+                                        : null,
+                                    ! empty($collection['released_within_days'])
+                                        ? 'New • Last '.$collection['released_within_days'].' days'
+                                        : null,
+                                    ! empty($collection['minimum_popularity'])
+                                        ? 'Popularity ≥ '.$collection['minimum_popularity']
+                                        : null,
+                                    ! empty($collection['released_after_year'])
+                                        ? 'Since '.$collection['released_after_year']
+                                        : null,
+                                ])->filter()->values()->all();
+
+                                $baseButtonClasses = 'group relative block w-full overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/60 p-5 text-left transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950';
+                                $activeButtonClasses = $isActive
+                                    ? 'border-emerald-400/70 bg-gradient-to-br from-emerald-500/15 via-slate-900/70 to-slate-950/80 shadow-[0_12px_35px_-15px_rgba(16,185,129,0.55)] ring-1 ring-inset ring-emerald-400/25'
+                                    : 'hover:border-emerald-300/50 hover:bg-slate-900/70';
                             @endphp
                             <li>
-                                <flux:button
+                                <button
                                     type="button"
-                                    class="w-full justify-between text-left"
-                                    size="sm"
-                                    variant="{{ $isActive ? 'primary' : 'ghost' }}"
-                                    color="emerald"
+                                    class="{{ $baseButtonClasses }} {{ $activeButtonClasses }}"
                                     wire:click="setCollection('{{ $collectionKey }}')"
-                                    wire:key="collection-pill-{{ $collectionKey }}"
+                                    wire:key="collection-card-{{ $collectionKey }}"
                                     aria-pressed="{{ $isActive ? 'true' : 'false' }}"
                                 >
-                                    <span class="flex flex-1 flex-col text-left">
-                                        <span class="text-sm font-semibold text-inherit">
-                                            {{ $collection['label'] }}
-                                        </span>
-                                        @if (! empty($collection['tagline']))
-                                            <span class="text-xs text-slate-300">{{ $collection['tagline'] }}</span>
-                                        @endif
-                                    </span>
-                                    @if ($isActive)
-                                        <flux:icon icon="check" class="size-4 text-emerald-100" />
+                                    <span class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/30 to-emerald-400/0 opacity-0 transition duration-200 group-hover:opacity-100 {{ $isActive ? 'opacity-100' : '' }}"></span>
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="space-y-2">
+                                            <p class="text-sm font-semibold text-white">
+                                                {{ $collection['label'] }}
+                                            </p>
+                                            @if (! empty($collection['tagline']))
+                                                <p class="text-xs font-medium text-emerald-200/90">
+                                                    {{ $collection['tagline'] }}
+                                                </p>
+                                            @endif
+                                            @if (! empty($collection['description']))
+                                                <p class="text-xs leading-relaxed text-slate-300">
+                                                    {{ $collection['description'] }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                        <div class="flex flex-col items-end gap-2">
+                                            @if ($isActive)
+                                                <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                                                    <flux:icon icon="check" class="size-3.5" />
+                                                    Active
+                                                </span>
+                                            @else
+                                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-800/80 bg-slate-900/80 text-slate-500 transition group-hover:border-emerald-300/50 group-hover:text-emerald-200">
+                                                    <flux:icon icon="arrow-up-right" class="size-4" />
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    @if ($metaTags !== [])
+                                        <div class="mt-4 flex flex-wrap gap-2">
+                                            @foreach ($metaTags as $metaTag)
+                                                <span class="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-100">
+                                                    {{ $metaTag }}
+                                                </span>
+                                            @endforeach
+                                        </div>
                                     @endif
-                                </flux:button>
+                                </button>
                             </li>
                         @endforeach
                     </ul>
