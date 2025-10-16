@@ -32,6 +32,41 @@ class TvShowTest extends TestCase
         $this->assertSame(7.8, $show->vote_average);
     }
 
+    public function test_localized_accessors_return_expected_values(): void
+    {
+        $show = TvShow::factory()->create([
+            'name' => 'Default Name',
+            'name_translations' => [
+                'en' => 'Default Name',
+                'es' => 'Nombre Predeterminado',
+                'fr' => 'Nom Par Défaut',
+            ],
+            'overview' => 'Base overview',
+            'overview_translations' => [
+                'fr' => 'Vue d\'ensemble française',
+            ],
+            'tagline' => 'Base tagline',
+            'tagline_translations' => [
+                'es' => 'Eslogan en español',
+            ],
+        ]);
+
+        app()->setLocale('es');
+        $this->assertSame('Nombre Predeterminado', $show->localizedName());
+        $this->assertSame('Base overview', $show->localizedOverview());
+        $this->assertSame('Eslogan en español', $show->localizedTagline());
+
+        app()->setLocale('fr');
+        $this->assertSame('Nom Par Défaut', $show->localizedName());
+        $this->assertSame('Vue d\'ensemble française', $show->localizedOverview());
+        $this->assertSame('Base tagline', $show->localizedTagline());
+
+        app()->setLocale('de');
+        $this->assertSame('Default Name', $show->localizedName());
+        $this->assertSame('Base overview', $show->localizedOverview());
+        $this->assertSame('Base tagline', $show->localizedTagline());
+    }
+
     public function test_watchlist_and_history_relationships(): void
     {
         $show = TvShow::factory()->create();

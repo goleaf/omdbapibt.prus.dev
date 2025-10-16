@@ -8,6 +8,7 @@ use App\Models\ParserEntryHistory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class ParserEntryHistorySeeder extends Seeder
 {
@@ -16,6 +17,12 @@ class ParserEntryHistorySeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('parser_entry_histories')
+            || ! Schema::hasTable('parser_entries')
+            || ! Schema::hasTable('users')) {
+            return;
+        }
+
         if (ParserEntryHistory::query()->exists()) {
             return;
         }

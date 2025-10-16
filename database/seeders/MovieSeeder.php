@@ -10,6 +10,7 @@ use App\Models\Person;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class MovieSeeder extends Seeder
 {
@@ -18,6 +19,20 @@ class MovieSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('movies')
+            || ! Schema::hasTable('genres')
+            || ! Schema::hasTable('languages')
+            || ! Schema::hasTable('countries')
+            || ! Schema::hasTable('people')
+            || ! Schema::hasTable('users')
+            || ! Schema::hasTable('movie_genre')
+            || ! Schema::hasTable('movie_language')
+            || ! Schema::hasTable('movie_country')
+            || ! Schema::hasTable('movie_person')
+            || ! Schema::hasTable('user_watchlist')) {
+            return;
+        }
+
         if (Movie::query()->exists()) {
             return;
         }

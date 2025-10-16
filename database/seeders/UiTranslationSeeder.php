@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\UiTranslation;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class UiTranslationSeeder extends Seeder
 {
@@ -12,6 +13,10 @@ class UiTranslationSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('ui_translations')) {
+            return;
+        }
+
         if (UiTranslation::query()->exists()) {
             return;
         }

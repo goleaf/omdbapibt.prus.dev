@@ -69,7 +69,7 @@ class PersonDetail extends Component
             $credits = $this->ensureCreditGroupInitialized($credits, $type);
 
             $credits[$type]['shows'][] = [
-                'title' => $show->name,
+                'title' => $show->localizedName(),
                 'role' => $pivot->character ?? $pivot->job,
                 'year' => optional($show->first_air_date)->format('Y'),
                 'slug' => $show->slug,

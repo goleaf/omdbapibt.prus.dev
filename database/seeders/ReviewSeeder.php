@@ -6,6 +6,7 @@ use App\Models\Movie;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class ReviewSeeder extends Seeder
 {
@@ -14,6 +15,12 @@ class ReviewSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('reviews')
+            || ! Schema::hasTable('users')
+            || ! Schema::hasTable('movies')) {
+            return;
+        }
+
         if (Review::query()->exists()) {
             return;
         }

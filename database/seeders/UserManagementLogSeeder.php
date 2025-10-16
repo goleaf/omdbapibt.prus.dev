@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserManagementLog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class UserManagementLogSeeder extends Seeder
 {
@@ -16,6 +17,11 @@ class UserManagementLogSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('user_management_logs')
+            || ! Schema::hasTable('users')) {
+            return;
+        }
+
         if (UserManagementLog::query()->exists()) {
             return;
         }

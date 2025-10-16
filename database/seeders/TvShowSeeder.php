@@ -7,6 +7,7 @@ use App\Models\TvShow;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class TvShowSeeder extends Seeder
 {
@@ -15,6 +16,14 @@ class TvShowSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('tv_shows')
+            || ! Schema::hasTable('people')
+            || ! Schema::hasTable('users')
+            || ! Schema::hasTable('tv_show_person')
+            || ! Schema::hasTable('user_watchlist')) {
+            return;
+        }
+
         if (TvShow::query()->exists()) {
             return;
         }
@@ -23,27 +32,31 @@ class TvShowSeeder extends Seeder
         $users = User::query()->get();
 
         TvShow::factory()
-            ->count(18)
+            ->count(1000)
             ->create()
             ->each(function (TvShow $show) use ($people, $users): void {
                 if ($people->isNotEmpty()) {
-                    $creditPool = Collection::wrap($people->random(min($people->count(), random_int(4, 10))));
+                    $creditCount = min($people->count(), random_int(4, 10));
 
-                    $show->people()->syncWithoutDetaching(
-                        $creditPool->values()->mapWithKeys(function (Person $person, int $index): array {
-                            $isCast = $index < 4;
+                    if ($creditCount > 0) {
+                        $creditPool = Collection::wrap($people->random($creditCount));
 
-                            return [
-                                $person->getKey() => [
-                                    'credit_type' => $isCast ? 'cast' : 'crew',
-                                    'department' => $isCast ? 'Acting' : fake()->randomElement(['Directing', 'Production', 'Writing']),
-                                    'character' => $isCast ? fake()->name() : null,
-                                    'job' => $isCast ? null : fake()->randomElement(['Showrunner', 'Producer', 'Writer']),
-                                    'credit_order' => $index + 1,
-                                ],
-                            ];
-                        })->all()
-                    );
+                        $show->people()->syncWithoutDetaching(
+                            $creditPool->values()->mapWithKeys(function (Person $person, int $index): array {
+                                $isCast = $index < 4;
+
+                                return [
+                                    $person->getKey() => [
+                                        'credit_type' => $isCast ? 'cast' : 'crew',
+                                        'department' => $isCast ? 'Acting' : fake()->randomElement(['Directing', 'Production', 'Writing']),
+                                        'character' => $isCast ? fake()->name() : null,
+                                        'job' => $isCast ? null : fake()->randomElement(['Showrunner', 'Producer', 'Writer']),
+                                        'credit_order' => $index + 1,
+                                    ],
+                                ];
+                            })->all()
+                        );
+                    }
                 }
 
                 if ($users->isNotEmpty()) {

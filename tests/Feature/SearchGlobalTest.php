@@ -23,6 +23,11 @@ class SearchGlobalTest extends TestCase
         ]);
         $show = TvShow::factory()->create([
             'name' => 'Galactic Crew',
+            'name_translations' => [
+                'en' => 'Galactic Crew',
+                'es' => 'Tripulación Galáctica',
+                'fr' => 'Équipage Galactique',
+            ],
             'slug' => 'galactic-crew',
             'popularity' => 88.8,
         ]);
@@ -32,13 +37,15 @@ class SearchGlobalTest extends TestCase
             'popularity' => 77.7,
         ]);
 
+        app()->setLocale('fr');
+
         Livewire::test(SearchGlobal::class)
             ->set('query', 'Galactic')
             ->assertSet('results.movies.0.title', $movie->localizedTitle())
-            ->assertSet('results.tvShows.0.title', $show->name)
+            ->assertSet('results.tvShows.0.title', 'Équipage Galactique')
             ->assertSet('results.people.0.title', $person->name)
             ->assertSet('flatResults.0.title', $movie->localizedTitle())
-            ->assertSet('flatResults.1.title', $show->name)
+            ->assertSet('flatResults.1.title', 'Équipage Galactique')
             ->assertSet('flatResults.2.title', $person->name)
             ->assertSet('isOpen', true);
     }

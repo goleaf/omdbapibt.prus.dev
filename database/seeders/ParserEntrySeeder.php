@@ -9,6 +9,7 @@ use App\Models\ParserEntry;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class ParserEntrySeeder extends Seeder
 {
@@ -17,6 +18,12 @@ class ParserEntrySeeder extends Seeder
      */
     public function run(): void
     {
+        if (! Schema::hasTable('parser_entries')
+            || ! Schema::hasTable('movies')
+            || ! Schema::hasTable('users')) {
+            return;
+        }
+
         if (ParserEntry::query()->exists()) {
             return;
         }
