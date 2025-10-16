@@ -78,11 +78,15 @@ The seeders use `updateOrCreate` so they can be safely re-run without duplicatin
 
 The repository ships with `scripts/deploy-production.sh`, which performs the idempotent deployment steps:
 
-1. Cache configuration for fast bootstrap.
-2. Run database migrations with `--force`.
-3. Seed the baseline catalogues.
-4. Optimise the framework caches.
-5. Signal Horizon to restart so the latest code is loaded.
+1. Install Node dependencies with `npm ci` (dev dependencies are required for Vite).
+2. Build the Vite assets with `npm run build` so `public/build/manifest.json` exists.
+3. Prune dev dependencies with `npm prune --omit=dev` to keep the runtime lean.
+4. Verify every manifest entry points to an on-disk asset to avoid hashed-asset 404s.
+5. Cache configuration for fast bootstrap.
+6. Run database migrations with `--force`.
+7. Seed the baseline catalogues.
+8. Optimise the framework caches.
+9. Signal Horizon to restart so the latest code is loaded.
 
 Execute the script from the project root on the production server after pulling the latest code:
 
@@ -110,6 +114,8 @@ Provision these secrets in the repository before triggering a deployment:
 | `PRODUCTION_APP_PATH` | Absolute path to the deployed application on the server. |
 
 After the workflow completes, Horizon will be restarted automatically and the catalogue seeders will ensure languages, countries, and genres remain up to date.
+
+> **Manual deployments:** When performing the workflow steps outside GitHub Actions, ensure the server has Node.js 20+ available. Run `npm ci` followed by `npm run build` (and optionally `npm prune --omit=dev`) from the project root before invoking `./scripts/deploy-production.sh` so the Vite manifest and hashed assets are in place.
 
 ## Documentation
 
