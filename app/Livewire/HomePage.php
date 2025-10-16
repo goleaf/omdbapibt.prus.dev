@@ -2,8 +2,8 @@
 
 namespace App\Livewire;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
-use Illuminate\View\View;
 use Livewire\Component;
 
 class HomePage extends Component
@@ -72,6 +72,9 @@ class HomePage extends Component
 
     public function render(): View
     {
-        return view('pages.home');
+        return view('pages.home')
+            ->layout('layouts.app', [
+                'title' => __('Flux-powered cinematic discovery'),
+            ]);
     }
 }
