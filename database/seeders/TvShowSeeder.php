@@ -35,6 +35,12 @@ class TvShowSeeder extends Seeder
                 ->count($batchSize)
                 ->create()
                 ->each(function (TvShow $show) use ($peopleIds, $userIds): void {
+                    $show->forceFill([
+                        'name_translations' => $this->ensureTranslationArray($show->name_translations, $show->name),
+                        'overview_translations' => $this->ensureTranslationArray($show->overview_translations, $show->overview),
+                        'tagline_translations' => $this->ensureTranslationArray($show->tagline_translations, $show->tagline),
+                    ])->saveQuietly();
+
                     if ($peopleIds !== []) {
                         $creditCount = min(count($peopleIds), random_int(4, 10));
                         $creditIds = array_values(Arr::wrap(Arr::random($peopleIds, $creditCount)));
@@ -67,5 +73,16 @@ class TvShowSeeder extends Seeder
 
             $remaining -= $batchSize;
         }
+    }
+
+    private function ensureTranslationArray(?array $translations, ?string $fallback): ?array
+    {
+        $normalized = is_array($translations) ? $translations : [];
+
+        if ($fallback !== null && $fallback !== '') {
+            $normalized['en'] ??= $fallback;
+        }
+
+        return $normalized === [] ? null : $normalized;
     }
 }

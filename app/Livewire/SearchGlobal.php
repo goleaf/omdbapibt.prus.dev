@@ -162,11 +162,10 @@ class SearchGlobal extends Component
     protected function searchTvShows(string $term): Collection
     {
         $query = TvShow::query()
-            ->select(['id', 'name', 'slug', 'first_air_date', 'poster_path', 'popularity'])
+            ->select(['id', 'name', 'name_translations', 'slug', 'first_air_date', 'poster_path', 'popularity'])
             ->orderByDesc('popularity')
-            ->orderBy('name');
-
-        $query = $this->applySearch($query, 'tv_shows', 'name', $term);
+            ->orderBy('name')
+            ->whereLocalizedNameLike($term);
 
         return $query->limit($this->limit)->get();
     }
@@ -191,7 +190,7 @@ class SearchGlobal extends Component
                 'title' => $movie->localizedTitle(),
                 'subtitle' => optional($movie->release_date)->format('Y'),
                 'poster' => $movie->poster_path,
-                'url' => $movie->slug ? url('/movies/' . $movie->slug) : null,
+                'url' => $movie->slug ? url('/movies/'.$movie->slug) : null,
             ];
         })->all();
     }
@@ -201,10 +200,10 @@ class SearchGlobal extends Component
         return $shows->map(function (TvShow $show): array {
             return [
                 'id' => $show->id,
-                'title' => $show->name,
+                'title' => $show->localizedName(),
                 'subtitle' => optional($show->first_air_date)->format('Y'),
                 'poster' => $show->poster_path,
-                'url' => $show->slug ? url('/tv/' . $show->slug) : null,
+                'url' => $show->slug ? url('/tv/'.$show->slug) : null,
             ];
         })->all();
     }
@@ -217,7 +216,7 @@ class SearchGlobal extends Component
                 'title' => $person->name,
                 'subtitle' => $person->known_for_department,
                 'poster' => $person->profile_path,
-                'url' => $person->slug ? url('/people/' . $person->slug) : null,
+                'url' => $person->slug ? url('/people/'.$person->slug) : null,
             ];
         })->all();
     }
@@ -263,7 +262,7 @@ class SearchGlobal extends Component
             return $query->whereFullText($column, $term);
         }
 
-        return $query->where($column, 'LIKE', '%' . $this->escapeLike($term) . '%');
+        return $query->where($column, 'LIKE', '%'.$this->escapeLike($term).'%');
     }
 
     protected function supportsFullText(Builder $builder, string $table, string $column): bool
@@ -275,17 +274,17 @@ class SearchGlobal extends Component
             return false;
         }
 
-        $cacheKey = $driver . '|' . $connection->getTablePrefix() . $table . '|' . $column;
+        $cacheKey = $driver.'|'.$connection->getTablePrefix().$table.'|'.$column;
 
         if (array_key_exists($cacheKey, $this->fullTextCache)) {
             return $this->fullTextCache[$cacheKey];
         }
 
-        $tableName = $connection->getTablePrefix() . $table;
-        $escaped = '`' . str_replace('`', '``', $tableName) . '`';
+        $tableName = $connection->getTablePrefix().$table;
+        $escaped = '`'.str_replace('`', '``', $tableName).'`';
 
         try {
-            $indexes = $connection->select('SHOW INDEX FROM ' . $escaped);
+            $indexes = $connection->select('SHOW INDEX FROM '.$escaped);
         } catch (\Throwable $exception) {
             return $this->fullTextCache[$cacheKey] = false;
         }
