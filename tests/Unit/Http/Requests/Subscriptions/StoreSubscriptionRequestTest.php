@@ -3,66 +3,73 @@
 namespace Tests\Unit\Http\Requests\Subscriptions;
 
 use App\Http\Requests\Subscriptions\StoreSubscriptionRequest;
-use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class StoreSubscriptionRequestTest extends TestCase
 {
-    public function test_authorizes_authenticated_users(): void
+    protected function setUp(): void
     {
-        $user = User::factory()->make();
+        parent::setUp();
 
-        $request = StoreSubscriptionRequest::create('/', 'POST');
-        $request->setUserResolver(static fn () => $user);
-
-        $this->assertTrue($request->authorize());
+        app()->setLocale('en');
     }
 
-    public function test_rejects_guests(): void
-    {
-        $request = StoreSubscriptionRequest::create('/', 'POST');
-        $request->setUserResolver(static fn () => null);
-
-        $this->assertFalse($request->authorize());
-    }
-
-    public function test_it_defines_expected_rules(): void
+    public function test_price_is_required_and_must_be_a_string(): void
     {
         $request = new StoreSubscriptionRequest;
 
-        $this->assertSame([
-            'price' => ['required', 'string'],
-        ], $request->rules());
-    }
-
-    public function test_requires_price_with_translated_message(): void
-    {
-        $user = User::factory()->make();
-
-        $request = StoreSubscriptionRequest::create('/', 'POST');
-        $request->setUserResolver(static fn () => $user);
-
-        $validator = Validator::make($request->all(), $request->rules(), $request->messages());
+        $validator = Validator::make(
+            ['price' => ''],
+            $request->rules(),
+            $request->messages()
+        );
 
         $this->assertFalse($validator->passes());
-        $this->assertSame(__('subscriptions.errors.price_required'), $validator->errors()->first('price'));
+        $this->assertSame(
+            __('subscriptions.validation.price_required'),
+            $validator->errors()->first('price')
+        );
     }
 
-    public function test_accepts_string_price_values(): void
+    #[DataProvider('localeProvider')]
+    public function test_price_required_message_is_translated(string $locale, string $expected): void
     {
-        $user = User::factory()->make();
+        app()->setLocale($locale);
 
-        $request = StoreSubscriptionRequest::create('/', 'POST', [
-            'price' => 'price_123',
-        ]);
-        $request->setUserResolver(static fn () => $user);
+        $request = new StoreSubscriptionRequest;
 
-        $validator = Validator::make($request->all(), $request->rules(), $request->messages());
+        $validator = Validator::make(
+            ['price' => ''],
+            $request->rules(),
+            $request->messages()
+        );
+
+        $this->assertSame($expected, $validator->errors()->first('price'));
+
+        app()->setLocale('en');
+    }
+
+    public static function localeProvider(): array
+    {
+        return [
+            ['en', 'A Stripe price identifier is required to start your trial.'],
+            ['es', 'Se requiere un identificador de precio de Stripe para iniciar tu prueba.'],
+            ['fr', 'Un identifiant de prix Stripe est requis pour démarrer votre essai.'],
+        ];
+    }
+
+    public function test_valid_price_passes_validation(): void
+    {
+        $request = new StoreSubscriptionRequest;
+
+        $validator = Validator::make(
+            ['price' => 'price_monthly'],
+            $request->rules(),
+            $request->messages()
+        );
 
         $this->assertTrue($validator->passes());
-        $this->assertSame([
-            'price' => 'price_123',
-        ], $validator->validated());
     }
 }

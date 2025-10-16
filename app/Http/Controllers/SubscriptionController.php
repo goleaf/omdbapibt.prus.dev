@@ -15,11 +15,11 @@ class SubscriptionController extends Controller
     {
         $user = $request->user();
 
-        if ($user->subscribed('default')) {
+        if ($user->subscribed('default') || $user->onTrial('default')) {
             return SubscriptionRedirectResponse::alreadySubscribed();
         }
 
-        $price = $request->string('price')->toString();
+        $price = $request->price();
 
         $trialDays = (int) config('services.stripe.trial_days', 7);
 
