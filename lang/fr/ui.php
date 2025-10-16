@@ -144,6 +144,30 @@ return [
                 'gender_male' => 'Masculin',
                 'gender_non_binary' => 'Non binaire',
             ],
+            'relationships' => [
+                'title' => 'Taxonomies et langues',
+                'subtitle' => 'Associez des genres, des langues et des pays d’origine à chaque fiche.',
+                'suggestions' => 'Suggestions',
+                'empty' => 'Aucune suggestion ne correspond à la recherche.',
+                'genres' => [
+                    'label' => 'Genres',
+                    'help' => 'Utilisez des genres éditoriaux pour enrichir les filtres de découverte.',
+                    'none' => 'Aucun genre sélectionné.',
+                    'remove' => 'Retirer :name des genres sélectionnés',
+                ],
+                'languages' => [
+                    'label' => 'Langues',
+                    'help' => 'Suivez les doublages et sous-titres disponibles pour chaque titre.',
+                    'none' => 'Aucune langue sélectionnée.',
+                    'remove' => 'Retirer :name des langues sélectionnées',
+                ],
+                'countries' => [
+                    'label' => 'Pays',
+                    'help' => 'Renseignez le pays de production pour la conformité et la programmation.',
+                    'none' => 'Aucun pays sélectionné.',
+                    'remove' => 'Retirer :name des pays sélectionnés',
+                ],
+            ],
         ],
     ],
     'dashboard' => [

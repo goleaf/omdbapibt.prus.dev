@@ -150,6 +150,30 @@ return [
                 'gender_male' => 'Male',
                 'gender_non_binary' => 'Non-binary',
             ],
+            'relationships' => [
+                'title' => 'Taxonomies & locales',
+                'subtitle' => 'Attach genres, languages, and origin countries to power downstream experiences.',
+                'suggestions' => 'Suggestions',
+                'empty' => 'No suggestions match the current search.',
+                'genres' => [
+                    'label' => 'Genres',
+                    'help' => 'Use curated genre tags to strengthen discovery filters and storefront rails.',
+                    'none' => 'No genres selected yet.',
+                    'remove' => 'Remove :name from the selected genres',
+                ],
+                'languages' => [
+                    'label' => 'Languages',
+                    'help' => 'Track available dubs and subtitle locales for accurate availability tooling.',
+                    'none' => 'No languages selected yet.',
+                    'remove' => 'Remove :name from the selected languages',
+                ],
+                'countries' => [
+                    'label' => 'Countries',
+                    'help' => 'Map production origin for compliance and regional programming insights.',
+                    'none' => 'No countries selected yet.',
+                    'remove' => 'Remove :name from the selected countries',
+                ],
+            ],
         ],
     ],
     'dashboard' => [

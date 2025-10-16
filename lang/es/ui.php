@@ -144,6 +144,30 @@ return [
                 'gender_male' => 'Masculino',
                 'gender_non_binary' => 'No binario',
             ],
+            'relationships' => [
+                'title' => 'Taxonomías y localizaciones',
+                'subtitle' => 'Asocia géneros, idiomas y países de origen para potenciar el portal.',
+                'suggestions' => 'Sugerencias',
+                'empty' => 'No hay sugerencias para la búsqueda actual.',
+                'genres' => [
+                    'label' => 'Géneros',
+                    'help' => 'Usa etiquetas de género curadas para mejorar los filtros de descubrimiento y el escaparate.',
+                    'none' => 'Aún no hay géneros seleccionados.',
+                    'remove' => 'Quitar :name de los géneros seleccionados',
+                ],
+                'languages' => [
+                    'label' => 'Idiomas',
+                    'help' => 'Controla doblajes y subtítulos disponibles para cada título.',
+                    'none' => 'Aún no hay idiomas seleccionados.',
+                    'remove' => 'Quitar :name de los idiomas seleccionados',
+                ],
+                'countries' => [
+                    'label' => 'Países',
+                    'help' => 'Registra el país de producción para reportes y cumplimiento.',
+                    'none' => 'Aún no hay países seleccionados.',
+                    'remove' => 'Quitar :name de los países seleccionados',
+                ],
+            ],
         ],
     ],
     'dashboard' => [

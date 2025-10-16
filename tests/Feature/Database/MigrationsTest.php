@@ -341,6 +341,27 @@ class MigrationsTest extends TestCase
                 'created_at',
                 'updated_at',
             ]],
+            'tv show genre pivot table' => ['tv_show_genre', [
+                'id',
+                'tv_show_id',
+                'genre_id',
+                'created_at',
+                'updated_at',
+            ]],
+            'tv show language pivot table' => ['tv_show_language', [
+                'id',
+                'tv_show_id',
+                'language_id',
+                'created_at',
+                'updated_at',
+            ]],
+            'tv show country pivot table' => ['tv_show_country', [
+                'id',
+                'tv_show_id',
+                'country_id',
+                'created_at',
+                'updated_at',
+            ]],
             'movie person pivot table' => ['movie_person', [
                 'id',
                 'movie_id',

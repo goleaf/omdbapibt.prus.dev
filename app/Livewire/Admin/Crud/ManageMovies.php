@@ -2,15 +2,26 @@
 
 namespace App\Livewire\Admin\Crud;
 
+use App\Models\Country;
+use App\Models\Genre;
+use App\Models\Language;
 use App\Models\Movie;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Computed;
 
 class ManageMovies extends CrudComponent
 {
+    public array $relationSearch = [
+        'genres' => '',
+        'languages' => '',
+        'countries' => '',
+    ];
+
     protected function model(): string
     {
         return Movie::class;
@@ -30,6 +41,9 @@ class ManageMovies extends CrudComponent
             'release_date' => '',
             'vote_average' => '',
             'adult' => false,
+            'genre_ids' => [],
+            'language_ids' => [],
+            'country_ids' => [],
         ];
     }
 
@@ -47,6 +61,12 @@ class ManageMovies extends CrudComponent
             'form.release_date' => ['nullable', 'date'],
             'form.vote_average' => ['nullable', 'numeric', 'min:0', 'max:10'],
             'form.adult' => ['boolean'],
+            'form.genre_ids' => ['array'],
+            'form.genre_ids.*' => ['integer', Rule::exists('genres', 'id')],
+            'form.language_ids' => ['array'],
+            'form.language_ids.*' => ['integer', Rule::exists('languages', 'id')],
+            'form.country_ids' => ['array'],
+            'form.country_ids.*' => ['integer', Rule::exists('countries', 'id')],
         ];
     }
 
@@ -86,6 +106,7 @@ class ManageMovies extends CrudComponent
     protected function fillFromModel(Model $model): array
     {
         /** @var Movie $model */
+        $model->loadMissing(['genres:id', 'languages:id', 'countries:id']);
         $titles = $model->title;
 
         $title = '';
@@ -103,6 +124,9 @@ class ManageMovies extends CrudComponent
             'release_date' => optional($model->release_date)->toDateString() ?? '',
             'vote_average' => $model->vote_average !== null ? (string) $model->vote_average : '',
             'adult' => (bool) $model->adult,
+            'genre_ids' => $model->genres->pluck('id')->map(static fn (int $id) => $id)->all(),
+            'language_ids' => $model->languages->pluck('id')->map(static fn (int $id) => $id)->all(),
+            'country_ids' => $model->countries->pluck('id')->map(static fn (int $id) => $id)->all(),
         ];
     }
 
@@ -115,6 +139,196 @@ class ManageMovies extends CrudComponent
             'form.release_date' => 'release date',
             'form.vote_average' => 'vote average',
             'form.adult' => 'adult flag',
+            'form.genre_ids' => 'genres',
+            'form.language_ids' => 'languages',
+            'form.country_ids' => 'countries',
         ];
+    }
+
+    #[Computed]
+    public function availableGenres(): Collection
+    {
+        $search = $this->relationSearchTerm('genres');
+        $selected = $this->sanitizeSelection('genre_ids');
+
+        return Genre::query()
+            ->select(['id', 'name', 'name_translations', 'slug'])
+            ->when($search !== '', function (Builder $builder) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $builder->where(function (Builder $inner) use ($like): void {
+                    $inner
+                        ->where('slug', 'like', $like)
+                        ->orWhere('name', 'like', $like)
+                        ->orWhere('name_translations->en', 'like', $like);
+                });
+            })
+            ->when($selected !== [], function (Builder $builder) use ($selected): void {
+                $builder->whereNotIn('id', $selected);
+            })
+            ->orderBy('name')
+            ->limit(12)
+            ->get();
+    }
+
+    #[Computed]
+    public function availableLanguages(): Collection
+    {
+        $search = $this->relationSearchTerm('languages');
+        $selected = $this->sanitizeSelection('language_ids');
+
+        return Language::query()
+            ->select(['id', 'code', 'name_translations', 'native_name_translations'])
+            ->when($search !== '', function (Builder $builder) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $builder->where(function (Builder $inner) use ($like): void {
+                    $inner
+                        ->where('code', 'like', $like)
+                        ->orWhere('name_translations->en', 'like', $like)
+                        ->orWhere('native_name_translations->en', 'like', $like);
+                });
+            })
+            ->when($selected !== [], function (Builder $builder) use ($selected): void {
+                $builder->whereNotIn('id', $selected);
+            })
+            ->orderBy('code')
+            ->limit(12)
+            ->get();
+    }
+
+    #[Computed]
+    public function availableCountries(): Collection
+    {
+        $search = $this->relationSearchTerm('countries');
+        $selected = $this->sanitizeSelection('country_ids');
+
+        return Country::query()
+            ->select(['id', 'code', 'name', 'name_translations'])
+            ->when($search !== '', function (Builder $builder) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $builder->where(function (Builder $inner) use ($like): void {
+                    $inner
+                        ->where('code', 'like', $like)
+                        ->orWhere('name', 'like', $like)
+                        ->orWhere('name_translations->en', 'like', $like);
+                });
+            })
+            ->when($selected !== [], function (Builder $builder) use ($selected): void {
+                $builder->whereNotIn('id', $selected);
+            })
+            ->orderBy('name')
+            ->limit(12)
+            ->get();
+    }
+
+    #[Computed]
+    public function selectedGenres(): Collection
+    {
+        $ids = $this->sanitizeSelection('genre_ids');
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        return Genre::query()
+            ->select(['id', 'name', 'name_translations', 'slug'])
+            ->whereIn('id', $ids)
+            ->get()
+            ->sortBy(fn (Genre $genre) => array_search($genre->id, $ids, true))
+            ->values();
+    }
+
+    #[Computed]
+    public function selectedLanguages(): Collection
+    {
+        $ids = $this->sanitizeSelection('language_ids');
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        return Language::query()
+            ->select(['id', 'code', 'name_translations', 'native_name_translations'])
+            ->whereIn('id', $ids)
+            ->get()
+            ->sortBy(fn (Language $language) => array_search($language->id, $ids, true))
+            ->values();
+    }
+
+    #[Computed]
+    public function selectedCountries(): Collection
+    {
+        $ids = $this->sanitizeSelection('country_ids');
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        return Country::query()
+            ->select(['id', 'code', 'name', 'name_translations'])
+            ->whereIn('id', $ids)
+            ->get()
+            ->sortBy(fn (Country $country) => array_search($country->id, $ids, true))
+            ->values();
+    }
+
+    public function toggleGenre(int $genreId): void
+    {
+        $this->form['genre_ids'] = $this->toggleIds($this->sanitizeSelection('genre_ids'), $genreId);
+    }
+
+    public function toggleLanguage(int $languageId): void
+    {
+        $this->form['language_ids'] = $this->toggleIds($this->sanitizeSelection('language_ids'), $languageId);
+    }
+
+    public function toggleCountry(int $countryId): void
+    {
+        $this->form['country_ids'] = $this->toggleIds($this->sanitizeSelection('country_ids'), $countryId);
+    }
+
+    protected function afterSave(Model $model): void
+    {
+        /** @var Movie $model */
+        $model->genres()->sync($this->sanitizeSelection('genre_ids'));
+        $model->languages()->sync($this->sanitizeSelection('language_ids'));
+        $model->countries()->sync($this->sanitizeSelection('country_ids'));
+    }
+
+    private function relationSearchTerm(string $key): string
+    {
+        return trim((string) ($this->relationSearch[$key] ?? ''));
+    }
+
+    private function sanitizeSelection(string $key): array
+    {
+        $value = $this->form[$key] ?? [];
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $ids = array_map(static fn ($id) => (int) $id, $value);
+        $ids = array_filter($ids, static fn (int $id) => $id > 0);
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * @param  array<int>  $ids
+     */
+    private function toggleIds(array $ids, int $id): array
+    {
+        $id = (int) $id;
+
+        if (in_array($id, $ids, true)) {
+            return array_values(array_filter($ids, static fn (int $value) => $value !== $id));
+        }
+
+        $ids[] = $id;
+
+        return array_values(array_unique($ids));
     }
 }

@@ -101,6 +101,166 @@
                 <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
             @enderror
 
+            <div class="rounded-3xl border border-slate-800/60 bg-slate-950/40 p-4">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-white">{{ __('ui.admin.panel.relationships.title') }}</h3>
+                        <p class="text-xs text-slate-400">{{ __('ui.admin.panel.relationships.subtitle') }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid gap-6">
+                    <div class="space-y-3">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.genres.label') }}</p>
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.genres.help') }}</p>
+                            </div>
+                            <input
+                                type="search"
+                                wire:model.live="relationSearch.genres"
+                                placeholder="{{ __('ui.admin.panel.placeholders.search_genres') }}"
+                                class="w-full rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-xs text-slate-100 focus:border-emerald-400 focus:outline-none sm:w-auto"
+                            />
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @forelse ($this->selectedGenres as $genre)
+                                <button
+                                    type="button"
+                                    wire:click="toggleGenre({{ $genre->id }})"
+                                    wire:key="selected-genre-{{ $genre->id }}"
+                                    class="group inline-flex items-center gap-2 rounded-full bg-emerald-900/40 px-3 py-1 text-xs text-emerald-200 transition hover:bg-emerald-800/60"
+                                >
+                                    <span>{{ $genre->localizedName('en') }}</span>
+                                    <span aria-hidden="true" class="text-emerald-300 group-hover:text-emerald-100">×</span>
+                                    <span class="sr-only">{{ __('ui.admin.panel.relationships.genres.remove', ['name' => $genre->localizedName('en')]) }}</span>
+                                </button>
+                            @empty
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.genres.none') }}</p>
+                            @endforelse
+                        </div>
+                        <div class="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-3">
+                            <p class="text-[0.65rem] uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.suggestions') }}</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @forelse ($this->availableGenres as $genre)
+                                    <button
+                                        type="button"
+                                        wire:click="toggleGenre({{ $genre->id }})"
+                                        wire:key="available-genre-{{ $genre->id }}"
+                                        class="inline-flex items-center gap-2 rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200"
+                                    >
+                                        <span>{{ $genre->localizedName('en') }}</span>
+                                        <span class="text-[0.65rem] uppercase text-slate-500">{{ $genre->slug }}</span>
+                                    </button>
+                                @empty
+                                    <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.empty') }}</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.languages.label') }}</p>
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.languages.help') }}</p>
+                            </div>
+                            <input
+                                type="search"
+                                wire:model.live="relationSearch.languages"
+                                placeholder="{{ __('ui.admin.panel.placeholders.search_languages') }}"
+                                class="w-full rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-xs text-slate-100 focus:border-emerald-400 focus:outline-none sm:w-auto"
+                            />
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @forelse ($this->selectedLanguages as $language)
+                                <button
+                                    type="button"
+                                    wire:click="toggleLanguage({{ $language->id }})"
+                                    wire:key="selected-language-{{ $language->id }}"
+                                    class="group inline-flex items-center gap-2 rounded-full bg-cyan-900/30 px-3 py-1 text-xs text-cyan-100 transition hover:bg-cyan-800/60"
+                                >
+                                    <span>{{ $language->localizedName('en') }}</span>
+                                    <span class="text-[0.65rem] uppercase text-cyan-200">{{ $language->code }}</span>
+                                    <span aria-hidden="true" class="text-cyan-300 group-hover:text-cyan-100">×</span>
+                                    <span class="sr-only">{{ __('ui.admin.panel.relationships.languages.remove', ['name' => $language->localizedName('en')]) }}</span>
+                                </button>
+                            @empty
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.languages.none') }}</p>
+                            @endforelse
+                        </div>
+                        <div class="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-3">
+                            <p class="text-[0.65rem] uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.suggestions') }}</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @forelse ($this->availableLanguages as $language)
+                                    <button
+                                        type="button"
+                                        wire:click="toggleLanguage({{ $language->id }})"
+                                        wire:key="available-language-{{ $language->id }}"
+                                        class="inline-flex items-center gap-2 rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 transition hover:border-cyan-400 hover:text-cyan-200"
+                                    >
+                                        <span>{{ $language->localizedName('en') }}</span>
+                                        <span class="text-[0.65rem] uppercase text-slate-500">{{ $language->code }}</span>
+                                    </button>
+                                @empty
+                                    <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.empty') }}</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.countries.label') }}</p>
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.countries.help') }}</p>
+                            </div>
+                            <input
+                                type="search"
+                                wire:model.live="relationSearch.countries"
+                                placeholder="{{ __('ui.admin.panel.placeholders.search_countries') }}"
+                                class="w-full rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-xs text-slate-100 focus:border-emerald-400 focus:outline-none sm:w-auto"
+                            />
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @forelse ($this->selectedCountries as $country)
+                                <button
+                                    type="button"
+                                    wire:click="toggleCountry({{ $country->id }})"
+                                    wire:key="selected-country-{{ $country->id }}"
+                                    class="group inline-flex items-center gap-2 rounded-full bg-indigo-900/30 px-3 py-1 text-xs text-indigo-100 transition hover:bg-indigo-800/60"
+                                >
+                                    <span>{{ $country->localizedName('en') }}</span>
+                                    <span class="text-[0.65rem] uppercase text-indigo-200">{{ $country->code }}</span>
+                                    <span aria-hidden="true" class="text-indigo-300 group-hover:text-indigo-100">×</span>
+                                    <span class="sr-only">{{ __('ui.admin.panel.relationships.countries.remove', ['name' => $country->localizedName('en')]) }}</span>
+                                </button>
+                            @empty
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.countries.none') }}</p>
+                            @endforelse
+                        </div>
+                        <div class="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-3">
+                            <p class="text-[0.65rem] uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.suggestions') }}</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @forelse ($this->availableCountries as $country)
+                                    <button
+                                        type="button"
+                                        wire:click="toggleCountry({{ $country->id }})"
+                                        wire:key="available-country-{{ $country->id }}"
+                                        class="inline-flex items-center gap-2 rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 transition hover:border-indigo-400 hover:text-indigo-200"
+                                    >
+                                        <span>{{ $country->localizedName('en') }}</span>
+                                        <span class="text-[0.65rem] uppercase text-slate-500">{{ $country->code }}</span>
+                                    </button>
+                                @empty
+                                    <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.empty') }}</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex items-center gap-3 pt-2">
                 <button
                     type="submit"

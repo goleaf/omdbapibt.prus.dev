@@ -37,6 +37,12 @@ class ManageCatalogResourcesTest extends TestCase
     public function test_admin_can_manage_movies(): void
     {
         $admin = User::factory()->admin()->create();
+        $genre = Genre::factory()->create();
+        $secondaryGenre = Genre::factory()->create();
+        $language = Language::factory()->create(['code' => 'am']);
+        $secondaryLanguage = Language::factory()->create(['code' => 'bm']);
+        $country = Country::factory()->create(['code' => 'AM']);
+        $secondaryCountry = Country::factory()->create(['code' => 'BM']);
 
         Livewire::actingAs($admin)
             ->test(ManageMovies::class)
@@ -46,21 +52,64 @@ class ManageCatalogResourcesTest extends TestCase
             ->set('form.release_date', '2024-01-01')
             ->set('form.vote_average', '8.5')
             ->set('form.adult', false)
+            ->set('form.genre_ids', [$genre->id])
+            ->set('form.language_ids', [$language->id])
+            ->set('form.country_ids', [$country->id])
             ->call('save')
             ->assertDispatched('record-saved');
 
         $movie = Movie::query()->where('title->en', 'Admin Movie')->firstOrFail();
 
+        $this->assertDatabaseHas('movie_genre', [
+            'movie_id' => $movie->id,
+            'genre_id' => $genre->id,
+        ]);
+        $this->assertDatabaseHas('movie_language', [
+            'movie_id' => $movie->id,
+            'language_id' => $language->id,
+        ]);
+        $this->assertDatabaseHas('movie_country', [
+            'movie_id' => $movie->id,
+            'country_id' => $country->id,
+        ]);
+
         Livewire::actingAs($admin)
             ->test(ManageMovies::class)
             ->call('edit', $movie->id)
             ->set('form.status', 'Archived')
+            ->set('form.genre_ids', [$secondaryGenre->id])
+            ->set('form.language_ids', [$secondaryLanguage->id])
+            ->set('form.country_ids', [$secondaryCountry->id])
             ->call('save')
             ->assertDispatched('record-saved');
 
         $this->assertDatabaseHas('movies', [
             'id' => $movie->id,
             'status' => 'Archived',
+        ]);
+        $this->assertDatabaseHas('movie_genre', [
+            'movie_id' => $movie->id,
+            'genre_id' => $secondaryGenre->id,
+        ]);
+        $this->assertDatabaseMissing('movie_genre', [
+            'movie_id' => $movie->id,
+            'genre_id' => $genre->id,
+        ]);
+        $this->assertDatabaseHas('movie_language', [
+            'movie_id' => $movie->id,
+            'language_id' => $secondaryLanguage->id,
+        ]);
+        $this->assertDatabaseMissing('movie_language', [
+            'movie_id' => $movie->id,
+            'language_id' => $language->id,
+        ]);
+        $this->assertDatabaseHas('movie_country', [
+            'movie_id' => $movie->id,
+            'country_id' => $secondaryCountry->id,
+        ]);
+        $this->assertDatabaseMissing('movie_country', [
+            'movie_id' => $movie->id,
+            'country_id' => $country->id,
         ]);
 
         Livewire::actingAs($admin)
@@ -69,11 +118,29 @@ class ManageCatalogResourcesTest extends TestCase
             ->assertDispatched('record-deleted');
 
         $this->assertSoftDeleted('movies', ['id' => $movie->id]);
+        $this->assertDatabaseMissing('movie_genre', [
+            'movie_id' => $movie->id,
+            'genre_id' => $secondaryGenre->id,
+        ]);
+        $this->assertDatabaseMissing('movie_language', [
+            'movie_id' => $movie->id,
+            'language_id' => $secondaryLanguage->id,
+        ]);
+        $this->assertDatabaseMissing('movie_country', [
+            'movie_id' => $movie->id,
+            'country_id' => $secondaryCountry->id,
+        ]);
     }
 
     public function test_admin_can_manage_tv_shows(): void
     {
         $admin = User::factory()->admin()->create();
+        $genre = Genre::factory()->create();
+        $secondaryGenre = Genre::factory()->create();
+        $language = Language::factory()->create(['code' => 'cm']);
+        $secondaryLanguage = Language::factory()->create(['code' => 'dm']);
+        $country = Country::factory()->create(['code' => 'CM']);
+        $secondaryCountry = Country::factory()->create(['code' => 'DM']);
 
         Livewire::actingAs($admin)
             ->test(ManageTvShows::class)
@@ -83,21 +150,64 @@ class ManageCatalogResourcesTest extends TestCase
             ->set('form.first_air_date', '2023-09-05')
             ->set('form.vote_average', '7.2')
             ->set('form.adult', false)
+            ->set('form.genre_ids', [$genre->id])
+            ->set('form.language_ids', [$language->id])
+            ->set('form.country_ids', [$country->id])
             ->call('save')
             ->assertDispatched('record-saved');
 
         $show = TvShow::query()->where('name', 'Admin Series')->firstOrFail();
 
+        $this->assertDatabaseHas('tv_show_genre', [
+            'tv_show_id' => $show->id,
+            'genre_id' => $genre->id,
+        ]);
+        $this->assertDatabaseHas('tv_show_language', [
+            'tv_show_id' => $show->id,
+            'language_id' => $language->id,
+        ]);
+        $this->assertDatabaseHas('tv_show_country', [
+            'tv_show_id' => $show->id,
+            'country_id' => $country->id,
+        ]);
+
         Livewire::actingAs($admin)
             ->test(ManageTvShows::class)
             ->call('edit', $show->id)
             ->set('form.status', 'Ended')
+            ->set('form.genre_ids', [$secondaryGenre->id])
+            ->set('form.language_ids', [$secondaryLanguage->id])
+            ->set('form.country_ids', [$secondaryCountry->id])
             ->call('save')
             ->assertDispatched('record-saved');
 
         $this->assertDatabaseHas('tv_shows', [
             'id' => $show->id,
             'status' => 'Ended',
+        ]);
+        $this->assertDatabaseHas('tv_show_genre', [
+            'tv_show_id' => $show->id,
+            'genre_id' => $secondaryGenre->id,
+        ]);
+        $this->assertDatabaseMissing('tv_show_genre', [
+            'tv_show_id' => $show->id,
+            'genre_id' => $genre->id,
+        ]);
+        $this->assertDatabaseHas('tv_show_language', [
+            'tv_show_id' => $show->id,
+            'language_id' => $secondaryLanguage->id,
+        ]);
+        $this->assertDatabaseMissing('tv_show_language', [
+            'tv_show_id' => $show->id,
+            'language_id' => $language->id,
+        ]);
+        $this->assertDatabaseHas('tv_show_country', [
+            'tv_show_id' => $show->id,
+            'country_id' => $secondaryCountry->id,
+        ]);
+        $this->assertDatabaseMissing('tv_show_country', [
+            'tv_show_id' => $show->id,
+            'country_id' => $country->id,
         ]);
 
         Livewire::actingAs($admin)
@@ -106,6 +216,18 @@ class ManageCatalogResourcesTest extends TestCase
             ->assertDispatched('record-deleted');
 
         $this->assertSoftDeleted('tv_shows', ['id' => $show->id]);
+        $this->assertDatabaseMissing('tv_show_genre', [
+            'tv_show_id' => $show->id,
+            'genre_id' => $secondaryGenre->id,
+        ]);
+        $this->assertDatabaseMissing('tv_show_language', [
+            'tv_show_id' => $show->id,
+            'language_id' => $secondaryLanguage->id,
+        ]);
+        $this->assertDatabaseMissing('tv_show_country', [
+            'tv_show_id' => $show->id,
+            'country_id' => $secondaryCountry->id,
+        ]);
     }
 
     public function test_admin_can_manage_people(): void
