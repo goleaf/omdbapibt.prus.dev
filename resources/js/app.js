@@ -207,7 +207,7 @@ const setupSidebar = (root) => {
 };
 
 const setupMobileNavigation = () => {
-    document.querySelectorAll('[data-mobile-nav]').forEach((root) => {
+    document.querySelectorAll('[data-layout-navigation]').forEach((root) => {
         const panel = root.querySelector('[data-mobile-nav-panel]');
 
         if (!panel) {
