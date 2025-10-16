@@ -15,11 +15,6 @@ use Throwable;
 class CheckOmdbApi extends Command
 {
     /**
-     * The maximum number of keys to check per batch.
-     */
-    private const BATCH_SIZE = 10;
-
-    /**
      * Cache key for persisting the last processed candidate identifier.
      */
     private const PROGRESS_CACHE_KEY = 'commands:check-omdb-api:checkpoint';
@@ -29,7 +24,11 @@ class CheckOmdbApi extends Command
      *
      * @var string
      */
-    protected $signature = 'checkapi {--from= : Candidate primary key to resume processing from}';
+    protected $signature = 'checkapi
+        {--from= : Candidate primary key to resume processing from}
+        {--batch= : Maximum number of keys to validate per batch}
+        {--timeout= : Timeout in seconds for each OMDb validation request}
+        {--imdb= : IMDb identifier used when probing candidate keys}';
 
     /**
      * The console command description.
@@ -63,8 +62,14 @@ class CheckOmdbApi extends Command
         $totalSuccess = 0;
         $totalInvalid = 0;
 
+        $batchSize = $this->determineBatchSize();
+        $timeout = $this->determineTimeout();
+        $testImdbId = $this->determineTestImdbId();
+        $baseUrl = $this->determineBaseUrl();
+        $connectTimeout = min($timeout, 5);
+
         while (true) {
-            $batch = $this->nextBatch($checkpoint);
+            $batch = $this->nextBatch($checkpoint, $batchSize);
 
             if ($batch->isEmpty()) {
                 if ($totalProcessed === 0) {
@@ -84,15 +89,15 @@ class CheckOmdbApi extends Command
                 $endKey
             ));
 
-            $responses = $this->http->pool(function (Pool $pool) use ($batch) {
+            $responses = $this->http->pool(function (Pool $pool) use ($batch, $connectTimeout, $timeout, $baseUrl, $testImdbId) {
                 foreach ($batch as $candidate) {
                     $pool->as((string) $candidate->getKey())
                         ->withOptions([
-                            'connect_timeout' => 5,
-                            'timeout' => 10,
+                            'connect_timeout' => $connectTimeout,
+                            'timeout' => $timeout,
                         ])
-                        ->get('https://www.omdbapi.com/', [
-                            'i' => 'tt12788488',
+                        ->get($baseUrl, [
+                            'i' => $testImdbId,
                             'apikey' => $candidate->key,
                         ]);
                 }
@@ -137,7 +142,7 @@ class CheckOmdbApi extends Command
     /**
      * Retrieve the next batch of candidate keys using the stored checkpoint.
      */
-    protected function nextBatch(int $checkpoint): Collection
+    protected function nextBatch(int $checkpoint, int $batchSize): Collection
     {
         $primaryKey = $this->keys->getKeyName();
 
@@ -147,8 +152,52 @@ class CheckOmdbApi extends Command
                 $query->where($primaryKey, '>', $checkpoint);
             })
             ->orderBy($primaryKey)
-            ->limit(self::BATCH_SIZE)
+            ->limit($batchSize)
             ->get();
+    }
+
+    /**
+     * Resolve the batch size for each iteration.
+     */
+    protected function determineBatchSize(): int
+    {
+        $override = $this->option('batch');
+
+        if ($override !== null) {
+            return max(1, (int) $override);
+        }
+
+        return max(1, (int) config('services.omdb.validation.batch_size', 10));
+    }
+
+    /**
+     * Resolve the timeout applied to OMDb validation requests.
+     */
+    protected function determineTimeout(): int
+    {
+        $override = $this->option('timeout');
+
+        if ($override !== null) {
+            return max(1, (int) $override);
+        }
+
+        return max(1, (int) config('services.omdb.validation.timeout', 10));
+    }
+
+    /**
+     * Resolve the IMDb identifier used when probing candidate keys.
+     */
+    protected function determineTestImdbId(): string
+    {
+        return (string) ($this->option('imdb') ?? config('services.omdb.validation.test_imdb_id', 'tt3896198'));
+    }
+
+    /**
+     * Resolve the OMDb base URL from configuration.
+     */
+    protected function determineBaseUrl(): string
+    {
+        return rtrim((string) config('services.omdb.base_url', 'https://www.omdbapi.com/'), '/');
     }
 
     /**
@@ -167,6 +216,7 @@ class CheckOmdbApi extends Command
 
             if (! $response instanceof Response) {
                 $this->error(sprintf('Missing response for candidate #%d.', $candidate->getKey()));
+
                 continue;
             }
 
@@ -179,7 +229,7 @@ class CheckOmdbApi extends Command
                     ])->save();
 
                     $this->info(sprintf('✓ Key %s is valid.', $this->maskKey($candidate->key)));
-                    ++$success;
+                    $success++;
 
                     continue;
                 }
@@ -191,7 +241,7 @@ class CheckOmdbApi extends Command
                     ])->save();
 
                     $this->warn(sprintf('✗ Key %s is invalid.', $this->maskKey($candidate->key)));
-                    ++$invalid;
+                    $invalid++;
 
                     continue;
                 }
