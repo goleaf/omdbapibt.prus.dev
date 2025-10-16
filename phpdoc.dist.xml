@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpdocumentor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://www.phpdoc.org"
+    xsi:noNamespaceSchemaLocation="https://www.phpdoc.org/schemas/phpdoc.xsd"
+    configVersion="3">
+    <title>OMDB API Platform PHP Documentation</title>
+
+    <paths>
+        <output>storage/app/private/phpdoc/html</output>
+        <cache>storage/app/private/phpdoc/cache</cache>
+    </paths>
+
+    <version number="latest">
+        <folder>latest</folder>
+        <api>
+            <source dsn=".">
+                <path>app</path>
+                <path>bootstrap</path>
+                <path>config</path>
+                <path>database</path>
+                <path>routes</path>
+                <path>tests</path>
+            </source>
+            <output>api</output>
+            <ignore hidden="true" symlinks="true">
+                <path>vendor/**/*</path>
+                <path>storage/**/*</path>
+                <path>node_modules/**/*</path>
+                <path>public/**/*</path>
+            </ignore>
+            <extensions>
+                <extension>php</extension>
+            </extensions>
+            <default-package-name>Application</default-package-name>
+        </api>
+    </version>
+
+    <template name="clean"/>
+</phpdocumentor>

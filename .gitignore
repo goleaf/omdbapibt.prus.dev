@@ -14,9 +14,14 @@
 /auth.json
 /node_modules
 /public/build
+/public/docs
 /public/hot
 /public/storage
+/public/vendor/scribe
+/resources/views/scribe
+/.scribe/
 /storage/*.key
+/storage/app/private/phpdoc/
 /storage/pail
 /vendor
 Homestead.json
