@@ -11,6 +11,8 @@ use Illuminate\Support\Collection;
 
 class ParserEntryHistorySeeder extends Seeder
 {
+    private const CHUNK_SIZE = 250;
+
     /**
      * Seed parser entry review history logs linked to seeded users.
      */
@@ -20,34 +22,41 @@ class ParserEntryHistorySeeder extends Seeder
             return;
         }
 
-        $entries = ParserEntry::query()->get();
-        $users = User::query()->get();
+        $users = User::query()->select('id')->get();
 
-        if ($entries->isEmpty() || $users->isEmpty()) {
+        if ($users->isEmpty()) {
             return;
         }
 
-        $entries->each(function (ParserEntry $entry) use ($users): void {
-            $historyCount = random_int(1, 3);
+        if (! ParserEntry::query()->exists()) {
+            return;
+        }
 
-            Collection::times($historyCount, fn () => true)->each(function () use ($entry, $users): void {
-                $actor = $users->random();
-                $action = collect(ParserReviewAction::cases())->random();
+        ParserEntry::query()
+            ->orderBy('id')
+            ->chunkById(self::CHUNK_SIZE, function (Collection $entries) use ($users): void {
+                $entries->each(function (ParserEntry $entry) use ($users): void {
+                    $historyCount = random_int(1, 3);
 
-                ParserEntryHistory::query()->create([
-                    'parser_entry_id' => $entry->getKey(),
-                    'user_id' => $actor->getKey(),
-                    'action' => $action->value,
-                    'changes' => [
-                        [
-                            'key' => 'popularity',
-                            'before' => fake()->randomFloat(2, 0, 500),
-                            'after' => fake()->randomFloat(2, 0, 500),
-                        ],
-                    ],
-                    'notes' => fake()->boolean(50) ? fake()->sentence() : null,
-                ]);
+                    Collection::times($historyCount, fn () => true)->each(function () use ($entry, $users): void {
+                        $actor = $users->random();
+                        $action = collect(ParserReviewAction::cases())->random();
+
+                        ParserEntryHistory::query()->create([
+                            'parser_entry_id' => $entry->getKey(),
+                            'user_id' => $actor->getKey(),
+                            'action' => $action->value,
+                            'changes' => [
+                                [
+                                    'key' => 'popularity',
+                                    'before' => fake()->randomFloat(2, 0, 500),
+                                    'after' => fake()->randomFloat(2, 0, 500),
+                                ],
+                            ],
+                            'notes' => fake()->boolean(50) ? fake()->sentence() : null,
+                        ]);
+                    });
+                });
             });
-        });
     }
 }
