@@ -6,45 +6,50 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string $key
+ * @property string|null $status
+ * @property \Illuminate\Support\Carbon|null $last_checked_at
+ * @property \Illuminate\Support\Carbon|null $last_confirmed_at
+ */
 class OmdbApiKey extends Model
 {
     use HasFactory;
 
-    public const STATUS_WORKING = 'working';
-    public const STATUS_DEAD = 'dead';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_VALID = 'valid';
+    public const STATUS_INVALID = 'invalid';
+    public const STATUS_UNKNOWN = 'unknown';
 
     /**
+     * The attributes that are mass assignable.
+     *
      * @var array<int, string>
      */
     protected $fillable = [
         'key',
-        'first_seen_at',
-        'last_checked_at',
-        'last_response_code',
         'status',
+        'last_checked_at',
+        'last_confirmed_at',
     ];
 
     /**
+     * The attributes that should be cast.
+     *
      * @var array<string, string>
      */
     protected $casts = [
-        'first_seen_at' => 'immutable_datetime',
-        'last_checked_at' => 'immutable_datetime',
+        'last_checked_at' => 'datetime',
+        'last_confirmed_at' => 'datetime',
     ];
 
-    public function scopeWorking(Builder $query): Builder
+    /**
+     * Scope a query to only include candidate keys that still need verification.
+     */
+    public function scopePending(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_WORKING);
-    }
-
-    public function scopeResumeFrom(Builder $query, ?string $cursor): Builder
-    {
-        if ($cursor === null) {
-            return $query->orderBy('key');
-        }
-
-        return $query
-            ->where('key', '>', $cursor)
-            ->orderBy('key');
+        return $query->where(function (Builder $builder): void {
+            $builder->whereNull('status')->orWhere('status', self::STATUS_PENDING);
+        });
     }
 }

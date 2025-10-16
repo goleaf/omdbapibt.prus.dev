@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\CheckOmdbApi;
 use App\Console\Commands\CleanupExpiredTrials;
 use App\Console\Commands\Parser\HydrateMovies;
 use App\Console\Commands\Parser\HydratePeople;
@@ -35,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         AuthServiceProvider::class,
     ])
     ->withCommands([
+        CheckOmdbApi::class,
         CleanupExpiredTrials::class,
         HydrateMovies::class,
         HydrateTvShows::class,
