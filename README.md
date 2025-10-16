@@ -83,6 +83,40 @@ When your checkout includes the optional billing seeders (`SubscriptionSeeder`, 
 
 Each seeder is written to be re-runnable, either by upserting rows or short-circuiting when data already exists, so you can refresh demo content without creating duplicates.
 
+## Viewer preference intelligence
+
+### Profile data model
+
+The application now persists rich viewer metadata in the dedicated `user_profiles` table. Each profile links to core catalogue
+entities so preferences remain consistent with the rest of the dataset:
+
+- Foreign keys point to `genres`, `languages`, `countries`, `movies`, `tv_shows`, and `people` records instead of storing free-form
+  JSON payloads.
+- New pivot tables (`user_profile_genre_preferences`, `user_profile_language_preferences`, and
+  `user_profile_person_favorites`) record ranked preferences with weightings and audit timestamps so the recommendation engine can
+  reason about strength of affinity.
+- Derived behavioural metrics (weekly and session watch minutes, binge/rewatch scores, recent highlights, etc.) are refreshed in
+  factories and seeders to keep dashboards and analytics consistent.
+
+Running `php artisan db:seed --class=UserSeeder` now creates 100 users with fully-related profiles, populating preference pivots
+and generating watch-history highlights for each user.
+
+### Recommendation engine
+
+`App\Services\Movies\RecommendationService` now merges watch-history analytics with declared profile preferences. Scoring combines
+genre affinity, language alignment, favourite collaborators, regional availability, and similarity to favourited titles. Candidate
+selection prefers language matches while gracefully falling back to popular catalogue items, and the caching signature now includes
+profile versioning so updates invalidate stale recommendations.
+
+### Quality gates
+
+Run the dedicated tests to validate the preference pipeline:
+
+```bash
+php artisan test tests/Feature/Seeders/UserSeederTest.php
+php artisan test tests/Unit/Services/RecommendationServiceTest.php
+```
+
 ## Deployment
 
 ### Production deployment script
