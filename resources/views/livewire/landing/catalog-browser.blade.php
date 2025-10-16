@@ -125,7 +125,7 @@
         </div>
 
         <div class="mt-6 min-w-0 space-y-8 lg:mt-0">
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6" role="list" aria-live="polite">
+            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 xl:gap-6 3xl:gap-4" role="list" aria-live="polite">
                 @forelse ($lazyMovies as $index => $movie)
                     <article
                         role="listitem"
