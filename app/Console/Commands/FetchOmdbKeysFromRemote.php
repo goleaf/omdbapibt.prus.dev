@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Omdb;
+namespace App\Console\Commands;
 
 use App\Services\OmdbApiKeyManager;
 use Illuminate\Console\Command;
