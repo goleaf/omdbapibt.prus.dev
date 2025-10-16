@@ -9,6 +9,10 @@ use Illuminate\Database\Seeder;
 
 class ReviewSeeder extends Seeder
 {
+    private const TOTAL_REVIEWS = 1000;
+
+    private const CHUNK_SIZE = 200;
+
     /**
      * Seed community reviews tied to existing users.
      */
@@ -18,26 +22,34 @@ class ReviewSeeder extends Seeder
             return;
         }
 
-        $users = User::query()->get();
-        $movies = Movie::query()->get();
+        $users = User::query()->select('id')->get();
+        $movies = Movie::query()->select(['id', 'title'])->get();
 
         if ($users->isEmpty() || $movies->isEmpty()) {
             return;
         }
 
-        Review::factory()
-            ->count(30)
-            ->make()
-            ->each(function (Review $review) use ($users, $movies): void {
-                $user = $users->random();
-                $movie = $movies->random();
+        $remaining = self::TOTAL_REVIEWS;
 
-                $review->user_id = $user->getKey();
-                $review->movie_title = is_array($movie->title)
-                    ? ($movie->title['en'] ?? collect($movie->title)->first())
-                    : (string) $movie->title;
+        while ($remaining > 0) {
+            $batchSize = min(self::CHUNK_SIZE, $remaining);
 
-                $review->save();
-            });
+            Review::factory()
+                ->count($batchSize)
+                ->make(['user_id' => null])
+                ->each(function (Review $review) use ($users, $movies): void {
+                    $user = $users->random();
+                    $movie = $movies->random();
+
+                    $review->user_id = $user->getKey();
+                    $review->movie_title = is_array($movie->title)
+                        ? ($movie->title['en'] ?? collect($movie->title)->first())
+                        : (string) $movie->title;
+
+                    $review->save();
+                });
+
+            $remaining -= $batchSize;
+        }
     }
 }

@@ -11,6 +11,8 @@ use Illuminate\Support\Collection;
 
 class WatchHistorySeeder extends Seeder
 {
+    private const CHUNK_SIZE = 100;
+
     /**
      * Seed watch activity for existing users across movies and TV shows.
      */
@@ -20,45 +22,48 @@ class WatchHistorySeeder extends Seeder
             return;
         }
 
-        $users = User::query()->get();
         $movies = Movie::query()->get();
         $shows = TvShow::query()->get();
 
-        if ($users->isEmpty()) {
+        if (! User::query()->exists()) {
             return;
         }
 
-        $users->each(function (User $user) use ($movies, $shows): void {
-            if ($movies->isNotEmpty()) {
-                $movieCount = min($movies->count(), random_int(1, 4));
-                $movieSelection = Collection::wrap($movies->random($movieCount));
+        User::query()
+            ->orderBy('id')
+            ->chunkById(self::CHUNK_SIZE, function (Collection $users) use ($movies, $shows): void {
+                $users->each(function (User $user) use ($movies, $shows): void {
+                    if ($movies->isNotEmpty()) {
+                        $movieCount = min($movies->count(), random_int(1, 4));
+                        $movieSelection = Collection::wrap($movies->random($movieCount));
 
-                $movieSelection->each(function (Movie $movie, int $index) use ($user): void {
-                    WatchHistory::factory()
-                        ->forWatchable($movie)
-                        ->create([
-                            'user_id' => $user->getKey(),
-                            'watched_at' => now()->subDays(random_int(0, 45))->subHours($index),
-                        ]);
+                        $movieSelection->each(function (Movie $movie, int $index) use ($user): void {
+                            WatchHistory::factory()
+                                ->forWatchable($movie)
+                                ->create([
+                                    'user_id' => $user->getKey(),
+                                    'watched_at' => now()->subDays(random_int(0, 45))->subHours($index),
+                                ]);
+                        });
+                    }
+
+                    if ($shows->isNotEmpty()) {
+                        $showCount = min($shows->count(), random_int(0, 3));
+
+                        if ($showCount > 0) {
+                            $showSelection = Collection::wrap($shows->random($showCount));
+
+                            $showSelection->each(function (TvShow $show, int $index) use ($user): void {
+                                WatchHistory::factory()
+                                    ->forWatchable($show)
+                                    ->create([
+                                        'user_id' => $user->getKey(),
+                                        'watched_at' => now()->subDays(random_int(0, 60))->subHours($index + 2),
+                                    ]);
+                            });
+                        }
+                    }
                 });
-            }
-
-            if ($shows->isNotEmpty()) {
-                $showCount = min($shows->count(), random_int(0, 3));
-
-                if ($showCount > 0) {
-                    $showSelection = Collection::wrap($shows->random($showCount));
-
-                    $showSelection->each(function (TvShow $show, int $index) use ($user): void {
-                        WatchHistory::factory()
-                            ->forWatchable($show)
-                            ->create([
-                                'user_id' => $user->getKey(),
-                                'watched_at' => now()->subDays(random_int(0, 60))->subHours($index + 2),
-                            ]);
-                    });
-                }
-            }
-        });
+            });
     }
 }

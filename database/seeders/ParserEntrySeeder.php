@@ -12,6 +12,8 @@ use Illuminate\Support\Collection;
 
 class ParserEntrySeeder extends Seeder
 {
+    private const CHUNK_SIZE = 100;
+
     /**
      * Seed parser entries for existing media that simulate ingestion runs.
      */
@@ -21,9 +23,7 @@ class ParserEntrySeeder extends Seeder
             return;
         }
 
-        $movies = Movie::query()->get();
-
-        if ($movies->isEmpty()) {
+        if (! Movie::query()->exists()) {
             return;
         }
 
@@ -31,31 +31,35 @@ class ParserEntrySeeder extends Seeder
             ->where('role', UserRole::Admin->value)
             ->get();
 
-        $movies->each(function (Movie $movie) use ($reviewers): void {
-            $entryTotal = random_int(1, 2);
+        Movie::query()
+            ->orderBy('id')
+            ->chunkById(self::CHUNK_SIZE, function (Collection $movies) use ($reviewers): void {
+                $movies->each(function (Movie $movie) use ($reviewers): void {
+                    $entryTotal = random_int(1, 2);
 
-            Collection::times($entryTotal, fn () => true)->each(function () use ($movie, $reviewers): void {
-                $status = collect(ParserEntryStatus::cases())->random();
+                    Collection::times($entryTotal, fn () => true)->each(function () use ($movie, $reviewers): void {
+                        $status = collect(ParserEntryStatus::cases())->random();
 
-                $reviewerId = null;
-                $reviewedAt = null;
+                        $reviewerId = null;
+                        $reviewedAt = null;
 
-                if ($status->isFinalized() && $reviewers->isNotEmpty()) {
-                    $reviewer = $reviewers->random();
-                    $reviewerId = $reviewer->getKey();
-                    $reviewedAt = now()->subDays(random_int(0, 14));
-                }
+                        if ($status->isFinalized() && $reviewers->isNotEmpty()) {
+                            $reviewer = $reviewers->random();
+                            $reviewerId = $reviewer->getKey();
+                            $reviewedAt = now()->subDays(random_int(0, 14));
+                        }
 
-                ParserEntry::factory()
-                    ->state([
-                        'subject_type' => Movie::class,
-                        'subject_id' => $movie->getKey(),
-                        'status' => $status->value,
-                        'reviewed_by' => $reviewerId,
-                        'reviewed_at' => $reviewedAt,
-                    ])
-                    ->create();
+                        ParserEntry::factory()
+                            ->state([
+                                'subject_type' => Movie::class,
+                                'subject_id' => $movie->getKey(),
+                                'status' => $status->value,
+                                'reviewed_by' => $reviewerId,
+                                'reviewed_at' => $reviewedAt,
+                            ])
+                            ->create();
+                    });
+                });
             });
-        });
     }
 }
