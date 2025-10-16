@@ -55,4 +55,19 @@ class SubscriptionRedirectTest extends TestCase
             ->assertRedirect(route('dashboard', ['locale' => 'en']))
             ->assertSessionHas('status', __('subscriptions.status.already_subscribed'));
     }
+
+    public function test_price_is_required_to_start_subscription(): void
+    {
+        $user = User::factory()->create(['stripe_id' => 'cus_validation']);
+
+        $response = $this->actingAs($user)
+            ->from(route('checkout', ['locale' => 'en']))
+            ->post(route('subscriptions.store', ['locale' => 'en']), []);
+
+        $response
+            ->assertRedirect(route('checkout', ['locale' => 'en']))
+            ->assertSessionHasErrors([
+                'price' => __('subscriptions.validation.price_required'),
+            ]);
+    }
 }
