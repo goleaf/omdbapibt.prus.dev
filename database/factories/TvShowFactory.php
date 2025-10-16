@@ -16,6 +16,16 @@ class TvShowFactory extends Factory
     public function definition(): array
     {
         $name = $this->faker->unique()->sentence(3);
+        $nameEs = fake('es_ES')->sentence(3);
+        $nameFr = fake('fr_FR')->sentence(3);
+
+        $overviewEn = $this->faker->paragraph();
+        $overviewEs = fake('es_ES')->paragraph();
+        $overviewFr = fake('fr_FR')->paragraph();
+
+        $taglineEn = $this->faker->sentence();
+        $taglineEs = fake('es_ES')->sentence();
+        $taglineFr = fake('fr_FR')->sentence();
         $firstAirDate = $this->faker->dateTimeBetween('-20 years', '-1 month');
         $lastAirDate = $this->faker->boolean(70)
             ? $this->faker->dateTimeBetween($firstAirDate, 'now')
@@ -24,8 +34,13 @@ class TvShowFactory extends Factory
         return [
             'tmdb_id' => null,
             'imdb_id' => null,
-            'slug' => Str::slug($name) . '-' . Str::lower(Str::random(6)),
+            'slug' => Str::slug($name).'-'.Str::lower(Str::random(6)),
             'name' => $name,
+            'name_translations' => [
+                'en' => $name,
+                'es' => $nameEs,
+                'fr' => $nameFr,
+            ],
             'original_name' => $name,
             'first_air_date' => $firstAirDate,
             'last_air_date' => $lastAirDate,
@@ -33,8 +48,18 @@ class TvShowFactory extends Factory
             'number_of_episodes' => $this->faker->numberBetween(6, 240),
             'episode_run_time' => $this->faker->numberBetween(20, 75),
             'status' => $this->faker->randomElement(['Returning Series', 'Ended', 'Planned']),
-            'overview' => $this->faker->paragraph(),
-            'tagline' => $this->faker->sentence(),
+            'overview' => $overviewEn,
+            'overview_translations' => [
+                'en' => $overviewEn,
+                'es' => $overviewEs,
+                'fr' => $overviewFr,
+            ],
+            'tagline' => $taglineEn,
+            'tagline_translations' => [
+                'en' => $taglineEn,
+                'es' => $taglineEs,
+                'fr' => $taglineFr,
+            ],
             'homepage' => $this->faker->url(),
             'popularity' => $this->faker->randomFloat(3, 0, 1000),
             'vote_average' => $this->faker->randomFloat(1, 0, 10),

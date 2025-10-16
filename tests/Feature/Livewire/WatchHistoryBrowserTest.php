@@ -50,7 +50,15 @@ class WatchHistoryBrowserTest extends TestCase
 
         $show = TvShow::factory()->create([
             'name' => 'Laravel Adventures',
+            'name_translations' => [
+                'en' => 'Laravel Adventures',
+                'es' => 'Aventuras de Laravel',
+                'fr' => 'Aventures Laravel',
+            ],
         ]);
+
+        $previousLocale = app()->getLocale();
+        app()->setLocale('fr');
 
         WatchHistory::factory()->create([
             'user_id' => $user->id,
@@ -70,17 +78,19 @@ class WatchHistoryBrowserTest extends TestCase
             ->test(WatchHistoryBrowser::class)
             ->assertSee('Browse history')
             ->assertSee($movie->localizedTitle())
-            ->assertSee($show->name)
+            ->assertSee($show->localizedName())
             ->set('type', 'movie')
             ->assertSee($movie->localizedTitle())
-            ->assertDontSee($show->name)
+            ->assertDontSee($show->localizedName())
             ->set('type', 'tv')
-            ->assertSee($show->name)
+            ->assertSee($show->localizedName())
             ->assertDontSee($movie->localizedTitle())
             ->set('type', 'all')
             ->set('search', 'Testing Movie')
             ->assertSee($movie->localizedTitle())
-            ->assertDontSee($show->name);
+            ->assertDontSee($show->localizedName());
+
+        app()->setLocale($previousLocale);
     }
 
     public function test_watch_history_links_use_localized_movie_routes(): void

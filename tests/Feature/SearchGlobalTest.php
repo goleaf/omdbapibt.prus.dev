@@ -16,13 +16,21 @@ class SearchGlobalTest extends TestCase
 
     public function test_groups_results_by_category(): void
     {
+        $previousLocale = app()->getLocale();
+        app()->setLocale('es');
+
         $movie = Movie::factory()->create([
-            'title' => ['en' => 'Galactic Quest'],
+            'title' => ['en' => 'Galactic Quest', 'es' => 'Misión Galáctica'],
             'slug' => 'galactic-quest',
             'popularity' => 99.5,
         ]);
         $show = TvShow::factory()->create([
             'name' => 'Galactic Crew',
+            'name_translations' => [
+                'en' => 'Galactic Crew',
+                'es' => 'Tripulación Galáctica',
+                'fr' => 'Équipage Galactique',
+            ],
             'slug' => 'galactic-crew',
             'popularity' => 88.8,
         ]);
@@ -35,12 +43,14 @@ class SearchGlobalTest extends TestCase
         Livewire::test(SearchGlobal::class)
             ->set('query', 'Galactic')
             ->assertSet('results.movies.0.title', $movie->localizedTitle())
-            ->assertSet('results.tvShows.0.title', $show->name)
+            ->assertSet('results.tvShows.0.title', 'Tripulación Galáctica')
             ->assertSet('results.people.0.title', $person->name)
             ->assertSet('flatResults.0.title', $movie->localizedTitle())
-            ->assertSet('flatResults.1.title', $show->name)
+            ->assertSet('flatResults.1.title', 'Tripulación Galáctica')
             ->assertSet('flatResults.2.title', $person->name)
             ->assertSet('isOpen', true);
+
+        app()->setLocale($previousLocale);
     }
 
     public function test_clears_query_and_results(): void

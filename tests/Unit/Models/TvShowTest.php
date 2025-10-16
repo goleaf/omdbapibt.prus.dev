@@ -32,6 +32,42 @@ class TvShowTest extends TestCase
         $this->assertSame(7.8, $show->vote_average);
     }
 
+    public function test_localized_accessors_return_expected_values(): void
+    {
+        $show = TvShow::factory()->create([
+            'name' => 'Space Pioneers',
+            'name_translations' => [
+                'en' => 'Space Pioneers',
+                'es' => 'Pioneros del Espacio',
+            ],
+            'overview' => 'English overview',
+            'overview_translations' => [
+                'en' => 'English overview',
+                'es' => 'Resumen español',
+            ],
+            'tagline' => 'To the stars',
+            'tagline_translations' => [
+                'en' => 'To the stars',
+                'es' => 'Hacia las estrellas',
+            ],
+        ]);
+
+        $previousLocale = app()->getLocale();
+        app()->setLocale('es');
+
+        $this->assertSame('Pioneros del Espacio', $show->localizedName());
+        $this->assertSame('Resumen español', $show->localizedOverview());
+        $this->assertSame('Hacia las estrellas', $show->localizedTagline());
+
+        app()->setLocale('de');
+
+        $this->assertSame('Space Pioneers', $show->localizedName());
+        $this->assertSame('English overview', $show->localizedOverview());
+        $this->assertSame('To the stars', $show->localizedTagline());
+
+        app()->setLocale($previousLocale);
+    }
+
     public function test_watchlist_and_history_relationships(): void
     {
         $show = TvShow::factory()->create();

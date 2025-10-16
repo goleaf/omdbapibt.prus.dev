@@ -6,14 +6,10 @@ use App\Models\Person;
 use App\Models\TvShow;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 class TvShowSeeder extends Seeder
 {
-    private const TOTAL_SHOWS = 1000;
-
-    private const CHUNK_SIZE = 100;
-
     /**
      * Seed scripted series alongside credit and watchlist relationships.
      */
@@ -23,49 +19,41 @@ class TvShowSeeder extends Seeder
             return;
         }
 
-        $peopleIds = Person::query()->pluck('id')->all();
-        $userIds = User::query()->pluck('id')->all();
+        $people = Person::query()->get();
+        $users = User::query()->get();
 
-        $remaining = self::TOTAL_SHOWS;
+        TvShow::factory()
+            ->count(1000)
+            ->create()
+            ->each(function (TvShow $show) use ($people, $users): void {
+                if ($people->isNotEmpty()) {
+                    $creditPool = Collection::wrap($people->random(min($people->count(), random_int(4, 10))));
 
-        while ($remaining > 0) {
-            $batchSize = min(self::CHUNK_SIZE, $remaining);
-
-            TvShow::factory()
-                ->count($batchSize)
-                ->create()
-                ->each(function (TvShow $show) use ($peopleIds, $userIds): void {
-                    if ($peopleIds !== []) {
-                        $creditCount = min(count($peopleIds), random_int(4, 10));
-                        $creditIds = array_values(Arr::wrap(Arr::random($peopleIds, $creditCount)));
-                        $pivotData = [];
-
-                        foreach ($creditIds as $index => $personId) {
+                    $show->people()->syncWithoutDetaching(
+                        $creditPool->values()->mapWithKeys(function (Person $person, int $index): array {
                             $isCast = $index < 4;
 
-                            $pivotData[$personId] = [
-                                'credit_type' => $isCast ? 'cast' : 'crew',
-                                'department' => $isCast ? 'Acting' : Arr::random(['Directing', 'Production', 'Writing']),
-                                'character' => $isCast ? fake()->name() : null,
-                                'job' => $isCast ? null : Arr::random(['Showrunner', 'Producer', 'Writer']),
-                                'credit_order' => $index + 1,
+                            return [
+                                $person->getKey() => [
+                                    'credit_type' => $isCast ? 'cast' : 'crew',
+                                    'department' => $isCast ? 'Acting' : fake()->randomElement(['Directing', 'Production', 'Writing']),
+                                    'character' => $isCast ? fake()->name() : null,
+                                    'job' => $isCast ? null : fake()->randomElement(['Showrunner', 'Producer', 'Writer']),
+                                    'credit_order' => $index + 1,
+                                ],
                             ];
-                        }
+                        })->all()
+                    );
+                }
 
-                        $show->people()->syncWithoutDetaching($pivotData);
+                if ($users->isNotEmpty()) {
+                    $watchlistCount = min($users->count(), random_int(0, 5));
+
+                    if ($watchlistCount > 0) {
+                        $userIds = Collection::wrap($users->random($watchlistCount))->pluck('id')->all();
+                        $show->watchlistedBy()->syncWithoutDetaching($userIds);
                     }
-
-                    if ($userIds !== []) {
-                        $watchlistCount = min(count($userIds), random_int(0, 5));
-
-                        if ($watchlistCount > 0) {
-                            $selected = Arr::wrap(Arr::random($userIds, $watchlistCount));
-                            $show->watchlistedBy()->syncWithoutDetaching($selected);
-                        }
-                    }
-                });
-
-            $remaining -= $batchSize;
-        }
+                }
+            });
     }
 }
