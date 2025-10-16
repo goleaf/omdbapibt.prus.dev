@@ -28,12 +28,12 @@ trait ResolvesTranslations
             return (string) $translations['en'];
         }
 
-        if ($fallback) {
-            return $fallback;
-        }
-
         if ($translations !== []) {
             return (string) reset($translations);
+        }
+
+        if ($fallback) {
+            return $fallback;
         }
 
         return '';

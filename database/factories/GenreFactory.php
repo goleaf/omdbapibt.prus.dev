@@ -37,8 +37,8 @@ class GenreFactory extends Factory
         return $this->state(function () use ($name, $tmdbId): array {
             $translations = [
                 'en' => $name,
-                'es' => $name.' (ES)',
-                'fr' => $name.' (FR)',
+                'es' => $name,
+                'fr' => $name,
             ];
 
             return [
