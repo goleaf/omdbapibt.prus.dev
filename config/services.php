@@ -63,6 +63,8 @@ return [
             'batch_size' => 50,
             'timeout' => 10,
             'health_grace_minutes' => 30,
+            'failure_threshold' => (int) env('OMDB_KEY_FAILURE_THRESHOLD', 3),
+            'failure_backoff_minutes' => (int) env('OMDB_KEY_FAILURE_BACKOFF_MINUTES', 30),
         ],
         'bruteforce' => [
             'charset' => '0123456789abcdefghijklmnopqrstuvwxyz',
