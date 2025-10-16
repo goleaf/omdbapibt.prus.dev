@@ -63,8 +63,19 @@ if ($missing !== []) {
 PHP
 
     php artisan config:cache
-    php artisan migrate --force
-    php artisan db:seed --force
+    
+    # Check if database is corrupted and rebuild if needed
+    if ! php artisan db:show >/dev/null 2>&1; then
+        echo "Database appears corrupted. Rebuilding..."
+        rm -f database/database.sqlite database/database.sqlite-shm database/database.sqlite-wal
+        touch database/database.sqlite
+        chmod 664 database/database.sqlite
+        php artisan migrate:fresh --seed --force
+    else
+        php artisan migrate --force
+        php artisan db:seed --force
+    fi
+    
     php artisan optimize
     php artisan horizon:terminate || true
 else
