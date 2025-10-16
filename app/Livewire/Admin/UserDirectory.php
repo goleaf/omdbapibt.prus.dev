@@ -15,11 +15,12 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserDirectory extends Component
 {
-    use AuthorizesRequests;
+    use WithPagination;
 
     public string $search = '';
 
@@ -50,23 +51,7 @@ class UserDirectory extends Component
     #[Computed]
     public function users(): LengthAwarePaginator
     {
-        return $this->makeUserQuery()->paginate($this->perPage);
-    }
-
-    protected function makeUserQuery(): Builder
-    {
-        return User::query()
-            ->withCount(['watchHistories'])
-            ->when($this->search !== '', function (Builder $query): void {
-                $query->where(function (Builder $inner): void {
-                    $term = '%'.Str::of($this->search)->trim().'%';
-                    $inner
-                        ->where('name', 'like', $term)
-                        ->orWhere('email', 'like', $term);
-                });
-            })
-            ->when($this->roleFilter, fn (Builder $query, string $role): Builder => $query->where('role', $role))
-            ->orderByDesc('created_at');
+        return $this->query()->paginate($this->perPage);
     }
 
     #[Computed]
@@ -130,7 +115,7 @@ class UserDirectory extends Component
 
             fputcsv($handle, ['Name', 'Email', 'Role', 'Watch Events', 'Joined']);
 
-            $this->makeUserQuery()
+            $this->query()
                 ->cursor()
                 ->each(function (User $user) use ($handle): void {
                     fputcsv($handle, [
@@ -148,23 +133,20 @@ class UserDirectory extends Component
         ]);
     }
 
-    public function canImpersonateUser(User $user): bool
+    protected function query(): Builder
     {
-        $actor = auth()->user();
-
-        if (! $actor instanceof User) {
-            return false;
-        }
-
-        if (! Gate::forUser($actor)->allows('impersonate', $user)) {
-            return false;
-        }
-
-        if ($this->impersonationManager->isImpersonating()) {
-            return false;
-        }
-
-        return true;
+        return User::query()
+            ->withCount(['watchHistories'])
+            ->when($this->search !== '', function (Builder $query): void {
+                $query->where(function (Builder $inner): void {
+                    $term = '%'.Str::of($this->search)->trim().'%';
+                    $inner
+                        ->where('name', 'like', $term)
+                        ->orWhere('email', 'like', $term);
+                });
+            })
+            ->when($this->roleFilter, fn (Builder $query, string $role): Builder => $query->where('role', $role))
+            ->orderByDesc('created_at');
     }
 
     public function impersonate(int $userId): void

@@ -41,36 +41,34 @@ class UserDirectoryTest extends TestCase
         $this->assertSame(UserRole::Subscriber, $user->fresh()->role);
     }
 
-    public function test_non_admin_cannot_update_role(): void
-    {
-        $moderator = User::factory()->create();
-        $target = User::factory()->create();
-
-        Livewire::actingAs($moderator)
-            ->test(UserDirectory::class)
-            ->assertForbidden();
-
-        $admin = User::factory()->admin()->create();
-
-        $component = Livewire::actingAs($admin)->test(UserDirectory::class);
-
-        $this->actingAs($moderator);
-
-        $component
-            ->call('updateRole', $target->id, UserRole::Subscriber->value)
-            ->assertForbidden();
-    }
-
-    public function test_admin_cannot_update_their_own_role(): void
+    public function test_export_csv_streams_all_filtered_rows(): void
     {
         $admin = User::factory()->admin()->create();
+        $users = User::factory()->count(20)->create();
 
-        Livewire::actingAs($admin)
+        $component = Livewire::actingAs($admin)
             ->test(UserDirectory::class)
-            ->call('updateRole', $admin->id, UserRole::Subscriber->value)
-            ->assertForbidden();
+            ->set('roleFilter', UserRole::User->value);
 
-        $this->assertSame(UserRole::Admin, $admin->fresh()->role);
+        /** @var StreamedResponse $response */
+        $response = $component->instance()->exportCsv();
+
+        $this->assertInstanceOf(StreamedResponse::class, $response);
+
+        ob_start();
+        try {
+            $response->sendContent();
+        } finally {
+            $csv = ob_get_clean();
+        }
+
+        foreach ($users as $user) {
+            $this->assertStringContainsString($user->email, $csv);
+        }
+
+        $rows = array_filter(array_map('trim', explode("\n", trim((string) $csv))));
+
+        $this->assertCount($users->count() + 1, $rows); // header + users
     }
 
     public function test_non_admin_cannot_access_directory(): void

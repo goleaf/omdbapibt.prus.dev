@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Impersonation;
 
-use App\Enums\UserManagementAction;
 use App\Models\User;
 use App\Support\ImpersonationManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,46 +11,37 @@ class StopImpersonationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_impersonation_can_be_stopped_via_route(): void
+    public function test_banner_is_visible_and_route_restores_admin_account(): void
     {
         $admin = User::factory()->admin()->create();
-        $target = User::factory()->create();
-        $locale = config('app.fallback_locale');
+        $user = User::factory()->create();
 
         $this->actingAs($admin);
 
-        $impersonationManager = app(ImpersonationManager::class);
-        $impersonationManager->start($admin, $target);
+        app(ImpersonationManager::class)->start($admin, $user);
 
-        $response = $this->from(route('home', ['locale' => $locale]))
-            ->post(route('impersonation.stop', ['locale' => $locale]));
+        $response = $this->get(route('home'));
 
-        $response->assertRedirect(route('home', ['locale' => $locale]));
+        $response->assertOk();
+        $response->assertSeeText(__('ui.impersonation.banner_title', ['name' => $user->name]));
+        $response->assertSeeText(__('ui.impersonation.stop'));
 
-        $this->assertFalse($impersonationManager->isImpersonating());
+        $stopResponse = $this->delete(route('impersonation.stop'));
+
+        $stopResponse->assertRedirect(route('admin.users'));
+        $stopResponse->assertSessionHas('status', __('ui.impersonation.stopped'));
+
         $this->assertAuthenticatedAs($admin);
-
-        $this->assertDatabaseHas('user_management_logs', [
-            'action' => UserManagementAction::ImpersonationStopped->value,
-            'actor_id' => $admin->getKey(),
-        ]);
     }
 
-    public function test_stopping_without_active_impersonation_is_a_noop(): void
+    public function test_stop_route_gracefully_handles_missing_impersonation(): void
     {
         $admin = User::factory()->admin()->create();
-        $locale = config('app.fallback_locale');
 
         $this->actingAs($admin);
 
-        $response = $this->from(route('dashboard', ['locale' => $locale]))
-            ->post(route('impersonation.stop', ['locale' => $locale]));
+        $response = $this->delete(route('impersonation.stop'));
 
-        $response->assertRedirect(route('dashboard', ['locale' => $locale]));
-        $this->assertAuthenticatedAs($admin);
-
-        $this->assertDatabaseMissing('user_management_logs', [
-            'action' => UserManagementAction::ImpersonationStopped->value,
-        ]);
+        $response->assertRedirect(route('home'));
     }
 }

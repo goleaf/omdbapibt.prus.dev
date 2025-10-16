@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BillingPortalController;
-use App\Http\Controllers\Impersonation\StopImpersonationController;
+use App\Http\Controllers\BrowseController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\AnalyticsDashboard;
@@ -76,7 +78,7 @@ $registerAppRoutes = function (): void {
         Route::post('/logout', LogoutController::class)
             ->name('logout');
 
-        Route::post('/impersonation/stop', StopImpersonationController::class)
+        Route::delete('/impersonation', StopImpersonationController::class)
             ->name('impersonation.stop');
     });
 
