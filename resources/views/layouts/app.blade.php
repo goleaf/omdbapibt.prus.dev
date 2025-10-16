@@ -17,20 +17,20 @@
 
         <header class="surface-shell border-b">
             <div class="mx-auto flex w-full max-w-screen-2xl items-center justify-between px-6 py-5 2xl:px-12">
-                <a href="{{ localized_route('home') }}" class="flex items-center gap-2 text-lg font-semibold tracking-wide">
+                <a href="{{ route('home') }}" class="flex items-center gap-2 text-lg font-semibold tracking-wide">
                     <span class="text-emerald-400">◎</span>
                     <span>{{ __('ui.nav.brand.primary') }}<span class="text-emerald-400">{{ __('ui.nav.brand.secondary') }}</span></span>
                 </a>
 
                 <nav class="hidden items-center gap-8 text-sm font-medium md:flex">
-                    <a href="{{ localized_route('home') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.home') }}</a>
-                    <a href="{{ localized_route('browse') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.browse') }}</a>
-                    <a href="{{ localized_route('pricing') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.pricing') }}</a>
-                    <a href="{{ localized_route('ui.components') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.components') }}</a>
+                    <a href="{{ route('home') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.home') }}</a>
+                    <a href="{{ route('browse') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.browse') }}</a>
+                    <a href="{{ route('pricing') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.pricing') }}</a>
+                    <a href="{{ route('ui.components') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.components') }}</a>
                     @auth
-                        <a href="{{ localized_route('account') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.account') }}</a>
+                        <a href="{{ route('account') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.account') }}</a>
                         @if (auth()->user()?->isAdmin())
-                            <a href="{{ localized_route('admin.analytics') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.admin') }}</a>
+                            <a href="{{ route('admin.panel') }}" class="flux-text-muted transition hover:text-emerald-300">{{ __('ui.nav.links.admin') }}</a>
                         @endif
                     @endauth
                 </nav>
@@ -40,16 +40,16 @@
 
                     @auth
                         <span class="hidden flux-text-muted md:inline">{{ auth()->user()->name }}</span>
-                        <form method="POST" action="{{ localized_route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="rounded-full border border-[color:var(--flux-border-soft)] px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.nav.auth.logout') }}</button>
                         </form>
                     @else
                         @if (Route::has('login'))
-                            <a href="{{ localized_route('login') }}" class="rounded-full border border-[color:var(--flux-border-soft)] px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.nav.auth.login') }}</a>
+                            <a href="{{ route('login') }}" class="rounded-full border border-[color:var(--flux-border-soft)] px-4 py-1.5 transition hover:border-emerald-400 hover:text-emerald-200">{{ __('ui.nav.auth.login') }}</a>
                         @endif
                         @if (Route::has('register'))
-                            <a href="{{ localized_route('register') }}" class="hidden rounded-full bg-emerald-500 px-4 py-1.5 font-semibold text-emerald-950 transition hover:bg-emerald-400 md:inline">{{ __('ui.nav.auth.register') }}</a>
+                            <a href="{{ route('register') }}" class="hidden rounded-full bg-emerald-500 px-4 py-1.5 font-semibold text-emerald-950 transition hover:bg-emerald-400 md:inline">{{ __('ui.nav.auth.register') }}</a>
                         @endif
                     @endauth
                 </div>
@@ -60,25 +60,22 @@
             <div class="border-b border-amber-400/40 bg-amber-500/10 py-3">
                 <div class="mx-auto flex w-full max-w-screen-2xl flex-col gap-3 px-6 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between 2xl:px-12">
                     <div class="space-y-1">
-                        <p class="font-semibold tracking-wide uppercase text-amber-200">
-                            {{ __('ui.impersonation.banner_title', ['name' => $impersonationBannerContext['actingAs']->name]) }}
-                        </p>
-                        <p class="text-sm">
-                            {{ __('ui.impersonation.banner_help') }}
-                            <span class="block text-xs text-amber-200">
-                                {{ $impersonationBannerContext['impersonator']->name }}
-                                ({{ $impersonationBannerContext['impersonator']->email }})
-                                → {{ $impersonationBannerContext['actingAs']->email }}
-                            </span>
+                        <p class="font-semibold tracking-wide uppercase text-amber-200">Impersonation Active</p>
+                        <p>
+                            <span class="font-medium">{{ $impersonationBannerContext['impersonator']->name }}</span>
+                            <span class="text-amber-200">({{ $impersonationBannerContext['impersonator']->email }})</span>
+                            is currently viewing the site as
+                            <span class="font-medium">{{ $impersonationBannerContext['actingAs']->name }}</span>
+                            <span class="text-amber-200">({{ $impersonationBannerContext['actingAs']->email }})</span>.
                         </p>
                     </div>
-                    <form method="POST" action="{{ localized_route('impersonation.stop') }}" class="sm:flex-shrink-0">
+                    <form method="POST" action="{{ route('impersonation.stop') }}" class="sm:flex-shrink-0">
                         @csrf
                         <button
                             type="submit"
                             class="inline-flex items-center rounded-full border border-amber-300 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-amber-900 transition hover:bg-amber-400 hover:text-amber-950"
                         >
-                            {{ __('ui.impersonation.stop') }}
+                            Stop impersonating
                         </button>
                     </form>
                 </div>
@@ -103,28 +100,10 @@
         <footer class="surface-shell border-t py-8">
             <div class="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-6 text-sm flux-text-muted sm:flex-row sm:items-center sm:justify-between 2xl:px-12">
                 <p>{{ __('ui.nav.footer.copyright', ['year' => now()->year]) }}</p>
-                @php($footerLinks = config('site.footer.links', []))
                 <div class="flex items-center gap-4">
-                    @foreach ($footerLinks as $link)
-                        @php($label = $link['label'] ?? null)
-                        @php($parameters = is_array($link['parameters'] ?? null) ? $link['parameters'] : [])
-                        @php($href = $link['url'] ?? null)
-
-                        @if (! $href && isset($link['route']))
-                            @php($href = localized_route($link['route'], $parameters))
-                        @endif
-
-                        @continue(! $label || ! $href)
-
-                        <a
-                            href="{{ $href }}"
-                            @if (! empty($link['target'])) target="{{ $link['target'] }}" @endif
-                            @if (! empty($link['rel'])) rel="{{ $link['rel'] }}" @endif
-                            class="transition hover:text-emerald-300"
-                        >
-                            {{ __($label) }}
-                        </a>
-                    @endforeach
+                    <a href="{{ route('terms') }}" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.terms') }}</a>
+                    <a href="{{ route('privacy') }}" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.privacy') }}</a>
+                    <a href="{{ route('support') }}" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.support') }}</a>
                 </div>
             </div>
         </footer>

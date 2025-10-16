@@ -42,6 +42,11 @@ class Country extends Model
         return $this->belongsToMany(Movie::class, 'movie_country')->withTimestamps();
     }
 
+    public function tvShows(): BelongsToMany
+    {
+        return $this->belongsToMany(TvShow::class, 'tv_show_country')->withTimestamps();
+    }
+
     public function localizedName(?string $locale = null): string
     {
         return $this->resolveLocalizedValue($this->name_translations, $this->getRawOriginal('name'), $locale);

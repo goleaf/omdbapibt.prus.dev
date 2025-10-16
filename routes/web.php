@@ -8,6 +8,7 @@ use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\AnalyticsDashboard;
+use App\Livewire\Admin\ControlPanel;
 use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\Admin\ParserModerationDashboard;
 use App\Livewire\Admin\UiTranslationManager;
@@ -87,6 +88,8 @@ $registerAppRoutes = function (): void {
     });
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
+        Route::get('/admin', ControlPanel::class)
+            ->name('admin.panel');
         Route::get('/admin/analytics', AnalyticsDashboard::class)
             ->name('admin.analytics');
         Route::get('/admin/horizon-monitor', HorizonMonitor::class)

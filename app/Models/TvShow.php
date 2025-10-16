@@ -221,6 +221,21 @@ class TvShow extends Model
             ->withTimestamps();
     }
 
+    public function genres(): BelongsToMany
+    {
+        return $this->belongsToMany(Genre::class, 'tv_show_genre')->withTimestamps();
+    }
+
+    public function languages(): BelongsToMany
+    {
+        return $this->belongsToMany(Language::class, 'tv_show_language')->withTimestamps();
+    }
+
+    public function countries(): BelongsToMany
+    {
+        return $this->belongsToMany(Country::class, 'tv_show_country')->withTimestamps();
+    }
+
     protected function localizedText(string $attribute, ?string $fallback, ?string $locale, ?string $default = null): ?string
     {
         $translations = $this->getAttribute($attribute);
