@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\OmdbApiKeyResolver;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use App\Support\ImpersonationManager;
 use App\Support\RedisStubStore;
 use App\Support\UiTranslationRepository;
@@ -34,8 +35,11 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->singleton(OmdbApiKeyResolver::class, function () {
-            return new OmdbApiKeyResolver((string) config('services.omdb.key', ''));
+        $this->app->singleton(OmdbApiKeyResolver::class, function ($app) {
+            return new OmdbApiKeyResolver(
+                $app->make(CacheRepository::class),
+                (string) config('services.omdb.key', '')
+            );
         });
 
         $this->app->singleton(\App\Services\Clients\OmdbClient::class, function ($app) {
