@@ -8,7 +8,8 @@ if [ -f artisan ]; then
         exit 1
     fi
 
-    npm ci
+    # Temporarily unset NODE_ENV to ensure devDependencies are installed
+    NODE_ENV= npm ci
     npm run build
 
     if [ ! -d public/build ] || [ ! -f public/build/manifest.json ]; then
