@@ -74,9 +74,9 @@ PHP
         chmod 664 database/database.sqlite
         php artisan migrate:fresh --seed --force
     else
-        # Only clear cache if database is healthy
-        php artisan cache:clear
+        # Run migrations before clearing cache to ensure cache table exists
         php artisan migrate --force
+        php artisan cache:clear
         php artisan db:seed --force
     fi
     
