@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ImportOmdbKeysController;
 use App\Http\Controllers\Api\MovieLookupController;
 use App\Http\Controllers\Api\ParserTriggerController;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
@@ -13,3 +14,6 @@ Route::get('movies/lookup', MovieLookupController::class)
 Route::post('parser/trigger', ParserTriggerController::class)
     ->name('api.parser.trigger')
     ->middleware('throttle:parser-trigger');
+
+Route::post('omdb-keys/import', ImportOmdbKeysController::class)
+    ->name('api.omdb-keys.import');
