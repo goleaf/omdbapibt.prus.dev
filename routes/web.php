@@ -39,15 +39,9 @@ $registerAppRoutes = function (): void {
     Route::view('/pricing', 'pages.pricing')->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
     Route::get('/checkout', PlanSelector::class)->name('checkout');
-    Route::get('/login', LoginForm::class)
-        ->middleware('guest')
-        ->name('login');
-    Route::get('/signup', SignupForm::class)
-        ->middleware('guest')
-        ->name('signup');
-    Route::get('/register', SignupForm::class)
-        ->middleware('guest')
-        ->name('register');
+    Route::get('/login', LoginForm::class)->name('login');
+    Route::get('/signup', SignupForm::class)->name('signup');
+    Route::get('/register', SignupForm::class)->name('register');
 
     Route::get('/movies/{movie}', fn (string $locale, string $movie) => view('pages.movies.show', ['movie' => $movie]))
         ->name('movies.show');

@@ -6,24 +6,36 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 
 class WelcomeUser extends Mailable implements ShouldQueue
 {
     use Queueable;
-    use SerializesModels;
 
-    public function __construct(public readonly User $user)
+    public function __construct(public User $user)
     {
+        $this->onQueue('emails');
+        $this->afterCommit();
     }
 
-    public function build(): self
+    public function envelope(): Envelope
     {
-        return $this
-            ->subject(__('mail.welcome.subject', ['name' => $this->user->name]))
-            ->view('mail.welcome-user')
-            ->with([
+        return new Envelope(
+            subject: __('emails.welcome.subject', [
+                'app' => config('app.name'),
+                'name' => $this->user->name,
+            ]),
+        );
+    }
+
+    public function content(): Content
+    {
+        return new Content(
+            view: 'mail.welcome-user',
+            with: [
                 'user' => $this->user,
-            ]);
+            ],
+        );
     }
 }

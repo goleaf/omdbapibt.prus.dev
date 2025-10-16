@@ -45,36 +45,12 @@
             @enderror
         </div>
 
-        <div>
-            <label for="password_confirmation" class="text-sm font-semibold text-slate-200">{{ __('Confirm password') }}</label>
-            <input
-                id="password_confirmation"
-                type="password"
-                wire:model.live="password_confirmation"
-                class="mt-2 w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
-                placeholder="••••••••"
-                autocomplete="new-password"
-            >
-            @error('password_confirmation')
-                <p class="mt-2 text-xs font-semibold text-rose-400">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div class="flex flex-col gap-2 text-xs text-slate-300 sm:flex-row sm:items-center sm:justify-between">
-            <span>
-                {{ __('Already have an account?') }}
-                <a href="{{ route('login', ['locale' => app()->getLocale()]) }}" class="text-emerald-300 hover:text-emerald-200">
-                    {{ __('Sign in') }}
-                </a>
-            </span>
+        <div class="flex items-center justify-between text-xs text-slate-300">
+            <span>{{ __('Already have an account?') }} <a href="{{ route('login') }}" class="text-emerald-300 hover:text-emerald-200">{{ __('Sign in') }}</a></span>
             <span>{{ __('By creating an account you agree to our terms.') }}</span>
         </div>
 
-        <button
-            type="submit"
-            class="w-full rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400"
-            wire:loading.attr="disabled"
-        >
+        <button type="submit" class="w-full rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400" wire:loading.attr="disabled">
             {{ __('Create account') }}
         </button>
     </form>
