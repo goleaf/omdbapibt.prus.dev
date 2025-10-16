@@ -32,9 +32,6 @@ class EnsureSubscriptionAccess
             return $next($request);
         }
 
-        return redirect()->route('checkout')->with(
-            'error',
-            $this->translator->get('subscriptions.errors.access_required')
-        );
+        return redirect()->route('checkout')->with('error', __('messages.subscription.access_required'));
     }
 }

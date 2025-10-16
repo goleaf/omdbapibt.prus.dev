@@ -15,11 +15,23 @@ class SubscriptionController extends Controller
     {
         $user = $request->user();
 
-        if ($user->subscribed('default') || $user->onTrial('default')) {
-            return SubscriptionRedirectResponse::alreadySubscribed();
+        if ($user->subscribed('default')) {
+            return redirect()
+                ->route('dashboard')
+                ->with('status', __('messages.subscription.already_active'));
         }
 
-        $price = $request->price();
+        $validated = $request->validate([
+            'price' => ['required', 'string'],
+        ]);
+
+        $price = $validated['price'];
+
+        if (empty($price)) {
+            throw ValidationException::withMessages([
+                'price' => __('messages.subscription.price_required'),
+            ]);
+        }
 
         $trialDays = (int) config('services.stripe.trial_days', 7);
 
