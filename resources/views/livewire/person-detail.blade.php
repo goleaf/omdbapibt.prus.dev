@@ -52,7 +52,10 @@
                                 <ul class="mt-3 space-y-2 text-sm text-slate-300">
                                     @foreach ($groups['movies'] as $credit)
                                         <li class="flex items-center justify-between">
-                                            <a href="{{ route('movies.show', ['locale' => app()->getLocale(), 'movie' => $credit['slug']]) }}" class="text-emerald-300 hover:text-emerald-200">{{ $credit['title'] }}</a>
+                                            <a
+                                                href="{{ route('movies.show', ['locale' => app()->getLocale(), 'movie' => $credit['slug']]) }}"
+                                                class="text-emerald-300 hover:text-emerald-200"
+                                            >{{ $credit['title'] }}</a>
                                             <span class="text-xs text-slate-400">{{ $credit['role'] }} · {{ $credit['year'] ?? '—' }}</span>
                                         </li>
                                     @endforeach
@@ -66,7 +69,10 @@
                                 <ul class="mt-3 space-y-2 text-sm text-slate-300">
                                     @foreach ($groups['shows'] as $credit)
                                         <li class="flex items-center justify-between">
-                                            <a href="{{ route('shows.show', ['locale' => app()->getLocale(), 'slug' => $credit['slug']]) }}" class="text-emerald-300 hover:text-emerald-200">{{ $credit['title'] }}</a>
+                                            <a
+                                                href="{{ route('shows.show', ['locale' => app()->getLocale(), 'slug' => $credit['slug']]) }}"
+                                                class="text-emerald-300 hover:text-emerald-200"
+                                            >{{ $credit['title'] }}</a>
                                             <span class="text-xs text-slate-400">{{ $credit['role'] }} · {{ $credit['year'] ?? '—' }}</span>
                                         </li>
                                     @endforeach

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Services\Movies\RecommendationService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class RefreshRecommendationCache extends Command
 {
@@ -45,7 +46,11 @@ class RefreshRecommendationCache extends Command
             }
         });
 
-        $this->info("Refreshed recommendations for {$count} users.");
+        $this->info(sprintf(
+            'Refreshed recommendations for %d %s.',
+            $count,
+            Str::plural('user', $count)
+        ));
 
         return self::SUCCESS;
     }

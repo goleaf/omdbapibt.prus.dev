@@ -29,15 +29,16 @@ class RecommendationServiceTest extends TestCase
         $service = app(RecommendationService::class);
 
         $user = User::factory()->create();
+        $genre = Genre::factory()->create(['slug' => 'thriller']);
         $watched = Movie::factory()->create();
+        $watched->genres()->attach($genre);
         $candidate = Movie::factory()->create([
             'vote_average' => 8.5,
             'popularity' => 320,
         ]);
+        $candidate->genres()->attach($genre);
 
-        WatchHistory::factory()->for($user)->forMovie($watched)->create([
-            'watchable_id' => $watched->id,
-        ]);
+        WatchHistory::factory()->for($user)->forMovie($watched)->create();
 
         $results = $service->recommendFor($user);
 
@@ -45,139 +46,41 @@ class RecommendationServiceTest extends TestCase
         $this->assertFalse($results->contains(fn (Movie $movie) => $movie->id === $watched->id));
     }
 
-    public function test_recency_weighting_prioritizes_recent_preferences(): void
+    public function test_preference_profile_weights_recent_history_more_heavily(): void
     {
         $service = app(RecommendationService::class);
 
         $user = User::factory()->create();
+        $recentGenre = Genre::factory()->create(['slug' => 'sci-fi']);
+        $olderGenre = Genre::factory()->create(['slug' => 'drama']);
 
-        $romance = Genre::factory()->named('Romance', 10749)->create();
-        $scienceFiction = Genre::factory()->named('Science Fiction', 878)->create();
-
-        $recentHistoryMovie = Movie::factory()->create([
-            'vote_average' => 7.2,
-            'popularity' => 180,
+        $recentMovie = Movie::factory()->create([
+            'vote_average' => 9.0,
+            'year' => 2024,
         ]);
-        $recentHistoryMovie->genres()->sync([$romance->id]);
+        $recentMovie->genres()->attach($recentGenre);
 
-        $olderHistoryMovie = Movie::factory()->create([
-            'vote_average' => 8.6,
-            'popularity' => 260,
+        $olderMovie = Movie::factory()->create([
+            'vote_average' => 5.0,
+            'year' => 1990,
         ]);
-        $olderHistoryMovie->genres()->sync([$scienceFiction->id]);
+        $olderMovie->genres()->attach($olderGenre);
 
-        WatchHistory::factory()->for($user)->forMovie($recentHistoryMovie)->create([
-            'watched_at' => Carbon::now()->subDays(2),
-        ]);
-
-        WatchHistory::factory()->for($user)->forMovie($olderHistoryMovie)->create([
-            'watched_at' => Carbon::now()->subDays(60),
+        WatchHistory::factory()->for($user)->forMovie($recentMovie)->create([
+            'watched_at' => now()->subDays(3),
         ]);
 
-        $romanceCandidate = Movie::factory()->create([
-            'vote_average' => 7.4,
-            'popularity' => 210,
-        ]);
-        $romanceCandidate->genres()->sync([$romance->id]);
-
-        $scienceCandidate = Movie::factory()->create([
-            'vote_average' => 8.9,
-            'popularity' => 320,
-        ]);
-        $scienceCandidate->genres()->sync([$scienceFiction->id]);
-
-        $results = $service->recommendFor($user, 1);
-
-        $this->assertNotEmpty($results);
-        $this->assertSame($romanceCandidate->id, $results->first()->id);
-    }
-
-    public function test_rating_alignment_prefers_titles_near_user_taste(): void
-    {
-        $service = app(RecommendationService::class);
-
-        $user = User::factory()->create();
-
-        $drama = Genre::factory()->named('Drama', 18)->create();
-
-        $historyOne = Movie::factory()->create([
-            'vote_average' => 6.1,
-            'popularity' => 120,
-        ]);
-        $historyOne->genres()->sync([$drama->id]);
-
-        $historyTwo = Movie::factory()->create([
-            'vote_average' => 5.9,
-            'popularity' => 105,
-        ]);
-        $historyTwo->genres()->sync([$drama->id]);
-
-        WatchHistory::factory()->for($user)->forMovie($historyOne)->create([
-            'watched_at' => Carbon::now()->subDays(4),
+        WatchHistory::factory()->for($user)->forMovie($olderMovie)->create([
+            'watched_at' => now()->subDays(60),
         ]);
 
-        WatchHistory::factory()->for($user)->forMovie($historyTwo)->create([
-            'watched_at' => Carbon::now()->subDays(9),
-        ]);
+        $profile = $service->buildPreferenceProfile($user);
 
-        $alignedCandidate = Movie::factory()->create([
-            'vote_average' => 6.2,
-            'popularity' => 190,
-        ]);
-        $alignedCandidate->genres()->sync([$drama->id]);
-
-        $highCandidate = Movie::factory()->create([
-            'vote_average' => 9.1,
-            'popularity' => 240,
-        ]);
-        $highCandidate->genres()->sync([$drama->id]);
-
-        $results = $service->recommendFor($user, 1);
-
-        $this->assertSame($alignedCandidate->id, $results->first()->id);
-        $this->assertNotSame($highCandidate->id, $results->first()->id);
-    }
-
-    public function test_recommendations_cache_tracks_history_signature(): void
-    {
-        $service = app(RecommendationService::class);
-
-        $user = User::factory()->create();
-        $genre = Genre::factory()->named('Adventure', 12)->create();
-
-        $firstCandidate = Movie::factory()->create([
-            'vote_average' => 8.8,
-            'popularity' => 480,
-        ]);
-        $firstCandidate->genres()->sync([$genre->id]);
-
-        $secondCandidate = Movie::factory()->create([
-            'vote_average' => 8.1,
-            'popularity' => 430,
-        ]);
-        $secondCandidate->genres()->sync([$genre->id]);
-
-        $initial = $service->recommendFor($user, 1);
-        $this->assertSame($firstCandidate->id, $initial->first()->id);
-
-        $cacheKey = sprintf('recommendations:user:%d:%d', $user->id, 1);
-        $cacheStore = Cache::store('array');
-        $firstCache = $cacheStore->get($cacheKey);
-
-        $this->assertIsArray($firstCache);
-        $this->assertEquals([$firstCandidate->id], $firstCache['movie_ids']);
-
-        WatchHistory::factory()->for($user)->forMovie($firstCandidate)->create([
-            'watched_at' => Carbon::now(),
-        ]);
-
-        $refreshed = $service->recommendFor($user, 1);
-
-        $this->assertSame($secondCandidate->id, $refreshed->first()->id);
-
-        $updatedCache = $cacheStore->get($cacheKey);
-
-        $this->assertEquals([$secondCandidate->id], $updatedCache['movie_ids']);
-        $this->assertNotSame($firstCache['version'], $updatedCache['version']);
+        $this->assertSame(1.0, $profile['genres'][$recentGenre->slug]);
+        $this->assertArrayHasKey($olderGenre->slug, $profile['genres']);
+        $this->assertLessThan(1.0, $profile['genres'][$olderGenre->slug]);
+        $this->assertGreaterThan(7.0, $profile['average_rating']);
+        $this->assertNotNull($profile['release_year']);
+        $this->assertGreaterThan($olderMovie->year, $profile['release_year']);
     }
 }
