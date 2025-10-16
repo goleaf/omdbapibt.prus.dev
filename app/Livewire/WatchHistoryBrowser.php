@@ -70,7 +70,8 @@ class WatchHistoryBrowser extends Component
                 return $query->where('watchable_type', TvShow::class);
             })
             ->when($this->search !== '', function (Builder $query): Builder {
-                $like = '%'.$this->search.'%';
+                $escaped = addcslashes($this->search, '%_\\');
+                $like = '%'.$escaped.'%';
 
                 return $query->whereHasMorph('watchable', [Movie::class, TvShow::class], function (Builder $morphQuery, string $type) use ($like): void {
                     if ($type === Movie::class) {
@@ -84,12 +85,7 @@ class WatchHistoryBrowser extends Component
                         return;
                     }
 
-                    $morphQuery->where(function (Builder $innerQuery) use ($like): void {
-                        $innerQuery
-                            ->where('name', 'like', $like)
-                            ->orWhere('original_name', 'like', $like)
-                            ->orWhere('slug', 'like', $like);
-                    });
+                    TvShow::applyLocalizedNameFilter($morphQuery, $this->search, app()->getLocale());
                 });
             })
             ->orderByDesc('watched_at')

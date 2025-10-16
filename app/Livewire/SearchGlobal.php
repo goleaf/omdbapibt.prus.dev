@@ -164,9 +164,8 @@ class SearchGlobal extends Component
         $query = TvShow::query()
             ->select(['id', 'name', 'name_translations', 'slug', 'first_air_date', 'poster_path', 'popularity'])
             ->orderByDesc('popularity')
-            ->orderBy('name');
-
-        $query = $this->applySearch($query, 'tv_shows', 'name', $term);
+            ->orderBy('name')
+            ->whereLocalizedNameLike($term);
 
         return $query->limit($this->limit)->get();
     }

@@ -16,41 +16,42 @@ class SearchGlobalTest extends TestCase
 
     public function test_groups_results_by_category(): void
     {
-        $previousLocale = app()->getLocale();
+        $defaultLocale = app()->getLocale();
         app()->setLocale('es');
 
-        $movie = Movie::factory()->create([
-            'title' => ['en' => 'Galactic Quest', 'es' => 'Misión Galáctica'],
-            'slug' => 'galactic-quest',
-            'popularity' => 99.5,
-        ]);
-        $show = TvShow::factory()->create([
-            'name' => 'Galactic Crew',
-            'name_translations' => [
-                'en' => 'Galactic Crew',
-                'es' => 'Tripulación Galáctica',
-                'fr' => 'Équipage Galactique',
-            ],
-            'slug' => 'galactic-crew',
-            'popularity' => 88.8,
-        ]);
-        $person = Person::factory()->create([
-            'name' => 'Galactic Sam',
-            'slug' => 'galactic-sam',
-            'popularity' => 77.7,
-        ]);
+        try {
+            $movie = Movie::factory()->create([
+                'title' => ['en' => 'Galactic Quest'],
+                'slug' => 'galactic-quest',
+                'popularity' => 99.5,
+            ]);
+            $show = TvShow::factory()->create([
+                'name' => 'Galactic Crew',
+                'name_translations' => [
+                    'en' => 'Galactic Crew',
+                    'es' => 'Tripulación Galáctica',
+                ],
+                'slug' => 'galactic-crew',
+                'popularity' => 88.8,
+            ]);
+            $person = Person::factory()->create([
+                'name' => 'Galactic Sam',
+                'slug' => 'galactic-sam',
+                'popularity' => 77.7,
+            ]);
 
-        Livewire::test(SearchGlobal::class)
-            ->set('query', 'Galactic')
-            ->assertSet('results.movies.0.title', $movie->localizedTitle())
-            ->assertSet('results.tvShows.0.title', 'Tripulación Galáctica')
-            ->assertSet('results.people.0.title', $person->name)
-            ->assertSet('flatResults.0.title', $movie->localizedTitle())
-            ->assertSet('flatResults.1.title', 'Tripulación Galáctica')
-            ->assertSet('flatResults.2.title', $person->name)
-            ->assertSet('isOpen', true);
-
-        app()->setLocale($previousLocale);
+            Livewire::test(SearchGlobal::class)
+                ->set('query', 'Galactic')
+                ->assertSet('results.movies.0.title', $movie->localizedTitle())
+                ->assertSet('results.tvShows.0.title', $show->localizedName())
+                ->assertSet('results.people.0.title', $person->name)
+                ->assertSet('flatResults.0.title', $movie->localizedTitle())
+                ->assertSet('flatResults.1.title', $show->localizedName())
+                ->assertSet('flatResults.2.title', $person->name)
+                ->assertSet('isOpen', true);
+        } finally {
+            app()->setLocale($defaultLocale);
+        }
     }
 
     public function test_clears_query_and_results(): void

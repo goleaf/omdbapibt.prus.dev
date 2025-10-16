@@ -29,6 +29,12 @@ class TvShowSeeder extends Seeder
                 ->count($count)
                 ->create()
                 ->each(function (TvShow $show) use ($personIds, $userIds): void {
+                    $show->forceFill([
+                        'name_translations' => $this->ensureTranslationArray($show->name_translations, $show->name),
+                        'overview_translations' => $this->ensureTranslationArray($show->overview_translations, $show->overview),
+                        'tagline_translations' => $this->ensureTranslationArray($show->tagline_translations, $show->tagline),
+                    ])->saveQuietly();
+
                     if ($personIds->isNotEmpty()) {
                         $creditCount = min($personIds->count(), random_int(4, 10));
                         $creditSelection = collect($personIds->random($creditCount))->values();
@@ -60,5 +66,16 @@ class TvShowSeeder extends Seeder
                     }
                 });
         });
+    }
+
+    private function ensureTranslationArray(?array $translations, ?string $fallback): ?array
+    {
+        $normalized = is_array($translations) ? $translations : [];
+
+        if ($fallback !== null && $fallback !== '') {
+            $normalized['en'] ??= $fallback;
+        }
+
+        return $normalized === [] ? null : $normalized;
     }
 }

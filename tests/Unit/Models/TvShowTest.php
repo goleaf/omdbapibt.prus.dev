@@ -108,4 +108,44 @@ class TvShowTest extends TestCase
         $this->assertSame('Acting', $pivot->department);
         $this->assertSame(1, $pivot->credit_order);
     }
+
+    public function test_localized_accessors_and_scope(): void
+    {
+        $match = TvShow::factory()->create([
+            'name' => 'Example Show',
+            'name_translations' => [
+                'en' => 'Example Show',
+                'es' => 'Programa de Ejemplo',
+            ],
+            'overview' => 'English overview',
+            'overview_translations' => [
+                'en' => 'English overview',
+                'es' => 'Descripción en español',
+            ],
+            'tagline' => 'English tagline',
+            'tagline_translations' => [
+                'en' => 'English tagline',
+                'es' => 'Lema en español',
+            ],
+        ]);
+
+        $nonMatch = TvShow::factory()->create([
+            'name' => 'Another Show',
+            'name_translations' => [
+                'en' => 'Another Show',
+                'es' => 'Serie Alternativa',
+            ],
+        ]);
+
+        $this->assertSame('Programa de Ejemplo', $match->localizedName('es'));
+        $this->assertSame('Example Show', $match->localizedName('fr'));
+        $this->assertSame('Descripción en español', $match->localizedOverview('es'));
+        $this->assertSame('English overview', $match->localizedOverview('fr'));
+        $this->assertSame('Lema en español', $match->localizedTagline('es'));
+
+        $results = TvShow::query()->whereLocalizedNameLike('Programa', 'es')->get();
+
+        $this->assertTrue($results->contains($match));
+        $this->assertFalse($results->contains($nonMatch));
+    }
 }
