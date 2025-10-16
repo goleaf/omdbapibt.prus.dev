@@ -18,6 +18,18 @@ class Watchlist extends Component
 
     public bool $isAuthenticated = false;
 
+    public string $locale = '';
+
+    public array $movieLinks = [];
+
+    public array $showLinks = [];
+
+    public int $movieCount = 0;
+
+    public int $showCount = 0;
+
+    public int $summaryCount = 0;
+
     /**
      * @var array{movies: list<array<string, mixed>>, shows: list<array<string, mixed>>}
      */
@@ -31,6 +43,7 @@ class Watchlist extends Component
         $this->movieId = $movieId;
         $this->tvShowId = $tvShowId;
         $this->isAuthenticated = Auth::check();
+        $this->locale = app()->getLocale();
 
         if ($this->isToggleMode()) {
             $this->isSaved = $this->determineSavedState();
@@ -132,6 +145,11 @@ class Watchlist extends Component
                 'movies' => [],
                 'shows' => [],
             ];
+            $this->movieLinks = [];
+            $this->showLinks = [];
+            $this->movieCount = 0;
+            $this->showCount = 0;
+            $this->summaryCount = 0;
 
             return;
         }
@@ -141,12 +159,12 @@ class Watchlist extends Component
         $movies = $user->watchlistedMovies()
             ->withPivot('created_at')
             ->orderByDesc('user_watchlist.created_at')
-            ->get(['id', 'title', 'poster_path', 'slug', 'release_date']);
+            ->get(['movies.id', 'title', 'poster_path', 'slug', 'release_date']);
 
         $shows = $user->watchlistedTvShows()
             ->withPivot('created_at')
             ->orderByDesc('user_watchlist.created_at')
-            ->get(['id', 'name', 'name_translations', 'poster_path', 'slug', 'first_air_date']);
+            ->get(['tv_shows.id', 'name', 'name_translations', 'poster_path', 'slug', 'first_air_date']);
 
         $this->items = [
             'movies' => $movies->map(function (Movie $movie): array {
@@ -161,13 +179,43 @@ class Watchlist extends Component
             'shows' => $shows->map(function (TvShow $show): array {
                 return [
                     'id' => $show->getKey(),
-                    'title' => $show->localizedName(),
+                    'title' => $this->resolveShowTitle($show),
                     'slug' => $show->slug,
                     'poster' => $show->poster_path,
                     'year' => $show->first_air_date ? $show->first_air_date->format('Y') : null,
                 ];
             })->all(),
         ];
+
+        $this->movieCount = count($this->items['movies']);
+        $this->showCount = count($this->items['shows']);
+        $this->summaryCount = $this->movieCount + $this->showCount;
+
+        $this->movieLinks = collect($this->items['movies'])
+            ->mapWithKeys(function (array $movie): array {
+                $url = $movie['slug']
+                    ? route('movies.show', [
+                        'locale' => $this->locale,
+                        'movie' => $movie['slug'],
+                    ])
+                    : '#';
+
+                return [$movie['id'] => $url];
+            })
+            ->all();
+
+        $this->showLinks = collect($this->items['shows'])
+            ->mapWithKeys(function (array $show): array {
+                $url = $show['slug']
+                    ? route('shows.show', [
+                        'locale' => $this->locale,
+                        'slug' => $show['slug'],
+                    ])
+                    : '#';
+
+                return [$show['id'] => $url];
+            })
+            ->all();
     }
 
     protected function determineSavedState(): bool
@@ -203,6 +251,49 @@ class Watchlist extends Component
         return $user;
     }
 
+    protected function resolveShowTitle(TvShow $show): string
+    {
+        $translations = $show->name_translations;
+
+        if (is_array($translations)) {
+            if ($this->locale !== ''
+                && isset($translations[$this->locale])
+                && is_string($translations[$this->locale])
+                && $translations[$this->locale] !== '') {
+                return $translations[$this->locale];
+            }
+
+            $fallbackLocale = config('app.fallback_locale');
+
+            if ($fallbackLocale
+                && isset($translations[$fallbackLocale])
+                && is_string($translations[$fallbackLocale])
+                && $translations[$fallbackLocale] !== '') {
+                return $translations[$fallbackLocale];
+            }
+
+            if (isset($translations['en']) && is_string($translations['en']) && $translations['en'] !== '') {
+                return $translations['en'];
+            }
+
+            foreach ($translations as $value) {
+                if (is_string($value) && $value !== '') {
+                    return $value;
+                }
+            }
+        }
+
+        if (is_string($show->name) && $show->name !== '') {
+            return $show->name;
+        }
+
+        if (is_string($show->original_name) && $show->original_name !== '') {
+            return $show->original_name;
+        }
+
+        return 'Untitled series';
+    }
+
     public function render()
     {
         if (! $this->isToggleMode() && $this->isAuthenticated) {
@@ -211,6 +302,12 @@ class Watchlist extends Component
 
         return view('livewire.watchlist', [
             'toggleMode' => $this->isToggleMode(),
+            'locale' => $this->locale,
+            'movieLinks' => $this->movieLinks,
+            'showLinks' => $this->showLinks,
+            'movieCount' => $this->movieCount,
+            'showCount' => $this->showCount,
+            'summaryCount' => $this->summaryCount,
         ]);
     }
 }
