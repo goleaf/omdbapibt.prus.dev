@@ -41,7 +41,7 @@
         </ul>
     </div>
 
-    <form id="checkout-subscription-form" method="POST" action="{{ route('subscriptions.store', ['locale' => app()->getLocale()]) }}" class="hidden">
+    <form id="checkout-subscription-form" method="POST" action="{{ localized_route('subscriptions.store') }}" class="hidden">
         @csrf
         <input type="hidden" name="price" value="">
     </form>

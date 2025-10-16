@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ class TvShow extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use ResolvesTranslations;
 
     /**
      * The attributes that are mass assignable.
@@ -66,32 +68,37 @@ class TvShow extends Model
 
     public function localizedName(?string $locale = null): string
     {
-        $value = $this->resolveLocalizedValue(
-            $this->name_translations,
-            $locale,
-            is_string($this->name) ? $this->name : null,
-            'Untitled series'
-        );
+        $fallback = is_string($this->name) ? $this->name : null;
 
-        return $value ?? 'Untitled series';
+        if ($fallback === null || trim($fallback) === '') {
+            $fallback = 'Untitled series';
+        }
+
+        $value = $this->resolveLocalizedValue($this->name_translations, $fallback, $locale);
+
+        return $value !== '' ? $value : 'Untitled series';
     }
 
     public function localizedOverview(?string $locale = null): ?string
     {
-        return $this->resolveLocalizedValue(
+        $value = $this->resolveLocalizedValue(
             $this->overview_translations,
-            $locale,
-            is_string($this->overview) ? $this->overview : null
+            is_string($this->overview) ? $this->overview : null,
+            $locale
         );
+
+        return $value === '' ? null : $value;
     }
 
     public function localizedTagline(?string $locale = null): ?string
     {
-        return $this->resolveLocalizedValue(
+        $value = $this->resolveLocalizedValue(
             $this->tagline_translations,
-            $locale,
-            is_string($this->tagline) ? $this->tagline : null
+            is_string($this->tagline) ? $this->tagline : null,
+            $locale
         );
+
+        return $value === '' ? null : $value;
     }
 
     public function scopeWhereLocalizedNameLike(Builder $query, string $term, ?string $locale = null): Builder
@@ -119,6 +126,11 @@ class TvShow extends Model
                 $innerQuery->orWhere("name_translations->{$fallbackLocale}", 'like', $escaped);
             }
         });
+    }
+
+    protected static function escapeLike(string $value): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
     }
 
     public function setNameTranslationsAttribute($value): void

@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Services\Movies\RecommendationService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 class RefreshRecommendationCache extends Command
 {
@@ -30,27 +29,24 @@ class RefreshRecommendationCache extends Command
 
         $query->chunkById(100, function ($users) use ($service, &$count) {
             foreach ($users as $user) {
-                $limits = $service->cachedLimits($user);
+                $limits = collect($service->cachedLimits($user))
+                    ->push(12)
+                    ->map(fn ($value) => (int) $value)
+                    ->filter(fn (int $limit) => $limit > 0)
+                    ->unique()
+                    ->values();
 
                 $service->flush($user);
-                $service->recommendFor($user);
 
                 foreach ($limits as $limit) {
-                    if ($limit === 12) {
-                        continue;
-                    }
-
                     $service->recommendFor($user, $limit);
                 }
+
                 $count++;
             }
         });
 
-        $this->info(sprintf(
-            'Refreshed recommendations for %d %s.',
-            $count,
-            Str::plural('user', $count)
-        ));
+        $this->info(sprintf('Refreshed recommendations for %d users.', $count));
 
         return self::SUCCESS;
     }

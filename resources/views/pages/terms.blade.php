@@ -14,7 +14,7 @@
                     <h2 class="text-xl font-semibold text-slate-100">{{ $section['title'] }}</h2>
                 @endif
 
-                @foreach ($section['paragraphs'] as $paragraph)
+                @foreach ($section['paragraphs'] ?? [] as $paragraph)
                     <p>{{ $paragraph }}</p>
                 @endforeach
             </section>

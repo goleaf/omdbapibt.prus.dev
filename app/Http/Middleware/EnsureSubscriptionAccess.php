@@ -25,13 +25,19 @@ class EnsureSubscriptionAccess
         $user = $request->user();
 
         if (! $user instanceof User) {
-            return redirect()->route('login');
+            return redirect()->to(localized_route('login'));
         }
 
         if ($user->hasPremiumAccess($subscription)) {
             return $next($request);
         }
 
-        return redirect()->route('checkout')->with('error', __('messages.subscription.access_required'));
+        $message = $this->translator->get(
+            'messages.subscription.access_required',
+            [],
+            config('app.fallback_locale')
+        );
+
+        return redirect()->to(localized_route('checkout'))->with('error', $message);
     }
 }

@@ -46,7 +46,7 @@
         </div>
 
         <div class="flex items-center justify-between text-xs text-slate-300">
-            <span>{{ __('Already have an account?') }} <a href="{{ route('login') }}" class="text-emerald-300 hover:text-emerald-200">{{ __('Sign in') }}</a></span>
+            <span>{{ __('Already have an account?') }} <a href="{{ localized_route('login') }}" class="text-emerald-300 hover:text-emerald-200">{{ __('Sign in') }}</a></span>
             <span>{{ __('By creating an account you agree to our terms.') }}</span>
         </div>
 

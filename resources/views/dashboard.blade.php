@@ -36,7 +36,7 @@
                             <p class="mt-2">{{ __('ui.dashboard.trial.intro_body') }}</p>
 
                             @if ($priceId)
-                                <form method="POST" action="{{ route('subscriptions.store') }}" class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <form method="POST" action="{{ localized_route('subscriptions.store') }}" class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
                                     @csrf
                                     <input type="hidden" name="price" value="{{ $priceId }}">
                                     <flux:button type="submit" variant="primary" color="emerald">

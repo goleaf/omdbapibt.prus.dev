@@ -144,7 +144,15 @@ class OmdbApiKeyManagerTest extends TestCase
         $result = $manager->parseMoviesWithKeys(10, 1, 'https://omdb.test/', 5);
 
         $this->assertSame(['processed' => 2, 'updated' => 2], $result);
-        $this->assertEquals(['Movie One', 'Movie Two'], Movie::orderBy('id')->pluck('title')->all());
+        $titles = Movie::orderBy('id')->pluck('title')->map(function ($value) {
+            if (is_array($value)) {
+                return $value['en'] ?? null;
+            }
+
+            return $value;
+        })->all();
+
+        $this->assertEquals(['Movie One', 'Movie Two'], $titles);
         $this->assertEquals(['Plot One', 'Plot Two'], Movie::orderBy('id')->pluck('plot')->all());
 
         $this->assertEqualsCanonicalizing(['key1', 'key2'], $capturedKeys);

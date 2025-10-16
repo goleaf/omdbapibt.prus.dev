@@ -21,7 +21,7 @@
             <div class="flex flex-wrap items-center gap-3">
                 <a
                     class="inline-flex items-center justify-center rounded-md border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
-                    href="{{ route('billing.portal') }}"
+                    href="{{ localized_route('billing.portal') }}"
                 >
                     Open billing portal
                 </a>

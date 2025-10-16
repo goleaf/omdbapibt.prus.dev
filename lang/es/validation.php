@@ -9,7 +9,7 @@ return [
             'enum' => 'La carga de trabajo del parser seleccionada no es válida.',
         ],
         'query' => [
-            'required' => 'Por favor, ingresa un término de búsqueda.',
+            'required' => 'Por favor ingresa un término de búsqueda.',
             'string' => 'El término de búsqueda debe ser un valor de texto.',
             'min' => 'El término de búsqueda debe tener al menos :min caracteres.',
         ],

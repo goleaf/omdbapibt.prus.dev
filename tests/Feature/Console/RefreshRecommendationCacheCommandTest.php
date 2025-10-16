@@ -42,7 +42,7 @@ class RefreshRecommendationCacheCommandTest extends TestCase
             ->andReturn(collect());
 
         $this->artisan('recommendations:refresh --user='.$target->getKey())
-            ->expectsOutput('Refreshed recommendations for 1 user.')
+            ->expectsOutput('Refreshed recommendations for 1 users.')
             ->assertSuccessful();
     }
 }
