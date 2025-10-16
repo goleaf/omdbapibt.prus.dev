@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
         }
 
         $this->forChunkedCount($usersToCreate, 250, function (int $count): void {
-            User::factory()->count($count)->create();
+            User::factory()->withProfile()->count($count)->create();
         });
     }
 
@@ -78,6 +78,11 @@ class UserSeeder extends Seeder
 
             if ($user->email_verified_at === null) {
                 $user->forceFill(['email_verified_at' => now()])->save();
+            }
+
+            // Ensure the user has a profile
+            if (! $user->profile) {
+                \App\Models\UserProfile::factory()->for($user)->create();
             }
         }
     }

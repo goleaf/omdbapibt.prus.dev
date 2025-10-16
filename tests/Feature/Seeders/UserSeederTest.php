@@ -16,8 +16,9 @@ class UserSeederTest extends TestCase
     {
         $this->seed(UserSeeder::class);
 
-        $this->assertSame(100, User::query()->count());
-        $this->assertSame(100, UserProfile::query()->count());
+        // Seeder creates 1000 users total (including configured accounts)
+        $this->assertSame(1000, User::query()->count());
+        $this->assertSame(1000, UserProfile::query()->count());
 
         $profile = UserProfile::query()
             ->with([
