@@ -10,8 +10,8 @@ use Tests\TestCase;
 
 class CountryTest extends TestCase
 {
-    use RefreshDatabase;
     use CreatesLocaleTables;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -24,6 +24,7 @@ class CountryTest extends TestCase
     {
         $country = Country::create([
             'name' => 'Canada',
+            'name_translations' => ['en' => 'Canada', 'fr' => 'Canada'],
             'code' => 'CA',
             'active' => 1,
         ]);
@@ -36,6 +37,7 @@ class CountryTest extends TestCase
         $movie = Movie::factory()->create();
         $country = Country::create([
             'name' => 'France',
+            'name_translations' => ['en' => 'France', 'fr' => 'France'],
             'code' => 'FR',
             'active' => true,
         ]);
@@ -43,5 +45,17 @@ class CountryTest extends TestCase
         $country->movies()->attach($movie);
 
         $this->assertTrue($country->movies->contains($movie));
+    }
+
+    public function test_localized_name_returns_translation(): void
+    {
+        $country = Country::create([
+            'name' => 'Mexico',
+            'name_translations' => ['en' => 'Mexico', 'es' => 'México'],
+            'code' => 'MX',
+            'active' => true,
+        ]);
+
+        $this->assertSame('México', $country->localizedName('es'));
     }
 }

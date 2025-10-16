@@ -20,4 +20,17 @@ class GenreTest extends TestCase
 
         $this->assertTrue($genre->movies->contains($movie));
     }
+
+    public function test_localized_name_returns_translation(): void
+    {
+        $genre = Genre::factory()
+            ->state([
+                'name' => 'Mystery',
+                'name_translations' => ['en' => 'Mystery', 'es' => 'Misterio'],
+                'slug' => 'mystery',
+            ])
+            ->create();
+
+        $this->assertSame('Misterio', $genre->localizedName('es'));
+    }
 }

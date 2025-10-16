@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Genre extends Model
 {
     use HasFactory;
+    use ResolvesTranslations;
 
     /**
      * The attributes that are mass assignable.
@@ -17,8 +19,18 @@ class Genre extends Model
      */
     protected $fillable = [
         'name',
+        'name_translations',
         'slug',
         'tmdb_id',
+    ];
+
+    /**
+     * Attribute casting configuration.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'name_translations' => 'array',
     ];
 
     /**
@@ -27,5 +39,15 @@ class Genre extends Model
     public function movies(): BelongsToMany
     {
         return $this->belongsToMany(Movie::class, 'movie_genre')->withTimestamps();
+    }
+
+    public function localizedName(?string $locale = null): string
+    {
+        return $this->resolveLocalizedValue($this->name_translations, $this->getRawOriginal('name'), $locale);
+    }
+
+    public function getNameAttribute(?string $value): string
+    {
+        return $this->localizedName();
     }
 }

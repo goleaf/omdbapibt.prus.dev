@@ -3,88 +3,59 @@
 namespace Database\Seeders;
 
 use App\Models\Language;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder
 {
-    /**
-     * Baseline language catalogue sourced from ISO 639-1.
-     *
-     * @var array<int, array<string, mixed>>
-     */
-    public const LANGUAGES = [
-        [
-            'name' => 'English',
-            'native_name' => 'English',
-            'code' => 'en',
-            'active' => true,
-        ],
-        [
-            'name' => 'Spanish',
-            'native_name' => 'Español',
-            'code' => 'es',
-            'active' => true,
-        ],
-        [
-            'name' => 'French',
-            'native_name' => 'Français',
-            'code' => 'fr',
-            'active' => true,
-        ],
-        [
-            'name' => 'German',
-            'native_name' => 'Deutsch',
-            'code' => 'de',
-            'active' => true,
-        ],
-        [
-            'name' => 'Italian',
-            'native_name' => 'Italiano',
-            'code' => 'it',
-            'active' => true,
-        ],
-        [
-            'name' => 'Japanese',
-            'native_name' => '日本語',
-            'code' => 'ja',
-            'active' => true,
-        ],
-        [
-            'name' => 'Korean',
-            'native_name' => '한국어',
-            'code' => 'ko',
-            'active' => true,
-        ],
-        [
-            'name' => 'Portuguese',
-            'native_name' => 'Português',
-            'code' => 'pt',
-            'active' => true,
-        ],
-        [
-            'name' => 'Russian',
-            'native_name' => 'Русский',
-            'code' => 'ru',
-            'active' => true,
-        ],
-        [
-            'name' => 'Chinese',
-            'native_name' => '中文',
-            'code' => 'zh',
-            'active' => true,
-        ],
-    ];
+    public const TOTAL_LANGUAGES = 1000;
 
-    /**
-     * Seed the application's language catalogue.
-     */
     public function run(): void
     {
-        collect(self::LANGUAGES)->each(function (array $language): void {
-            Language::query()->updateOrCreate(
-                ['code' => $language['code']],
-                $language,
-            );
-        });
+        $languages = Language::factory()
+            ->count(self::TOTAL_LANGUAGES)
+            ->sequence(function (Sequence $sequence): array {
+                $position = $sequence->index + 1;
+                $code = 'l'.str_pad((string) $position, 4, '0', STR_PAD_LEFT);
+                $label = sprintf('Language %04d', $position);
+
+                return [
+                    'code' => $code,
+                    'name' => $label,
+                    'name_translations' => [
+                        'en' => $label,
+                        'es' => sprintf('Idioma %04d', $position),
+                        'fr' => sprintf('Langue %04d', $position),
+                    ],
+                    'native_name' => sprintf('Lingua %04d', $position),
+                    'native_name_translations' => [
+                        'en' => sprintf('Lingua %04d', $position),
+                        'es' => sprintf('Lengua %04d', $position),
+                        'fr' => sprintf('Langue maternelle %04d', $position),
+                    ],
+                    'active' => true,
+                ];
+            })
+            ->make()
+            ->map(function (Language $language): array {
+                return [
+                    'code' => $language->code,
+                    'name' => $language->getRawOriginal('name') ?? $language->name,
+                    'name_translations' => json_encode($language->name_translations, JSON_UNESCAPED_UNICODE),
+                    'native_name' => $language->getRawOriginal('native_name') ?? $language->native_name,
+                    'native_name_translations' => json_encode($language->native_name_translations, JSON_UNESCAPED_UNICODE),
+                    'active' => $language->active,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            });
+
+        Language::query()->upsert(
+            $languages->all(),
+            ['code'],
+            ['name', 'name_translations', 'native_name', 'native_name_translations', 'active', 'updated_at']
+        );
+
+        Language::query()->whereNotIn('code', $languages->pluck('code'))->delete();
     }
 }

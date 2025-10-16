@@ -33,27 +33,52 @@ class BaselineSeedersTest extends TestCase
     {
         $this->seed(LanguageSeeder::class);
 
-        $this->assertDatabaseHas('languages', ['code' => 'en', 'name' => 'English']);
-        $this->assertDatabaseHas('languages', ['code' => 'zh', 'name' => 'Chinese']);
-        $this->assertSame(count(LanguageSeeder::LANGUAGES), Language::query()->count());
+        $this->assertDatabaseHas('languages', [
+            'code' => 'l0001',
+            'name' => 'Language 0001',
+        ]);
+
+        $this->assertDatabaseHas('languages', [
+            'code' => 'l0100',
+            'name_translations->es' => 'Idioma 0100',
+        ]);
+
+        $this->assertSame(LanguageSeeder::TOTAL_LANGUAGES, Language::query()->count());
     }
 
     public function test_country_seeder_populates_production_countries(): void
     {
         $this->seed(CountrySeeder::class);
 
-        $this->assertDatabaseHas('countries', ['code' => 'US', 'name' => 'United States']);
-        $this->assertDatabaseHas('countries', ['code' => 'IN', 'name' => 'India']);
-        $this->assertSame(count(CountrySeeder::COUNTRIES), Country::query()->count());
+        $this->assertDatabaseHas('countries', [
+            'code' => '00',
+            'name' => 'Country 0001',
+        ]);
+
+        $this->assertDatabaseHas('countries', [
+            'code' => '0A',
+            'name_translations->fr' => 'Pays 0011',
+        ]);
+
+        $this->assertSame(CountrySeeder::TOTAL_COUNTRIES, Country::query()->count());
     }
 
     public function test_genre_seeder_syncs_tmdb_genres(): void
     {
         $this->seed(GenreSeeder::class);
 
-        $this->assertDatabaseHas('genres', ['slug' => 'action', 'tmdb_id' => 28]);
-        $this->assertDatabaseHas('genres', ['slug' => 'science-fiction', 'tmdb_id' => 878]);
-        $this->assertSame(count(GenreSeeder::GENRES), Genre::query()->count());
+        $this->assertDatabaseHas('genres', [
+            'slug' => 'genre-0001',
+            'tmdb_id' => 20001,
+            'name' => 'Genre 0001',
+        ]);
+
+        $this->assertDatabaseHas('genres', [
+            'slug' => 'genre-0100',
+            'name_translations->es' => 'Género 0100',
+        ]);
+
+        $this->assertSame(GenreSeeder::TOTAL_GENRES, Genre::query()->count());
     }
 
     public function test_language_seeder_is_idempotent(): void
@@ -61,7 +86,7 @@ class BaselineSeedersTest extends TestCase
         $this->seed(LanguageSeeder::class);
         $this->seed(LanguageSeeder::class);
 
-        $this->assertSame(count(LanguageSeeder::LANGUAGES), Language::query()->count());
+        $this->assertSame(LanguageSeeder::TOTAL_LANGUAGES, Language::query()->count());
         $this->assertSame(
             Language::query()->pluck('code')->unique()->count(),
             Language::query()->count(),
@@ -73,7 +98,7 @@ class BaselineSeedersTest extends TestCase
         $this->seed(CountrySeeder::class);
         $this->seed(CountrySeeder::class);
 
-        $this->assertSame(count(CountrySeeder::COUNTRIES), Country::query()->count());
+        $this->assertSame(CountrySeeder::TOTAL_COUNTRIES, Country::query()->count());
         $this->assertSame(
             Country::query()->pluck('code')->unique()->count(),
             Country::query()->count(),
@@ -85,7 +110,7 @@ class BaselineSeedersTest extends TestCase
         $this->seed(GenreSeeder::class);
         $this->seed(GenreSeeder::class);
 
-        $this->assertSame(count(GenreSeeder::GENRES), Genre::query()->count());
+        $this->assertSame(GenreSeeder::TOTAL_GENRES, Genre::query()->count());
         $this->assertSame(
             Genre::query()->pluck('slug')->unique()->count(),
             Genre::query()->count(),
@@ -96,9 +121,9 @@ class BaselineSeedersTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $this->assertSame(count(LanguageSeeder::LANGUAGES), Language::query()->count());
-        $this->assertSame(count(CountrySeeder::COUNTRIES), Country::query()->count());
-        $this->assertSame(count(GenreSeeder::GENRES), Genre::query()->count());
+        $this->assertSame(LanguageSeeder::TOTAL_LANGUAGES, Language::query()->count());
+        $this->assertSame(CountrySeeder::TOTAL_COUNTRIES, Country::query()->count());
+        $this->assertSame(GenreSeeder::TOTAL_GENRES, Genre::query()->count());
     }
 
     public function test_database_seeder_is_idempotent(): void
@@ -106,9 +131,9 @@ class BaselineSeedersTest extends TestCase
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
 
-        $this->assertSame(count(LanguageSeeder::LANGUAGES), Language::query()->count());
-        $this->assertSame(count(CountrySeeder::COUNTRIES), Country::query()->count());
-        $this->assertSame(count(GenreSeeder::GENRES), Genre::query()->count());
+        $this->assertSame(LanguageSeeder::TOTAL_LANGUAGES, Language::query()->count());
+        $this->assertSame(CountrySeeder::TOTAL_COUNTRIES, Country::query()->count());
+        $this->assertSame(GenreSeeder::TOTAL_GENRES, Genre::query()->count());
     }
 
     protected function ensureLanguagesTable(): void
@@ -120,8 +145,10 @@ class BaselineSeedersTest extends TestCase
         Schema::create('languages', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->json('name_translations')->nullable();
             $table->string('code')->unique();
             $table->string('native_name')->nullable();
+            $table->json('native_name_translations')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });
@@ -136,6 +163,7 @@ class BaselineSeedersTest extends TestCase
         Schema::create('countries', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->json('name_translations')->nullable();
             $table->string('code')->unique();
             $table->boolean('active')->default(true);
             $table->timestamps();
@@ -151,6 +179,7 @@ class BaselineSeedersTest extends TestCase
         Schema::create('genres', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->json('name_translations')->nullable();
             $table->string('slug')->unique();
             $table->unsignedBigInteger('tmdb_id')->nullable();
             $table->timestamps();

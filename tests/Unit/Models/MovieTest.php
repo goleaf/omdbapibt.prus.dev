@@ -15,8 +15,8 @@ use Tests\TestCase;
 
 class MovieTest extends TestCase
 {
-    use RefreshDatabase;
     use CreatesLocaleTables;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -68,12 +68,15 @@ class MovieTest extends TestCase
         $genre = Genre::factory()->create();
         $language = Language::create([
             'name' => 'English',
+            'name_translations' => ['en' => 'English', 'es' => 'Inglés'],
             'code' => 'en',
             'native_name' => 'English',
+            'native_name_translations' => ['en' => 'English', 'es' => 'Inglés'],
             'active' => true,
         ]);
         $country = Country::create([
             'name' => 'United States',
+            'name_translations' => ['en' => 'United States', 'es' => 'Estados Unidos'],
             'code' => 'US',
             'active' => true,
         ]);

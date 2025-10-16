@@ -15,20 +15,35 @@ class GenreFactory extends Factory
 
     public function definition(): array
     {
-        $name = $this->faker->unique()->words(2, true);
+        $identifier = $this->faker->unique()->numberBetween(1, 99_999);
+        $baseName = 'Genre '.$identifier;
+
+        $translations = [
+            'en' => $baseName,
+            'es' => 'Género '.$identifier,
+            'fr' => 'Genre '.$identifier,
+        ];
 
         return [
-            'name' => Str::title($name),
-            'slug' => Str::slug($name).'-'.$this->faker->unique()->numerify('##'),
-            'tmdb_id' => $this->faker->unique()->numberBetween(1, 9_999),
+            'name' => $translations['en'],
+            'name_translations' => $translations,
+            'slug' => Str::slug($baseName).'-'.$identifier,
+            'tmdb_id' => 10_000 + $identifier,
         ];
     }
 
     public function named(string $name, ?int $tmdbId = null): self
     {
         return $this->state(function () use ($name, $tmdbId): array {
+            $translations = [
+                'en' => $name,
+                'es' => $name.' (ES)',
+                'fr' => $name.' (FR)',
+            ];
+
             return [
-                'name' => $name,
+                'name' => $translations['en'],
+                'name_translations' => $translations,
                 'slug' => Str::slug($name),
                 'tmdb_id' => $tmdbId ?? $this->faker->unique()->numberBetween(1, 9_999),
             ];

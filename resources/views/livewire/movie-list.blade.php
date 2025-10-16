@@ -14,11 +14,11 @@
 
         @php
             $activeFilters = collect([
-                'genreId' => optional($genres->firstWhere('id', $genreId))->name,
+                'genreId' => optional($genres->firstWhere('id', $genreId))?->localizedName(),
                 'year' => $year,
                 'rating' => $rating ? number_format($rating, 1) . '+' : null,
-                'languageId' => optional($languages->firstWhere('id', $languageId))->name,
-                'countryId' => optional($countries->firstWhere('id', $countryId))->name,
+                'languageId' => optional($languages->firstWhere('id', $languageId))?->localizedName(),
+                'countryId' => optional($countries->firstWhere('id', $countryId))?->localizedName(),
             ])->filter();
         @endphp
 
@@ -50,7 +50,7 @@
                             wire:click="$set('genreId', {{ $genre->id }})"
                             wire:key="genre-{{ $genre->id }}"
                         >
-                            {{ $genre->name }}
+                            {{ $genre->localizedName() }}
                         </flux:button>
                     @endforeach
                 </div>
@@ -119,7 +119,7 @@
                             wire:click="$set('languageId', {{ $language->id }})"
                             wire:key="language-{{ $language->id }}"
                         >
-                            {{ $language->name }}
+                            {{ $language->localizedName() }}
                         </flux:button>
                     @endforeach
                 </div>
@@ -142,7 +142,7 @@
                             wire:click="$set('countryId', {{ $country->id }})"
                             wire:key="country-{{ $country->id }}"
                         >
-                            {{ $country->name }}
+                            {{ $country->localizedName() }}
                         </flux:button>
                     @endforeach
                 </div>

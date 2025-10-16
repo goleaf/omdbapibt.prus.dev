@@ -16,8 +16,10 @@ trait CreatesLocaleTables
         Schema::create('languages', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->json('name_translations')->nullable();
             $table->string('code')->unique();
             $table->string('native_name')->nullable();
+            $table->json('native_name_translations')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });
@@ -32,6 +34,7 @@ trait CreatesLocaleTables
         Schema::create('countries', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->json('name_translations')->nullable();
             $table->string('code')->unique();
             $table->boolean('active')->default(true);
             $table->timestamps();

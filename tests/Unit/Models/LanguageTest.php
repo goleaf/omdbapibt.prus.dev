@@ -10,8 +10,8 @@ use Tests\TestCase;
 
 class LanguageTest extends TestCase
 {
-    use RefreshDatabase;
     use CreatesLocaleTables;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -24,8 +24,10 @@ class LanguageTest extends TestCase
     {
         $language = Language::create([
             'name' => 'Spanish',
+            'name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
             'code' => 'es',
             'native_name' => 'Español',
+            'native_name_translations' => ['en' => 'Spanish', 'es' => 'Español'],
             'active' => 0,
         ]);
 
@@ -37,13 +39,30 @@ class LanguageTest extends TestCase
         $movie = Movie::factory()->create();
         $language = Language::create([
             'name' => 'German',
+            'name_translations' => ['en' => 'German', 'de' => 'Deutsch'],
             'code' => 'de',
             'native_name' => 'Deutsch',
+            'native_name_translations' => ['en' => 'German', 'de' => 'Deutsch'],
             'active' => true,
         ]);
 
         $language->movies()->attach($movie);
 
         $this->assertTrue($language->movies->contains($movie));
+    }
+
+    public function test_localized_helpers_return_translated_values(): void
+    {
+        $language = Language::create([
+            'name' => 'French',
+            'name_translations' => ['en' => 'French', 'es' => 'Francés', 'fr' => 'Français'],
+            'code' => 'fr',
+            'native_name' => 'Français',
+            'native_name_translations' => ['en' => 'French', 'es' => 'Francés', 'fr' => 'Français'],
+            'active' => true,
+        ]);
+
+        $this->assertSame('Francés', $language->localizedName('es'));
+        $this->assertSame('Français', $language->localizedNativeName('fr'));
     }
 }

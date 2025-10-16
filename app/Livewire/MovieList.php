@@ -79,9 +79,9 @@ class MovieList extends Component
     {
         return Movie::query()
             ->with([
-                'genres:id,name',
-                'languages:id,name,code',
-                'countries:id,name,code',
+                'genres:id,name,name_translations,slug',
+                'languages:id,name,name_translations,native_name,native_name_translations,code',
+                'countries:id,name,name_translations,code',
             ])
             ->when($this->genreId, function (Builder $query): Builder {
                 return $query->whereHas('genres', fn (Builder $genreQuery) => $genreQuery->whereKey($this->genreId));
@@ -123,9 +123,9 @@ class MovieList extends Component
 
         return view('livewire.movie-list', [
             'movies' => $movies,
-            'genres' => Genre::query()->orderBy('name')->get(['id', 'name']),
-            'languages' => Language::query()->orderBy('name')->get(['id', 'name', 'code']),
-            'countries' => Country::query()->orderBy('name')->get(['id', 'name', 'code']),
+            'genres' => Genre::query()->orderBy('name')->get(['id', 'name', 'name_translations']),
+            'languages' => Language::query()->orderBy('name')->get(['id', 'name', 'name_translations', 'native_name', 'native_name_translations', 'code']),
+            'countries' => Country::query()->orderBy('name')->get(['id', 'name', 'name_translations', 'code']),
             'availableYears' => Movie::query()
                 ->selectRaw('DISTINCT COALESCE(year, YEAR(release_date)) as filter_year')
                 ->where(function ($query): void {

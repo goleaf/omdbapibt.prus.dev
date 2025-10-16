@@ -14,12 +14,27 @@ class LanguageFactory extends Factory
 
     public function definition(): array
     {
-        $name = ucwords($this->faker->unique()->words(2, true));
+        $identifier = $this->faker->unique()->numberBetween(1, 9_999);
+        $baseName = 'Language '.$identifier;
+
+        $nameTranslations = [
+            'en' => $baseName,
+            'es' => 'Idioma '.$identifier,
+            'fr' => 'Langue '.$identifier,
+        ];
+
+        $nativeTranslations = [
+            'en' => $baseName,
+            'es' => 'Lengua '.$identifier,
+            'fr' => 'Langue maternelle '.$identifier,
+        ];
 
         return [
-            'name' => $name,
-            'code' => $this->faker->unique()->languageCode(),
-            'native_name' => $this->faker->words(2, true),
+            'name' => $nameTranslations['en'],
+            'name_translations' => $nameTranslations,
+            'code' => 'l'.str_pad((string) $identifier, 4, '0', STR_PAD_LEFT),
+            'native_name' => $nativeTranslations['en'],
+            'native_name_translations' => $nativeTranslations,
             'active' => $this->faker->boolean(90),
         ];
     }
