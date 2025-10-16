@@ -299,7 +299,7 @@ class MigrationsTest extends TestCase
                 'id',
                 'tmdb_id',
                 'slug',
-                'name',
+                'name_translations',
                 'created_at',
                 'updated_at',
             ]],

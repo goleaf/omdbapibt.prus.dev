@@ -16,7 +16,9 @@ class GenreFactoryTest extends TestCase
         $genre = Genre::factory()->create();
 
         $this->assertNotNull($genre->getKey());
-        $this->assertNotEmpty($genre->name);
+        $this->assertIsArray($genre->name_translations);
+        $this->assertArrayHasKey('en', $genre->name_translations);
+        $this->assertNotEmpty($genre->localizedName());
         $this->assertNotEmpty($genre->slug);
         $this->assertNotNull($genre->tmdb_id);
     }
@@ -27,6 +29,8 @@ class GenreFactoryTest extends TestCase
             ->named('Science Fiction', 42)
             ->create();
 
+        $this->assertSame('Science Fiction', $genre->localizedName('en'));
+        $this->assertSame('Science Fiction', $genre->localizedName('es'));
         $this->assertSame('Science Fiction', $genre->name);
         $this->assertSame(Str::slug('Science Fiction'), $genre->slug);
         $this->assertSame(42, $genre->tmdb_id);

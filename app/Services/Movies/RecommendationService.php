@@ -135,7 +135,7 @@ class RecommendationService
             $weight = $this->recencyWeight($entry->watched_at ?? $entry->updated_at ?? null, $now);
 
             foreach ($movie->genres as $genre) {
-                $key = $genre->slug ?? $genre->name;
+                $key = $genre->slug ?? $genre->localizedName();
                 $genreWeights[$key] = ($genreWeights[$key] ?? 0) + $weight;
             }
 
@@ -176,7 +176,7 @@ class RecommendationService
         $genreWeight = 0.0;
 
         foreach ($movie->genres as $genre) {
-            $key = $genre->slug ?? $genre->name;
+            $key = $genre->slug ?? $genre->localizedName();
             $genreScore += $profile['genres'][$key] ?? 0.0;
             $genreWeight += 1;
         }

@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Genre;
+use Faker\Factory as FakerFactory;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -13,14 +15,21 @@ class GenreFactory extends Factory
 {
     protected $model = Genre::class;
 
+    /**
+     * Localized faker cache.
+     *
+     * @var array<string, Generator>
+     */
+    protected static array $localizedFakers = [];
+
     public function definition(): array
     {
-        $name = $this->faker->unique()->words(2, true);
+        $englishName = Str::title($this->faker->unique()->words(3, true));
 
         return [
-            'name' => Str::title($name),
-            'slug' => Str::slug($name).'-'.$this->faker->unique()->numerify('##'),
-            'tmdb_id' => $this->faker->unique()->numberBetween(1, 9_999),
+            'name_translations' => $this->localizedSet($englishName),
+            'slug' => Str::slug($englishName),
+            'tmdb_id' => $this->faker->unique()->numberBetween(1, 1_000_000),
         ];
     }
 
@@ -28,10 +37,32 @@ class GenreFactory extends Factory
     {
         return $this->state(function () use ($name, $tmdbId): array {
             return [
-                'name' => $name,
+                'name_translations' => $this->localizedSet($name, false),
                 'slug' => Str::slug($name),
-                'tmdb_id' => $tmdbId ?? $this->faker->unique()->numberBetween(1, 9_999),
+                'tmdb_id' => $tmdbId ?? $this->faker->unique()->numberBetween(1, 1_000_000),
             ];
         });
+    }
+
+    protected function localizedSet(string $english, bool $withFaker = true): array
+    {
+        $translations = [
+            'en' => $english,
+        ];
+
+        $translations['es'] = $withFaker
+            ? Str::title($this->fakerForLocale('es_ES')->words(3, true))
+            : $english;
+
+        $translations['fr'] = $withFaker
+            ? Str::title($this->fakerForLocale('fr_FR')->words(3, true))
+            : $english;
+
+        return $translations;
+    }
+
+    protected function fakerForLocale(string $locale): Generator
+    {
+        return self::$localizedFakers[$locale] ??= FakerFactory::create($locale);
     }
 }
