@@ -9,6 +9,8 @@ use Database\Seeders\CountrySeeder;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\GenreSeeder;
 use Database\Seeders\LanguageSeeder;
+use Database\Seeders\PlatformSeeder;
+use Database\Seeders\TagSeeder;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -23,10 +25,14 @@ class BaselineSeedersTest extends TestCase
         $this->ensureLanguagesTable();
         $this->ensureCountriesTable();
         $this->ensureGenresTable();
+        $this->ensureTagsTable();
+        $this->ensurePlatformsTable();
 
         DB::table('languages')->delete();
         DB::table('countries')->delete();
         DB::table('genres')->delete();
+        DB::table('tags')->delete();
+        DB::table('platforms')->delete();
     }
 
     public function test_language_seeder_populates_baseline_catalogue(): void
@@ -81,6 +87,40 @@ class BaselineSeedersTest extends TestCase
         $this->assertSame(GenreSeeder::TOTAL_GENRES, Genre::query()->count());
     }
 
+    public function test_tag_seeder_populates_curated_tags(): void
+    {
+        $this->seed(TagSeeder::class);
+
+        $this->assertDatabaseHas('tags', [
+            'slug' => 'new-release-spotlight',
+            'name_translations->es' => 'Estreno destacado',
+        ]);
+
+        $this->assertDatabaseHas('tags', [
+            'slug' => 'documentary-deep-dives',
+            'description_translations->fr' => 'Des enquêtes documentaires qui décryptent l’actualité culturelle.',
+        ]);
+
+        $this->assertSame(TagSeeder::TOTAL_TAGS, DB::table('tags')->count());
+    }
+
+    public function test_platform_seeder_populates_delivery_surfaces(): void
+    {
+        $this->seed(PlatformSeeder::class);
+
+        $this->assertDatabaseHas('platforms', [
+            'slug' => 'web-app',
+            'name_translations->fr' => 'Application web',
+        ]);
+
+        $this->assertDatabaseHas('platforms', [
+            'slug' => 'fire-tv',
+            'description_translations->es' => 'Controles por voz alineados con los hogares Amazon.',
+        ]);
+
+        $this->assertSame(PlatformSeeder::TOTAL_PLATFORMS, DB::table('platforms')->count());
+    }
+
     public function test_language_seeder_is_idempotent(): void
     {
         $this->seed(LanguageSeeder::class);
@@ -117,6 +157,30 @@ class BaselineSeedersTest extends TestCase
         );
     }
 
+    public function test_tag_seeder_is_idempotent(): void
+    {
+        $this->seed(TagSeeder::class);
+        $this->seed(TagSeeder::class);
+
+        $this->assertSame(TagSeeder::TOTAL_TAGS, DB::table('tags')->count());
+        $this->assertSame(
+            TagSeeder::TOTAL_TAGS,
+            DB::table('tags')->distinct()->count('slug'),
+        );
+    }
+
+    public function test_platform_seeder_is_idempotent(): void
+    {
+        $this->seed(PlatformSeeder::class);
+        $this->seed(PlatformSeeder::class);
+
+        $this->assertSame(PlatformSeeder::TOTAL_PLATFORMS, DB::table('platforms')->count());
+        $this->assertSame(
+            PlatformSeeder::TOTAL_PLATFORMS,
+            DB::table('platforms')->distinct()->count('slug'),
+        );
+    }
+
     public function test_database_seeder_runs_all_baseline_seeders(): void
     {
         $this->seed(DatabaseSeeder::class);
@@ -124,6 +188,8 @@ class BaselineSeedersTest extends TestCase
         $this->assertSame(LanguageSeeder::TOTAL_LANGUAGES, Language::query()->count());
         $this->assertSame(CountrySeeder::TOTAL_COUNTRIES, Country::query()->count());
         $this->assertSame(GenreSeeder::TOTAL_GENRES, Genre::query()->count());
+        $this->assertSame(TagSeeder::TOTAL_TAGS, DB::table('tags')->count());
+        $this->assertSame(PlatformSeeder::TOTAL_PLATFORMS, DB::table('platforms')->count());
     }
 
     public function test_database_seeder_is_idempotent(): void
@@ -134,6 +200,8 @@ class BaselineSeedersTest extends TestCase
         $this->assertSame(LanguageSeeder::TOTAL_LANGUAGES, Language::query()->count());
         $this->assertSame(CountrySeeder::TOTAL_COUNTRIES, Country::query()->count());
         $this->assertSame(GenreSeeder::TOTAL_GENRES, Genre::query()->count());
+        $this->assertSame(TagSeeder::TOTAL_TAGS, DB::table('tags')->count());
+        $this->assertSame(PlatformSeeder::TOTAL_PLATFORMS, DB::table('platforms')->count());
     }
 
     protected function ensureLanguagesTable(): void
@@ -182,6 +250,49 @@ class BaselineSeedersTest extends TestCase
             $table->json('name_translations')->nullable();
             $table->string('slug')->unique();
             $table->unsignedBigInteger('tmdb_id')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    protected function ensureTagsTable(): void
+    {
+        if (Schema::hasTable('tags')) {
+            return;
+        }
+
+        Schema::create('tags', function (Blueprint $table): void {
+            $table->id();
+            $table->string('slug')->unique();
+            $table->string('code')->nullable()->unique();
+            $table->string('name')->nullable();
+            $table->json('name_translations')->nullable();
+            $table->text('description')->nullable();
+            $table->json('description_translations')->nullable();
+            $table->unsignedInteger('sort_order')->nullable();
+            $table->boolean('active')->default(true);
+            $table->timestamps();
+        });
+    }
+
+    protected function ensurePlatformsTable(): void
+    {
+        if (Schema::hasTable('platforms')) {
+            return;
+        }
+
+        Schema::create('platforms', function (Blueprint $table): void {
+            $table->id();
+            $table->string('slug')->unique();
+            $table->string('code')->nullable()->unique();
+            $table->string('name')->nullable();
+            $table->json('name_translations')->nullable();
+            $table->string('short_name')->nullable();
+            $table->json('short_name_translations')->nullable();
+            $table->text('description')->nullable();
+            $table->json('description_translations')->nullable();
+            $table->string('type')->nullable();
+            $table->unsignedInteger('sort_order')->nullable();
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }
