@@ -11,14 +11,14 @@
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">{{ __('ui.dashboard.layout.sidebar_heading') }}</h2>
                 <nav class="mt-4 space-y-2">
                     @foreach (($navigation ?? []) as $item)
-                        @php
-                            $isActive = (bool) ($item['active'] ?? false);
-                            $target = $item['target'] ?? null;
-                        @endphp
                         <a
                             href="{{ $item['href'] ?? '#' }}"
-                            @if ($target) target="{{ $target }}" rel="noopener" @endif
-                            class="group block rounded-2xl border px-4 py-3 transition @if ($isActive) border-emerald-500/60 bg-emerald-500/10 text-emerald-200 @else border-slate-800/70 bg-slate-900/40 text-slate-300 hover:border-emerald-400/70 hover:bg-emerald-500/10 hover:text-emerald-200 @endif"
+                            @if (! empty($item['target'])) target="{{ $item['target'] }}" rel="noopener" @endif
+                            @class([
+                                'group block rounded-2xl border px-4 py-3 transition',
+                                'border-emerald-500/60 bg-emerald-500/10 text-emerald-200' => (bool) ($item['active'] ?? false),
+                                'border-slate-800/70 bg-slate-900/40 text-slate-300 hover:border-emerald-400/70 hover:bg-emerald-500/10 hover:text-emerald-200' => ! ($item['active'] ?? false),
+                            ])
                         >
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-semibold">{{ $item['label'] }}</span>

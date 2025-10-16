@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BillingPortalController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\SubscriptionController;
@@ -64,7 +65,7 @@ $registerAppRoutes = function (): void {
         ->name('people.show');
 
     Route::middleware('auth')->group(function (): void {
-        Route::view('/dashboard', 'dashboard')->name('dashboard');
+        Route::get('/dashboard', DashboardController::class)->name('dashboard');
         Route::view('/account', 'pages.account')->name('account');
         Route::view('/account/profile', 'pages.profile')->name('account.profile');
 
