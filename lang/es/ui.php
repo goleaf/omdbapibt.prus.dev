@@ -121,4 +121,180 @@ return [
             'crew' => 'Equipo técnico',
         ],
     ],
+    'pages' => [
+        'terms' => [
+            'title' => 'Términos del servicio',
+            'meta_description' => 'Consulta los términos que rigen tu cuenta, las suscripciones y el uso de las herramientas de catálogo de OMDb Stream.',
+            'heading' => 'Términos del servicio',
+            'lede' => 'Estos términos explican cómo usar OMDb Stream de forma responsable y qué puedes esperar del servicio.',
+            'intro' => 'OMDb Stream ofrece metadatos curados, herramientas y funciones de suscripción impulsadas por OMDb y TMDb. Al crear una cuenta, adquirir una suscripción o utilizar el sitio, aceptas las reglas descritas a continuación además de nuestra Política de privacidad.',
+            'sections' => [
+                [
+                    'title' => '1. Descripción general del acuerdo',
+                    'paragraphs' => [
+                        'Estos Términos del servicio constituyen un acuerdo vinculante entre tú y OMDb Stream. Se aplican a todas las personas, cuentas y organizaciones que acceden a la plataforma.',
+                        'Podemos actualizar los términos para reflejar nuevas funciones o requisitos legales. Cuando los cambios sean sustanciales, publicaremos un aviso en la aplicación o enviaremos un correo al contacto principal de tu cuenta. Si continúas usando OMDb Stream después de la fecha de vigencia, aceptas los términos actualizados.',
+                    ],
+                ],
+                [
+                    'title' => '2. Cuentas y elegibilidad',
+                    'paragraphs' => [
+                        'Debes tener al menos 18 años —o la mayoría de edad en tu jurisdicción— y capacidad para celebrar contratos a fin de usar OMDb Stream. Al registrarte aceptas proporcionar información precisa, actualizada y completa.',
+                        'Mantén seguras tus credenciales y avísanos de inmediato si detectas acceso no autorizado. Si invitas a compañeros o concedas acceso a tu organización, eres responsable de su actividad dentro de tu suscripción.',
+                    ],
+                ],
+                [
+                    'title' => '3. Suscripciones y facturación',
+                    'paragraphs' => [
+                        'Los planes de pago se renuevan automáticamente con la periodicidad que selecciones. Nos autorizas, junto con nuestro procesador de pagos, a cargar en el método registrado las cuotas recurrentes, impuestos aplicables y cualquier complemento que actives.',
+                        'Puedes cancelar en el portal de facturación en cualquier momento. La cancelación detiene las renovaciones futuras, pero no genera reembolsos proporcionales del periodo en curso salvo que la ley lo exija. Algunas funciones experimentales pueden tener límites de uso o términos adicionales descritos durante el checkout.',
+                    ],
+                ],
+                [
+                    'title' => '4. Uso aceptable',
+                    'paragraphs' => [
+                        'Utiliza OMDb Stream únicamente con fines legales y dentro de los patrones de uso admitidos por nuestras API e interfaz. No intentes extraer datos masivamente, descompilar, sobrecargar ni eludir límites de velocidad, autenticación o controles de seguridad.',
+                        'Podemos suspender o terminar el acceso sin previo aviso si haces un uso indebido del servicio, interfieres con otros clientes o incumples leyes aplicables, incluidas las de propiedad intelectual y protección de datos.',
+                    ],
+                ],
+                [
+                    'title' => '5. Contenido y datos de terceros',
+                    'paragraphs' => [
+                        'Nuestro catálogo combina datos de OMDb, TMDb y otros socios con licencia. Aunque procuramos la precisión, la información se proporciona tal cual y puede cambiar sin aviso. Debes verificar los derechos antes de redistribuir metadatos, material gráfico o análisis.',
+                        'Debes cumplir los términos de OMDb, TMDb y demás licenciantes aplicables al exportar o integrar sus datos. Si un proveedor revoca el acceso, podremos retirar contenido o funciones procurando afectar lo menos posible tu suscripción.',
+                    ],
+                ],
+                [
+                    'title' => '6. Terminación',
+                    'paragraphs' => [
+                        'Puedes cerrar tu cuenta en cualquier momento desde la configuración. Podemos suspender o cancelar cuentas que incumplan estos términos, no paguen las cuotas o representen riesgos de seguridad o cumplimiento.',
+                        'Al finalizar la cuenta, tu derecho a usar OMDb Stream termina de inmediato. Las disposiciones que, por su naturaleza, deban sobrevivir (como indemnizaciones, limitaciones de responsabilidad y resolución de disputas) seguirán vigentes.',
+                    ],
+                ],
+            ],
+            'contact' => [
+                'title' => 'Preguntas y contacto',
+                'body' => 'Si tienes dudas sobre estos términos, escríbenos a :email o responde cualquier mensaje del equipo de OMDb Stream.',
+            ],
+            'effective_date' => 'Vigente desde el 1 de mayo de 2024.',
+        ],
+        'privacy' => [
+            'title' => 'Política de privacidad',
+            'meta_description' => 'Conoce cómo OMDb Stream recopila, utiliza y protege tu información personal.',
+            'heading' => 'Política de privacidad',
+            'lede' => 'Respetamos tu privacidad y explicamos nuestras prácticas de datos con claridad.',
+            'intro' => 'Esta Política de privacidad describe los datos personales que recopila OMDb Stream, cómo los usamos para operar la plataforma y las opciones que tienes para controlar tu información. Procesamos datos conforme a las normativas de privacidad aplicables y las mejores prácticas del sector.',
+            'sections' => [
+                [
+                    'title' => '1. Información que recopilamos',
+                    'paragraphs' => [
+                        'Recopilamos la información que proporcionas directamente, los datos que se generan cuando interactúas con el sitio y detalles limitados de terceros de confianza. La información exacta depende de cómo utilices OMDb Stream.',
+                    ],
+                    'items' => [
+                        'Datos de cuenta como nombre, correo electrónico, organización y preferencias de suscripción.',
+                        'Información de pago procesada de forma segura por nuestro proveedor de facturación; almacenamos tokens, no los números completos de tarjeta.',
+                        'Datos de uso como páginas visitadas, consultas ejecutadas, identificadores de dispositivo y diagnósticos que ayudan a mejorar la confiabilidad.',
+                        'Integraciones e importaciones autorizadas, como listas o reseñas sincronizadas desde servicios asociados.',
+                    ],
+                ],
+                [
+                    'title' => '2. Cómo usamos la información',
+                    'paragraphs' => [
+                        'Procesamos datos personales para ofrecer el servicio, personalizar recomendaciones, garantizar la seguridad y comunicarnos contigo sobre tu cuenta.',
+                    ],
+                    'items' => [
+                        'Operar la aplicación, brindar soporte y ofrecer funciones de Livewire y API.',
+                        'Procesar pagos, detectar fraude y hacer cumplir los límites de uso asociados a tu plan.',
+                        'Enviar mensajes transaccionales, guías de incorporación, novedades de producto y comunicaciones comerciales cuando sea permitido.',
+                        'Analizar tendencias agregadas de uso para planificar capacidad, mejorar la relevancia de las búsquedas y elevar la calidad de los datos.',
+                    ],
+                ],
+                [
+                    'title' => '3. Compartir y divulgar',
+                    'paragraphs' => [
+                        'No vendemos tu información personal. Compartimos datos limitados con proveedores que nos ayudan a operar OMDb Stream y solo bajo contratos que les exigen protegerla.',
+                        'Podemos divulgar información cuando la ley lo exija, para responder a solicitudes legales válidas o para proteger los derechos, la propiedad o la seguridad de nuestros usuarios y socios.',
+                    ],
+                ],
+                [
+                    'title' => '4. Tus opciones y derechos',
+                    'paragraphs' => [
+                        'Según tu ubicación, puedes tener derechos para acceder, corregir, eliminar o restringir el tratamiento de tus datos personales. Atendemos solicitudes verificadas dentro de los plazos establecidos por la ley aplicable.',
+                    ],
+                    'items' => [
+                        'Actualiza la información del perfil y tus preferencias de comunicación desde la configuración de la cuenta.',
+                        'Exporta datos o solicita su eliminación contactando a soporte; autenticaremos la solicitud antes de actuar.',
+                        'Cancela el envío de correos comerciales mediante el enlace para darse de baja o ajustando tus preferencias de notificación.',
+                    ],
+                ],
+                [
+                    'title' => '5. Conservación y seguridad de datos',
+                    'paragraphs' => [
+                        'Conservamos los datos personales solo durante el tiempo necesario para prestar el servicio, cumplir obligaciones legales o resolver disputas. Cuando ya no se necesitan, los eliminamos o anonimizamos.',
+                        'Implementamos medidas técnicas, administrativas y físicas —incluyendo cifrado en tránsito, controles de acceso y auditorías periódicas— para proteger tu información contra accesos no autorizados.',
+                    ],
+                ],
+            ],
+            'contact' => [
+                'title' => 'Dudas sobre privacidad',
+                'body' => 'Escríbenos a :email para enviar una solicitud de datos o preguntar cómo tratamos tu información.',
+            ],
+            'effective_date' => 'Vigente desde el 1 de mayo de 2024.',
+        ],
+        'support' => [
+            'title' => 'Centro de soporte',
+            'meta_description' => 'Encuentra recursos de ayuda, guías de facturación y opciones de contacto con el soporte de OMDb Stream.',
+            'heading' => 'Centro de soporte',
+            'lede' => 'Estamos aquí para ayudarte a lanzar rápido y resolver incidencias sin fricción.',
+            'intro' => 'Utiliza estas guías para aprovechar al máximo OMDb Stream. Nuestro equipo de soporte trabaja junto a especialistas de ingeniería y producto para ofrecer respuestas precisas y accionables.',
+            'sections' => [
+                [
+                    'title' => '1. Primeros pasos',
+                    'paragraphs' => [
+                        'Comienza conectando tus fuentes de metadatos preferidas e invitando a colaboradores desde el panel de cuenta. La lista de verificación de onboarding te guía para habilitar componentes de Livewire, configurar la sincronización de listas y ajustar notificaciones.',
+                        'Si migras desde otra herramienta, exporta tu catálogo actual en CSV o JSON e impórtalo desde el panel del analizador. Nuestro equipo puede revisar tu plan de migración para reducir el tiempo de inactividad.',
+                    ],
+                    'cta' => [
+                        'label' => 'Ver la guía de onboarding',
+                        'href' => 'https://docs.omdbstream.test/get-started',
+                    ],
+                ],
+                [
+                    'title' => '2. Facturación y planes',
+                    'paragraphs' => [
+                        'Administra métodos de pago, descarga facturas y cambia de plan desde el portal de facturación. Los cambios se aplican de inmediato y los ajustes prorrateados aparecerán en tu próxima factura.',
+                        'Contáctanos antes de escalar equipos grandes o alcanzar límites de API para recomendarte el mejor plan y alinear los requisitos de exportación de datos.',
+                    ],
+                    'items' => [
+                        'Actualiza tu método de pago predeterminado y añade tarjetas de respaldo para cuentas compartidas.',
+                        'Revisa las próximas fechas de renovación y activa alertas de facturación para tu equipo financiero.',
+                        'Solicita facturas con IVA u otros requisitos fiscales directamente desde el portal.',
+                    ],
+                ],
+                [
+                    'title' => '3. Solución de problemas técnicos',
+                    'paragraphs' => [
+                        'La mayoría de los problemas se resuelven limpiando la caché desde las herramientas del panel, revisando la página de estado del sistema o consultando las entregas recientes de webhooks. Nuestra página de estado publica actualizaciones en tiempo real sobre los pipelines de ingesta y la búsqueda.',
+                        'Cuando necesites escalar un ticket, incluye identificadores de solicitud, marcas de tiempo y capturas de pantalla relevantes. Este contexto ayuda a ingeniería a reproducir el problema con rapidez.',
+                    ],
+                ],
+                [
+                    'title' => '4. Mantente conectado',
+                    'paragraphs' => [
+                        'Únete a nuestros seminarios web mensuales y al boletín de novedades para conocer las nuevas funciones y alianzas de datos.',
+                        'Nos encanta recibir comentarios sobre prioridades de la hoja de ruta y mejoras de flujo de trabajo: tus sugerencias ayudan a dar forma a OMDb Stream.',
+                    ],
+                    'cta' => [
+                        'label' => 'Sugerir una función',
+                        'href' => 'mailto:product@omdbstream.test',
+                    ],
+                ],
+            ],
+            'contact' => [
+                'title' => '¿Necesitas más ayuda?',
+                'body' => 'Envía un correo a :email con tu ID de cuenta y un resumen breve. Un especialista de soporte responderá en un día hábil.',
+            ],
+            'default_cta' => 'Contactar soporte',
+        ],
+    ],
 ];

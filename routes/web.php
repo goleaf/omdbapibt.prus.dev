@@ -39,6 +39,9 @@ $registerAppRoutes = function (): void {
     Route::get('/browse', BrowsePage::class)->name('browse');
     Route::get('/pricing', PricingPage::class)->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
+    Route::view('/terms', 'pages.terms')->name('terms');
+    Route::view('/privacy', 'pages.privacy')->name('privacy');
+    Route::view('/support', 'pages.support')->name('support');
     Route::get('/checkout', PlanSelector::class)->name('checkout');
     Route::get('/login', LoginForm::class)->name('login');
     Route::get('/signup', SignupForm::class)->name('signup');

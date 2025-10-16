@@ -101,9 +101,9 @@
             <div class="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-6 text-sm flux-text-muted sm:flex-row sm:items-center sm:justify-between 2xl:px-12">
                 <p>{{ __('ui.nav.footer.copyright', ['year' => now()->year]) }}</p>
                 <div class="flex items-center gap-4">
-                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.terms') }}</a>
-                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.privacy') }}</a>
-                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.support') }}</a>
+                    <a href="{{ route('terms') }}" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.terms') }}</a>
+                    <a href="{{ route('privacy') }}" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.privacy') }}</a>
+                    <a href="{{ route('support') }}" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.support') }}</a>
                 </div>
             </div>
         </footer>
