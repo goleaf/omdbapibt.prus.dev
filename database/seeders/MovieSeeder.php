@@ -10,7 +10,6 @@ use App\Models\Person;
 use App\Models\User;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 class MovieSeeder extends Seeder
@@ -36,17 +35,21 @@ class MovieSeeder extends Seeder
             return;
         }
 
-        if (Movie::query()->exists()) {
-            return;
-        }
-
         $genreIds = Genre::query()->pluck('id');
         $languageIds = Language::query()->pluck('id');
         $countryIds = Country::query()->pluck('id');
         $personIds = Person::query()->pluck('id');
         $userIds = User::query()->pluck('id');
 
-        $this->forChunkedCount(1_000, 100, function (int $count) use ($genreIds, $languageIds, $countryIds, $personIds, $userIds): void {
+        $target = 1_000;
+        $existing = Movie::query()->count();
+        $remaining = max(0, $target - $existing);
+
+        if ($remaining === 0) {
+            return;
+        }
+
+        $this->forChunkedCount($remaining, 100, function (int $count) use ($genreIds, $languageIds, $countryIds, $personIds, $userIds): void {
             Movie::factory()
                 ->count($count)
                 ->create()

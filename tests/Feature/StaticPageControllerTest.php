@@ -12,12 +12,8 @@ class StaticPageControllerTest extends TestCase
     public function test_terms_page_handles_non_iterable_sections(): void
     {
         Lang::addLines([
-            'pages' => [
-                'terms' => [
-                    'sections' => 'not-an-array',
-                ],
-            ],
-        ], 'en', 'ui');
+            'ui.pages.terms.sections' => 'not-an-array',
+        ], 'en');
 
         $this->get('/en/terms')
             ->assertOk()
@@ -27,19 +23,15 @@ class StaticPageControllerTest extends TestCase
     public function test_support_page_applies_default_cta_fallbacks(): void
     {
         Lang::addLines([
-            'pages' => [
-                'support' => [
-                    'sections' => [
-                        [
-                            'title' => 'Need help?',
-                            'paragraphs' => 'Reach out any time.',
-                            'items' => 'Email support',
-                            'cta' => [],
-                        ],
-                    ],
+            'ui.pages.support.sections' => [
+                [
+                    'title' => 'Need help?',
+                    'paragraphs' => 'Reach out any time.',
+                    'items' => 'Email support',
+                    'cta' => [],
                 ],
             ],
-        ], 'en', 'ui');
+        ], 'en');
 
         $this->get('/en/support')
             ->assertOk()
@@ -50,4 +42,3 @@ class StaticPageControllerTest extends TestCase
             ->assertSee(trans('ui.pages.support.default_cta'));
     }
 }
-

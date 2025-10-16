@@ -17,10 +17,14 @@ class UiTranslationSeeder extends Seeder
             return;
         }
 
-        if (UiTranslation::query()->exists()) {
+        $target = 1_000;
+        $existing = UiTranslation::query()->count();
+        $remaining = max(0, $target - $existing);
+
+        if ($remaining === 0) {
             return;
         }
 
-        UiTranslation::factory()->count(1_000)->create();
+        UiTranslation::factory()->count($remaining)->create();
     }
 }

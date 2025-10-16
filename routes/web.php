@@ -3,8 +3,8 @@
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\StaticPageController;
+use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\AnalyticsDashboard;
@@ -21,10 +21,10 @@ use App\Livewire\PricingPage;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 
@@ -119,10 +119,12 @@ Route::get('{locale}/build/{path}', function (string $locale, string $path) use 
         abort(404);
     }
 
-    return response(File::get($fullPath), 200, [
-        'Content-Type' => File::mimeType($fullPath) ?: 'application/octet-stream',
-        'Cache-Control' => 'public, max-age=31536000',
-    ]);
+    $mimeType = File::mimeType($fullPath) ?: 'application/octet-stream';
+    $contents = File::get($fullPath);
+
+    return response($contents, 200)
+        ->header('Content-Type', $mimeType)
+        ->header('Cache-Control', 'public, max-age=31536000, immutable');
 })->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])->where('path', '.*');
 
 Route::prefix('{locale}')

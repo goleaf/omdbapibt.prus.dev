@@ -20,11 +20,15 @@ class PersonSeeder extends Seeder
             return;
         }
 
-        if (Person::query()->exists()) {
+        $target = 1_000;
+        $existing = Person::query()->count();
+        $remaining = max(0, $target - $existing);
+
+        if ($remaining === 0) {
             return;
         }
 
-        $this->forChunkedCount(1_000, 250, function (int $count): void {
+        $this->forChunkedCount($remaining, 250, function (int $count): void {
             Person::factory()->count($count)->create();
         });
     }

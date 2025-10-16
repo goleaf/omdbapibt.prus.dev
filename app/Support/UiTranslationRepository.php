@@ -34,7 +34,16 @@ class UiTranslationRepository
                             continue;
                         }
 
-                        $lines[$locale][$translation->group.'.'.$translation->key] = $value;
+                        $group = trim((string) $translation->group);
+                        $key = trim((string) $translation->key);
+
+                        if ($key === '') {
+                            continue;
+                        }
+
+                        $composedKey = $group === '' ? $key : $group.'.'.$key;
+
+                        $lines[$locale][$composedKey] = $value;
                     }
                 });
 
@@ -77,7 +86,13 @@ class UiTranslationRepository
             $prepared = [];
 
             foreach ($entries as $key => $value) {
-                $prepared['ui.'.$key] = $value;
+                $normalizedKey = trim((string) $key);
+
+                if ($normalizedKey === '') {
+                    continue;
+                }
+
+                $prepared['ui.'.$normalizedKey] = $value;
             }
 
             Lang::addLines($prepared, $locale);

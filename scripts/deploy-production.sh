@@ -119,6 +119,11 @@ PHP
         exit 1
     fi
 
+    if ! $COMPOSER_BIN dump-autoload --optimize --ansi; then
+        echo "Failed to generate optimized autoload files." >&2
+        exit 1
+    fi
+
     if ! $COMPOSER_BIN test --ansi; then
         echo "PHP test suite failed." >&2
         exit 1

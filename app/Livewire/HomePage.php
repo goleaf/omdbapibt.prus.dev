@@ -34,38 +34,45 @@ class HomePage extends Component
      */
     public string $lastUpdatedLabel = '';
 
+    /**
+     * Primary marketing statement displayed beneath the hero heading.
+     */
+    public string $heroTagline = '';
+
     public function mount(): void
     {
         $locale = app()->getLocale();
 
+        $this->heroTagline = trans('ui.home.tagline');
+
         $this->heroStats = [
             [
-                'label' => __('Streaming regions'),
+                'label' => trans('ui.home.stats.streaming_regions'),
                 'value' => '87',
             ],
             [
-                'label' => __('Flux-enabled components'),
+                'label' => trans('ui.home.stats.flux_components'),
                 'value' => '42',
             ],
             [
-                'label' => __('Library uptime'),
+                'label' => trans('ui.home.stats.library_uptime'),
                 'value' => '99.9%',
             ],
         ];
 
         $this->primaryCta = [
-            'label' => __('Start browsing'),
+            'label' => trans('ui.home.ctas.primary'),
             'href' => route('browse', ['locale' => $locale]),
             'icon' => 'play',
         ];
 
         $this->secondaryCta = [
-            'label' => __('View membership tiers'),
+            'label' => trans('ui.home.ctas.secondary'),
             'href' => route('pricing', ['locale' => $locale]),
             'icon' => 'sparkles',
         ];
 
-        $this->lastUpdatedLabel = __('Updated :date across all catalog sources.', [
+        $this->lastUpdatedLabel = trans('ui.home.last_updated', [
             'date' => Carbon::now()->format('M j, Y'),
         ]);
     }
@@ -74,7 +81,7 @@ class HomePage extends Component
     {
         return view('pages.home')
             ->layout('layouts.app', [
-                'title' => __('Flux-powered cinematic discovery'),
+                'title' => trans('ui.home.title'),
             ]);
     }
 }

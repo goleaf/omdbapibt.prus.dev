@@ -24,7 +24,11 @@ class ReviewSeeder extends Seeder
             return;
         }
 
-        if (Review::query()->exists()) {
+        $target = 1_000;
+        $existing = Review::query()->count();
+        $remaining = max(0, $target - $existing);
+
+        if ($remaining === 0) {
             return;
         }
 
@@ -35,7 +39,7 @@ class ReviewSeeder extends Seeder
             return;
         }
 
-        $this->forChunkedCount(1_000, 200, function (int $count) use ($userIds, $movies): void {
+        $this->forChunkedCount($remaining, 200, function (int $count) use ($userIds, $movies): void {
             Review::factory()
                 ->count($count)
                 ->make(['user_id' => null])

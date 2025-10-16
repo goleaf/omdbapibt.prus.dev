@@ -36,6 +36,20 @@ return [
             'copyright' => '© :year OMDb Stream. Tous droits réservés.',
         ],
     ],
+    'home' => [
+        'title' => 'Découverte cinématographique propulsée par Flux',
+        'tagline' => 'Un centre de commande mobile pour vos listes de visionnage',
+        'ctas' => [
+            'primary' => 'Commencer à explorer',
+            'secondary' => 'Voir les niveaux d’abonnement',
+        ],
+        'stats' => [
+            'streaming_regions' => 'Régions de diffusion',
+            'flux_components' => 'Composants compatibles Flux',
+            'library_uptime' => 'Disponibilité de la médiathèque',
+        ],
+        'last_updated' => 'Mis à jour le :date sur l’ensemble des sources du catalogue.',
+    ],
     'impersonation' => [
         'banner_title' => 'Impersonation de :name',
         'banner_help' => 'Vous naviguez sur le site en tant que cet utilisateur. Une fois terminé, revenez à votre compte administrateur.',

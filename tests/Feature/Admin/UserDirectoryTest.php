@@ -77,7 +77,7 @@ class UserDirectoryTest extends TestCase
 
         $this->actingAs($user);
 
-        $this->get(route('admin.users'))->assertForbidden();
+        $this->get(localized_route('admin.users'))->assertForbidden();
     }
 
     public function test_csv_export_respects_active_filters(): void

@@ -90,7 +90,7 @@ class ExampleTest extends TestCase
         $response
             ->assertSee(__('ui.nav.footer.terms'), false)
             ->assertSee('https://example.com/terms', false)
-            ->assertSee(route('login'), false)
+            ->assertSee(localized_route('login'), false)
             ->assertSee('_blank', false)
             ->assertSee('noopener', false);
     }

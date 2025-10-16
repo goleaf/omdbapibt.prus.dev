@@ -211,7 +211,7 @@ class AnalyticsDashboardTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->get(route('admin.analytics'))
+            ->get(localized_route('admin.analytics'))
             ->assertForbidden();
     }
 }

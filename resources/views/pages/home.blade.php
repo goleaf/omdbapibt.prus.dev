@@ -122,7 +122,7 @@
                     <flux:badge variant="solid" color="emerald">Flux + Livewire orchestration</flux:badge>
                     <h1 class="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">Command streaming releases from every screen</h1>
                     <p class="text-base text-slate-300 sm:text-lg">
-                        Curate slates, audit rights, and launch cross-network programming in a single responsive hub. Optimized controls keep tablet editors and desktop strategists aligned without context switching.
+                        {{ $heroTagline }}
                     </p>
                 </div>
 
@@ -144,6 +144,10 @@
                     </flux:button>
                     <p class="text-xs text-slate-400 sm:ml-4">No install required — preview in your browser today.</p>
                 </div>
+
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-500">
+                    {{ $lastUpdatedLabel }}
+                </p>
 
                 <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <x-landing.stat-card

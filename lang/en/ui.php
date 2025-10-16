@@ -36,6 +36,20 @@ return [
             'copyright' => '© :year OMDb Stream. All rights reserved.',
         ],
     ],
+    'home' => [
+        'title' => 'Flux-powered cinematic discovery',
+        'tagline' => 'A mobile-first command center for your watchlists',
+        'ctas' => [
+            'primary' => 'Start browsing',
+            'secondary' => 'View membership tiers',
+        ],
+        'stats' => [
+            'streaming_regions' => 'Streaming regions',
+            'flux_components' => 'Flux-enabled components',
+            'library_uptime' => 'Library uptime',
+        ],
+        'last_updated' => 'Updated :date across all catalog sources.',
+    ],
     'impersonation' => [
         'banner_title' => 'Impersonating :name',
         'banner_help' => 'You are browsing the site as this user. When you are done, return to your admin account.',

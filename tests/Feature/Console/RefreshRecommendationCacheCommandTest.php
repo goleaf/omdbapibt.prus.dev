@@ -16,11 +16,16 @@ class RefreshRecommendationCacheCommandTest extends TestCase
         $users = User::factory()->count(3)->create();
 
         $service = $this->mock(RecommendationService::class);
+        $service->shouldReceive('cachedLimits')
+            ->times($users->count())
+            ->withArgs(fn (User $passedUser) => $users->contains(fn (User $user) => $user->is($passedUser)))
+            ->andReturn([]);
         $service->shouldReceive('flush')
             ->times($users->count())
             ->withArgs(fn (User $passedUser) => $users->contains(fn (User $user) => $user->is($passedUser)));
         $service->shouldReceive('recommendFor')
             ->times($users->count())
+            ->withArgs(fn (User $passedUser, int $limit) => $limit === 12 && $users->contains(fn (User $user) => $user->is($passedUser)))
             ->andReturn(collect());
 
         $this->artisan('recommendations:refresh')
@@ -34,11 +39,16 @@ class RefreshRecommendationCacheCommandTest extends TestCase
         User::factory()->create();
 
         $service = $this->mock(RecommendationService::class);
+        $service->shouldReceive('cachedLimits')
+            ->once()
+            ->withArgs(fn (User $passedUser) => $passedUser->is($target))
+            ->andReturn([]);
         $service->shouldReceive('flush')
             ->once()
             ->withArgs(fn (User $passedUser) => $passedUser->is($target));
         $service->shouldReceive('recommendFor')
             ->once()
+            ->withArgs(fn (User $passedUser, int $limit) => $passedUser->is($target) && $limit === 12)
             ->andReturn(collect());
 
         $this->artisan('recommendations:refresh --user='.$target->getKey())

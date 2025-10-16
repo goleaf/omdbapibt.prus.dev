@@ -50,6 +50,8 @@ return Application::configure(basePath: dirname(__DIR__))
         RefreshRecommendationCache::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectGuestsTo(fn () => localized_route('login'));
+
         $middleware->alias([
             'subscriber' => EnsureSubscriptionAccess::class,
             'admin' => EnsureUserIsAdmin::class,

@@ -24,7 +24,7 @@ class ParserModerationDashboardTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('admin.parser-moderation'));
+        $response = $this->get(localized_route('admin.parser-moderation'));
 
         $response->assertForbidden();
     }

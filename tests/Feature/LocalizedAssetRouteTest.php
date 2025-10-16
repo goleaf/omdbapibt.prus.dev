@@ -29,6 +29,7 @@ class LocalizedAssetRouteTest extends TestCase
         $this->assertNotNull($cacheControl);
         $this->assertStringContainsString('max-age=31536000', $cacheControl);
         $this->assertStringContainsString('public', $cacheControl);
+        $this->assertStringContainsString('immutable', $cacheControl);
         $this->assertSame('localized asset payload', $response->getContent());
     }
 

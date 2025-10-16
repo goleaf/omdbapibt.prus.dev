@@ -27,15 +27,19 @@ class TvShowSeeder extends Seeder
             return;
         }
 
-        if (TvShow::query()->exists()) {
-            return;
-        }
-
         $personIds = Person::query()->pluck('id');
         $userIds = User::query()->pluck('id');
 
+        $target = 1_000;
+        $existing = TvShow::query()->count();
+        $remaining = max(0, $target - $existing);
+
+        if ($remaining === 0) {
+            return;
+        }
+
         TvShow::factory()
-            ->count(1000)
+            ->count($remaining)
             ->create()
             ->each(function (TvShow $show) use ($personIds, $userIds): void {
                 if ($personIds->isNotEmpty()) {

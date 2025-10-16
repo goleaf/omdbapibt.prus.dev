@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
         }
 
         $this->seedConfiguredAccounts();
+        $this->ensureAdministrativeBaseline();
 
         $totalUsers = 1_000;
         $existingUsers = User::query()->count();
@@ -85,5 +86,23 @@ class UserSeeder extends Seeder
                 \App\Models\UserProfile::factory()->for($user)->create();
             }
         }
+    }
+
+    protected function ensureAdministrativeBaseline(): void
+    {
+        $minimumAdmins = 2;
+        $currentAdmins = User::query()->where('role', UserRole::Admin)->count();
+
+        $adminsToCreate = max(0, $minimumAdmins - $currentAdmins);
+
+        if ($adminsToCreate === 0) {
+            return;
+        }
+
+        User::factory()
+            ->admin()
+            ->withProfile()
+            ->count($adminsToCreate)
+            ->create();
     }
 }

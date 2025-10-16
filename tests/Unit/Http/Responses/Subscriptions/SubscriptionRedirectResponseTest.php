@@ -16,7 +16,7 @@ class SubscriptionRedirectResponseTest extends TestCase
         $response = SubscriptionRedirectResponse::alreadySubscribed();
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertSame(route('dashboard'), $response->getTargetUrl());
+        $this->assertSame(localized_route('dashboard'), $response->getTargetUrl());
         $this->assertSame(__('subscriptions.status.already_subscribed'), $response->getSession()->get('status'));
     }
 }
