@@ -117,6 +117,73 @@ php artisan test tests/Feature/Seeders/UserSeederTest.php
 php artisan test tests/Unit/Services/RecommendationServiceTest.php
 ```
 
+## OMDb API bruteforce system
+
+### Overview
+
+The platform now ships with a production-ready OMDb API key discovery and movie parsing workflow that runs from a single Artisan
+command. The process continuously generates candidate keys, validates them asynchronously, and rotates confirmed keys while
+enriching movie metadata. Resume checkpoints keep long-running jobs reliable even if they are interrupted mid-batch.
+
+Run the end-to-end workflow with:
+
+```bash
+php artisan omdb:bruteforce
+```
+
+### Key features
+
+- **Automated key generation** – Produces random 8-character alphanumeric keys in batches while preventing duplicates with
+  `insertOrIgnore`.
+- **Async key validation** – Tests pending keys in pools of 50 concurrent HTTP requests using `Http::pool()` and records the
+  latest response code for observability.
+- **Checkpointed resume** – Saves validation progress to cache after every batch so subsequent executions pick up from the last
+  processed key.
+- **Movie metadata parsing** – Updates up to 1,000 movies per run, rotating through valid keys in a round-robin fashion to stay
+  within rate limits while refreshing plots, posters, ratings, and related metadata.
+
+### Configuration
+
+Tune the behaviour through `config/services.php`:
+
+```php
+'omdb' => [
+    'key' => env('OMDB_API_KEY'),
+    'base_url' => 'http://www.omdbapi.com',
+    'max_requests_per_minute' => 60,
+    'validation' => [
+        'test_imdb_id' => 'tt3896198',
+        'batch_size' => 50,
+        'timeout' => 10,
+    ],
+    'bruteforce' => [
+        'charset' => '0123456789abcdefghijklmnopqrstuvwxyz',
+        'key_length' => 8,
+        'min_pending_keys' => 10000,
+        'generation_batch' => 1000,
+    ],
+],
+```
+
+Adjust the batch sizes and thresholds to match your infrastructure. `min_pending_keys` governs when new keys are generated,
+while `batch_size` controls concurrent validation and movie parsing loads.
+
+### Operational tips
+
+- **Monitoring:** Inspect key health via Tinker using `OmdbApiKey::valid()->count()` or aggregated status counts grouped by the
+  `status` column.
+- **Checkpoint management:** Resume data lives in the `omdb:checkpoint` cache key. Use `Cache::forget('omdb:checkpoint')` to
+  reset progress.
+- **Scheduling:** Add the command to the scheduler (e.g., run daily) to keep the valid key pool fresh and metadata updated.
+
+### Testing
+
+Execute the feature tests to verify the workflow across key generation, validation, resume handling, and movie parsing:
+
+```bash
+php artisan test tests/Feature/Console/OmdbBruteforceCommandTest.php
+```
+
 ## Deployment
 
 ### Production deployment script
