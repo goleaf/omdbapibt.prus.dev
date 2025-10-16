@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\OmdbApiKeyResolver;
 use App\Support\ImpersonationManager;
 use App\Support\RedisStubStore;
 use App\Support\UiTranslationRepository;
@@ -33,11 +34,15 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->singleton(OmdbApiKeyResolver::class, function () {
+            return new OmdbApiKeyResolver((string) config('services.omdb.key', ''));
+        });
+
         $this->app->singleton(\App\Services\Clients\OmdbClient::class, function ($app) {
             return new \App\Services\Clients\OmdbClient(
                 $app->make(\Illuminate\Http\Client\Factory::class),
                 $app->make(\Illuminate\Cache\CacheManager::class),
-                (string) config('services.omdb.key', ''),
+                $app->make(OmdbApiKeyResolver::class),
                 (string) config('services.omdb.base_url', 'https://www.omdbapi.com/')
             );
         });

@@ -2,6 +2,7 @@
 
 namespace App\Services\Clients;
 
+use Closure;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\Response;
@@ -11,12 +12,15 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class OmdbClient
 {
+    protected Closure $apiKeyResolver;
+
     public function __construct(
         protected HttpFactory $http,
         protected CacheManager $cache,
-        protected string $apiKey,
+        callable $apiKeyResolver,
         protected string $baseUrl = 'https://www.omdbapi.com/'
     ) {
+        $this->apiKeyResolver = Closure::fromCallable($apiKeyResolver);
     }
 
     /**
@@ -46,7 +50,7 @@ class OmdbClient
     {
         $this->enforceRateLimit();
 
-        $payload = Arr::prepend($parameters, $this->apiKey, 'apikey');
+        $payload = Arr::prepend($parameters, $this->resolveApiKey(), 'apikey');
 
         return $this->http
             ->baseUrl($this->baseUrl)
@@ -76,5 +80,12 @@ class OmdbClient
         }
 
         RateLimiter::hit($key, 60);
+    }
+
+    protected function resolveApiKey(): string
+    {
+        $resolver = $this->apiKeyResolver;
+
+        return (string) $resolver();
     }
 }
