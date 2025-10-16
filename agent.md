@@ -1,14 +1,17 @@
 # Agent Handbook for omdbapibt.prus.dev
 
-This document captures the house rules for contributors working inside this repository. Treat it as the single source of truth whenever you touch code, write documentation, or interact with project tooling.
+This handbook is the canonical source of project expectations. Consult it before writing code, updating documentation, or
+interacting with project tooling.
 
 ---
 
 ## 1. Project Synopsis
 
-- **Application type:** Laravel 12 monolith with a Livewire 3 frontend that powers an OMDb/TMDb-backed media catalog and subscription platform.
+- **Application type:** Laravel 12 monolith with a Livewire 3 frontend that powers an OMDb/TMDb-backed media catalog and
+  subscription platform.
 - **Primary runtime:** PHP 8.3.x (match `.tool-versions` or Docker image), Node 20+ for Vite/Tailwind.
-- **Key packages:** `laravel/cashier`, `laravel/horizon`, `livewire/livewire`, `livewire/flux`, `spatie/laravel-translatable`, `barryvdh/laravel-debugbar`, `ezyang/htmlpurifier`.
+- **Key packages:** `laravel/cashier`, `laravel/horizon`, `livewire/livewire`, `livewire/flux`, `spatie/laravel-translatable`,
+  `barryvdh/laravel-debugbar`, `ezyang/htmlpurifier`.
 - **Build tooling:** Vite 7 with Tailwind CSS 4 (via `@tailwindcss/vite`), npm scripts in `package.json`.
 - **Testing stack:** PHPUnit 11, Laravel test runner (`php artisan test`).
 
@@ -33,7 +36,7 @@ Always check `composer.json` and `package.json` after pulling to spot new depend
    ```
 4. **Configure database**
    - Update the database credentials in `.env`.
-   - Run migrations with `php artisan migrate` (use `--force` in CI scripts only).
+   - Run migrations with `php artisan migrate` (use `--force` in CI scripts only`).
    - Seeders live in `database/seeders`; run `php artisan db:seed` as needed.
 5. **Local development**
    - Preferred: run `composer run dev` (spins up `php artisan serve`, queue listener, Pail logs, Vite dev server).
@@ -47,18 +50,17 @@ Always check `composer.json` and `package.json` after pulling to spot new depend
 
 Keep the `.env` file out of version control. Document new environment variables inside `README.md` if they impact project setup.
 
-SQLite-specific setup notes now live in [`docs/sqlite.md`](docs/sqlite.md).
-
 ---
 
 ## 3. Directory Orientation
 
 - `app/`
-  - `App\Models` – Eloquent models (use factories in `database/factories`).
-  - `App\Http` – Controllers, middleware, requests; prefer Form Request validation and keep controllers slim.
-  - `App\Http\Responses` – House dedicated response classes; create or extend these instead of returning raw arrays in controllers.
-  - `App\Livewire` – Livewire 3 components. Keep components lean; push data work into services/models.
-  - `App\Services` – Place complex domain logic (API clients, data processors). Create the directory if absent but keep naming consistent.
+  - `App\\Models` – Eloquent models (use factories in `database/factories`).
+  - `App\\Http` – Controllers, middleware, **Form Requests for validation**, and dedicated response classes. Prefer
+    Form Requests over inline validation logic and expose consistent response DTOs/resources from controllers.
+  - `App\\Livewire` – Livewire 3 components. Keep components lean; push data work into services/models.
+  - `App\\Services` – Place complex domain logic (API clients, data processors). Create the directory if absent but keep naming
+    consistent.
 - `bootstrap/` – Laravel bootstrap cache and app initialization files.
 - `config/` – Configuration. When adding options, update the relevant config file and document defaults in the comments.
 - `database/`
@@ -69,10 +71,10 @@ SQLite-specific setup notes now live in [`docs/sqlite.md`](docs/sqlite.md).
   - `views/` – Blade templates; Livewire views live alongside components under `resources/views/livewire`.
   - `js/` – JavaScript entry points for Vite (ES modules).
   - `css/` – Tailwind entry file(s); configure theme via `tailwind.config.js` or the Tailwind 4 utilities API.
-  - `lang/` – Localization files; integrate with `spatie/laravel-translatable` for content translations.
+  - `lang/` – Localization files; prefer translation keys and provide multilingual strings for UI copy.
 - `routes/` – HTTP routes (`web.php`, `api.php`). Group routes, apply middleware and route names consistently.
 - `tests/`
-  - `Feature/` – HTTP/Livewire/API level tests. Controllers and Form Requests must be covered here.
+  - `Feature/` – HTTP/Livewire/API level tests.
   - `Unit/` – Model/service tests.
 - `scripts/` – Custom automation; ensure shell scripts are executable.
 
@@ -88,13 +90,17 @@ When introducing new code, align with existing organization. If unsure, inspect 
 - **Constructor promotion:** Prefer property promotion for dependencies. Avoid empty constructors.
 - **Control structures:** Always use braces, even for single statements.
 - **Formatting:** Run `vendor/bin/pint --dirty` before committing. If Pint reports changes, re-run until clean.
-- **Naming:** Use descriptive names (e.g., `loadPopularMovies`, `syncTmdbMetadata`). Method names should be verbs; boolean getters should start with `is`, `has`, or `can`.
-- **Requests/Validation:** Encapsulate validation inside Form Request classes. Controllers must type-hint these Form Requests and avoid inline `validate()` calls.
-- **Responses:** Prefer dedicated response classes under `App\Http\Responses` for non-trivial payloads. Keep serialization logic out of controllers.
-- **Policies/Gates:** Enforce authorization using Laravel policies; store in `app/Policies`.
-- **Services:** Centralize API calls or complex business logic under `App\Services`. Inject services into Livewire components/controllers using interfaces when practical.
+- **Naming:** Use descriptive names (e.g., `loadPopularMovies`, `syncTmdbMetadata`). Method names should be verbs; boolean getters
+  should start with `is`, `has`, or `can`.
+- **Requests/Validation:** Implement validation inside Form Request classes. Do not validate directly inside controllers.
+- **Response classes:** Return dedicated response classes (e.g., API resources or bespoke DTOs) instead of raw arrays when sending
+  structured data from controllers.
+- **Authorization:** Enforce access control using Laravel policies in `app/Policies`.
+- **Services:** Centralize API calls or complex business logic under `App\\Services`. Inject services into Livewire components/
+  controllers using interfaces when practical.
+- **Translations:** Use translation keys or localized value objects. Avoid hard-coded UI strings; ensure `spatie/laravel-translatable`
+  attributes provide multilingual content where applicable.
 - **Error handling:** Throw domain-specific exceptions; convert to HTTP responses using the exception handler when necessary.
-- **Translations:** Use translation keys instead of hard-coded strings in views. For translatable Eloquent attributes, keep JSON columns synchronized. Ensure new user-facing strings support multiple locales.
 
 ### 4.2 Livewire & Frontend
 
@@ -133,6 +139,7 @@ When introducing new code, align with existing organization. If unsure, inspect 
 - **Stripe (Cashier):** Sync webhook events; after updating subscription logic, run targeted feature tests covering `Cashier` flows.
 - **Horizon/Queues:** Place parsing jobs on dedicated queues (`parsing`, `emails`, etc.). Configure queue names in job classes via `public $queue`.
 - **Localization:** When storing translations via `spatie/laravel-translatable`, ensure fallback locales are set in `config/translatable.php`.
+- **SQLite guidance:** See `docs/sqlite.md` for platform-specific configuration, migration, and performance tips.
 
 Document any new integration steps in `README.md` so other contributors can reproduce them.
 
@@ -141,10 +148,11 @@ Document any new integration steps in `README.md` so other contributors can repr
 ## 7. Testing Expectations
 
 - Every change must have test coverage (new test or updated existing test). No untested changes.
-- Controllers and Form Requests require dedicated Feature tests covering happy-path and validation failure scenarios.
 - Scope tests appropriately:
-  - Feature tests for HTTP/Livewire flows under `tests/Feature`.
+  - Feature tests for HTTP/Livewire/API flows under `tests/Feature`. Include controller/request coverage whenever routes or Form
+    Requests change.
   - Unit tests for service-layer logic under `tests/Unit`.
+- Provide dedicated tests for Form Requests (validation rules, authorization) and controller responses when behavior changes.
 - Use factories (`database/factories`) for test data. Seeders should not be called from tests unless absolutely necessary.
 - Prefer `RefreshDatabase` or `DatabaseTransactions` traits for isolation.
 - Run the smallest relevant test suite:
