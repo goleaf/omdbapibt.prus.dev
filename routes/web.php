@@ -2,8 +2,6 @@
 
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BillingPortalController;
-use App\Http\Controllers\BrowseController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
@@ -18,6 +16,7 @@ use App\Livewire\Browse\BrowsePage;
 use App\Livewire\Checkout\PlanSelector;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
@@ -93,6 +92,27 @@ $registerAppRoutes = function (): void {
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
     ->middleware(VerifyWebhookSignature::class)
     ->name('webhooks.stripe');
+
+Route::get('{locale}/build/{path}', function (string $locale, string $path) use ($supportedLocales) {
+    if (! in_array($locale, $supportedLocales, true)) {
+        abort(404);
+    }
+
+    if (str_contains($path, '..')) {
+        abort(404);
+    }
+
+    $fullPath = public_path('build/'.$path);
+
+    if (! File::exists($fullPath) || File::isDirectory($fullPath)) {
+        abort(404);
+    }
+
+    return response(File::get($fullPath), 200, [
+        'Content-Type' => File::mimeType($fullPath) ?: 'application/octet-stream',
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*');
 
 Route::prefix('{locale}')
     ->middleware(['validate-locale', 'set-locale'])
