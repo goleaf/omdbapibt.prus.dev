@@ -3,6 +3,8 @@
 namespace App\Livewire\Reviews;
 
 use App\Livewire\Forms\ReviewSubmissionForm;
+use App\Models\Review;
+use App\Support\HtmlSanitizer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -15,14 +17,26 @@ class ReviewForm extends Component
 
     public function submit(): void
     {
+        $validated = $this->form->validate();
+
         $user = Auth::user();
 
         if (! $user) {
             abort(403, 'Authentication required.');
         }
 
-        $this->form->submitFor($user);
-        $this->statusMessage = __('reviews.messages.submitted');
+        $sanitized = HtmlSanitizer::clean($validated['body']);
+
+        Review::create([
+            'user_id' => $user->id,
+            'movie_title' => $validated['movieTitle'],
+            'rating' => $validated['rating'],
+            'body' => $sanitized,
+        ]);
+
+        $this->form->reset();
+        $this->form->rating = 5;
+        $this->statusMessage = __('reviews.status.submitted');
 
         $this->dispatch('review-submitted');
     }

@@ -1,9 +1,6 @@
 <?php
 
 return [
-    'messages' => [
-        'submitted' => 'Votre critique a été envoyée avec succès.',
-    ],
     'validation' => [
         'movie_title' => [
             'required' => 'Veuillez saisir le titre du film.',
@@ -11,14 +8,17 @@ return [
             'max' => 'Le titre du film ne peut pas dépasser :max caractères.',
         ],
         'rating' => [
-            'required' => 'Veuillez sélectionner une note.',
+            'required' => 'Veuillez choisir une note.',
             'integer' => 'La note doit être un nombre entier.',
-            'between' => 'Choisissez une note comprise entre :min et :max étoiles.',
+            'between' => 'Choisissez une note entre :min et :max.',
         ],
         'body' => [
-            'required' => 'Partagez votre avis sur le film.',
-            'string' => 'La critique doit être du texte.',
-            'max' => 'La critique ne peut pas dépasser :max caractères.',
+            'required' => 'Veuillez partager votre avis.',
+            'string' => "L'avis doit être du texte.",
+            'max' => "L'avis ne peut pas dépasser :max caractères.",
         ],
+    ],
+    'status' => [
+        'submitted' => 'Votre avis a été envoyé avec succès.',
     ],
 ];

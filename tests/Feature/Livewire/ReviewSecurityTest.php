@@ -36,7 +36,7 @@ class ReviewSecurityTest extends TestCase
             ->set('form.body', $malicious)
             ->call('submit')
             ->assertHasNoErrors()
-            ->assertSet('statusMessage', __('reviews.messages.submitted'));
+            ->assertSet('statusMessage', __('reviews.status.submitted'));
 
         $review = Review::first();
 

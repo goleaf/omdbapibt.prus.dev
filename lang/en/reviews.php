@@ -1,24 +1,24 @@
 <?php
 
 return [
-    'messages' => [
-        'submitted' => 'Your review has been submitted successfully.',
-    ],
     'validation' => [
         'movie_title' => [
-            'required' => 'Please enter a movie title.',
+            'required' => 'Please enter the movie title.',
             'string' => 'The movie title must be text.',
-            'max' => 'Movie titles may not be greater than :max characters.',
+            'max' => 'The movie title may not be greater than :max characters.',
         ],
         'rating' => [
-            'required' => 'Please select a rating.',
+            'required' => 'Please choose a rating.',
             'integer' => 'The rating must be a whole number.',
-            'between' => 'Choose a rating between :min and :max stars.',
+            'between' => 'Choose a rating between :min and :max.',
         ],
         'body' => [
-            'required' => 'Please share your thoughts about the movie.',
+            'required' => 'Please share your review.',
             'string' => 'The review must be text.',
-            'max' => 'Reviews may not exceed :max characters.',
+            'max' => 'Reviews may not be greater than :max characters.',
         ],
+    ],
+    'status' => [
+        'submitted' => 'Your review was submitted successfully.',
     ],
 ];
