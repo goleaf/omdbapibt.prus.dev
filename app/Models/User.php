@@ -122,6 +122,11 @@ class User extends Authenticatable
         return $this->hasMany(WatchHistory::class);
     }
 
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
     public function managementLogs(): HasMany
     {
         return $this->hasMany(UserManagementLog::class);

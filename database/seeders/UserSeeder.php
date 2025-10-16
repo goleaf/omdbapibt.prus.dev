@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class UserSeeder extends Seeder
@@ -21,22 +22,63 @@ class UserSeeder extends Seeder
             return;
         }
 
-        if (User::query()->exists()) {
+        $this->seedConfiguredAccounts();
+
+        $totalUsers = 1_000;
+        $existingUsers = User::query()->count();
+        $usersToCreate = max(0, $totalUsers - $existingUsers);
+
+        if ($usersToCreate === 0) {
             return;
         }
 
-        $totalUsers = 1_000;
-
-        $this->forChunkedCount($totalUsers, 250, function (int $count): void {
+        $this->forChunkedCount($usersToCreate, 250, function (int $count): void {
             User::factory()->count($count)->create();
         });
+    }
 
-        User::query()
-            ->orderBy('id')
-            ->limit(2)
-            ->get()
-            ->each(function (User $user): void {
-                $user->forceFill(['role' => UserRole::Admin])->save();
-            });
+    protected function seedConfiguredAccounts(): void
+    {
+        $accounts = [
+            [
+                'config' => config('seeding.accounts.admin', []),
+                'role' => UserRole::Admin,
+            ],
+            [
+                'config' => config('seeding.accounts.demo', []),
+                'role' => UserRole::User,
+            ],
+        ];
+
+        foreach ($accounts as $account) {
+            $email = (string) ($account['config']['email'] ?? '');
+
+            if ($email === '') {
+                continue;
+            }
+
+            $name = (string) ($account['config']['name'] ?? '');
+
+            if ($name === '') {
+                $name = $account['role'] === UserRole::Admin ? 'Demo Administrator' : 'Demo Subscriber';
+            }
+
+            $preferredLocale = (string) ($account['config']['preferred_locale'] ?? 'en');
+            $password = (string) ($account['config']['password'] ?? 'password');
+
+            $user = User::query()->updateOrCreate(
+                ['email' => $email],
+                [
+                    'name' => $name,
+                    'password' => Hash::make($password),
+                    'role' => $account['role'],
+                    'preferred_locale' => $preferredLocale,
+                ],
+            );
+
+            if ($user->email_verified_at === null) {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            }
+        }
     }
 }
