@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Models\SubscriptionPayment;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -68,7 +70,7 @@ class SubscriptionManage extends Component
             return;
         }
 
-        if ($subscription->cancelled()) {
+        if ($subscription->canceled()) {
             session()->flash('error', __('subscriptions.errors.already_cancelled'));
 
             return;
@@ -219,7 +221,7 @@ class SubscriptionManage extends Component
             $statusLabel = 'Active';
         } elseif ($subscription?->onGracePeriod()) {
             $statusLabel = 'Grace period';
-        } elseif ($subscription?->cancelled()) {
+        } elseif ($subscription?->canceled()) {
             $statusLabel = 'Cancelled';
         }
 
@@ -245,8 +247,9 @@ class SubscriptionManage extends Component
             'trialLabel' => $trialLabel,
             'gracePeriodEnds' => $gracePeriodEnds,
             'invoiceDetails' => $invoiceDetails,
-            'isCancelled' => (bool) $subscription?->cancelled(),
+            'isCancelled' => (bool) $subscription?->canceled(),
             'isOnGracePeriod' => (bool) $subscription?->onGracePeriod(),
+            'payments' => $this->paymentHistory(),
         ]);
     }
 
@@ -275,5 +278,20 @@ class SubscriptionManage extends Component
             'period_end' => $periodEnd,
             'period_range' => ($periodStart && $periodEnd) ? $periodStart.' – '.$periodEnd : null,
         ];
+    }
+
+    /**
+     * @return EloquentCollection<int, SubscriptionPayment>
+     */
+    protected function paymentHistory(): EloquentCollection
+    {
+        $user = $this->user();
+
+        return SubscriptionPayment::query()
+            ->where('user_id', $user->getKey())
+            ->orderByDesc('paid_at')
+            ->orderByDesc('created_at')
+            ->limit(12)
+            ->get();
     }
 }

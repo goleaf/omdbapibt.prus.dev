@@ -121,6 +121,11 @@ class User extends Authenticatable
         return $this->hasMany(WatchHistory::class);
     }
 
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
+    }
+
     public function managementLogs(): HasMany
     {
         return $this->hasMany(UserManagementLog::class);
