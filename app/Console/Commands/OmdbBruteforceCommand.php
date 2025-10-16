@@ -2,13 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Movie;
-use App\Models\OmdbApiKey;
+use App\Services\OmdbApiKeyManager;
 use Illuminate\Console\Command;
-use Illuminate\Http\Client\Pool;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 
 class OmdbBruteforceCommand extends Command
 {
@@ -25,6 +20,11 @@ class OmdbBruteforceCommand extends Command
      * @var string
      */
     protected $description = 'Generate, validate API keys and parse movies automatically';
+
+    public function __construct(protected OmdbApiKeyManager $manager)
+    {
+        parent::__construct();
+    }
 
     /**
      * Execute the console command.
@@ -54,52 +54,35 @@ class OmdbBruteforceCommand extends Command
      */
     protected function ensureKeysAvailable(): void
     {
-        $this->components->task('Checking pending keys', function () {
-            $pendingCount = OmdbApiKey::pending()->count();
+        $this->components->task('Checking pending keys', function (): void {
+            $minimum = (int) config('services.omdb.bruteforce.min_pending_keys', 10000);
+            $charset = (string) config('services.omdb.bruteforce.charset', '0123456789abcdefghijklmnopqrstuvwxyz');
+            $keyLength = (int) config('services.omdb.bruteforce.key_length', 8);
+            $batchSize = (int) config('services.omdb.bruteforce.generation_batch', 1000);
 
-            $minKeys = (int) config('services.omdb.bruteforce.min_pending_keys', 10000);
+            $pendingBefore = $this->manager->countPendingKeys();
 
-            if ($pendingCount >= $minKeys) {
-                $this->info("Sufficient keys available ({$pendingCount} pending)");
+            if ($pendingBefore >= $minimum) {
+                $this->info(sprintf('Sufficient keys available (%d pending)', $pendingBefore));
 
                 return;
             }
 
-            $toGenerate = $minKeys - $pendingCount;
-            $this->info("Generating {$toGenerate} new keys...");
+            $generated = $this->manager->generatePendingKeys($minimum, $charset, $keyLength, $batchSize);
+            $pendingAfter = $this->manager->countPendingKeys();
 
-            $charset = config('services.omdb.bruteforce.charset', '0123456789abcdefghijklmnopqrstuvwxyz');
-            $keyLength = (int) config('services.omdb.bruteforce.key_length', 8);
-            $batchSize = (int) config('services.omdb.bruteforce.generation_batch', 1000);
+            if ($generated === 0) {
+                $this->components->warn('No new keys were generated.');
 
-            $generated = 0;
-            $bar = $this->output->createProgressBar($toGenerate);
-            $bar->start();
-
-            while ($generated < $toGenerate) {
-                $keys = [];
-
-                // Generate batch
-                for ($i = 0; $i < min($batchSize, $toGenerate - $generated); $i++) {
-                    $keys[] = [
-                        'key' => $this->generateRandomKey($charset, $keyLength),
-                        'status' => OmdbApiKey::STATUS_PENDING,
-                        'first_seen_at' => now(),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-                }
-
-                // Insert batch (skip duplicates)
-                DB::table('omdb_api_keys')->insertOrIgnore($keys);
-
-                $generated += count($keys);
-                $bar->advance(count($keys));
+                return;
             }
 
-            $bar->finish();
-            $this->newLine();
-            $this->components->info("Generated {$generated} keys");
+            $this->components->info(sprintf(
+                'Generated %d key(s); pending pool increased from %d to %d.',
+                $generated,
+                $pendingBefore,
+                $pendingAfter
+            ));
         });
 
         $this->newLine();
@@ -110,84 +93,65 @@ class OmdbBruteforceCommand extends Command
      */
     protected function validatePendingKeys(): void
     {
-        $checkpoint = (int) Cache::get('omdb:checkpoint', 0);
-        $this->components->info("Resuming validation from checkpoint: {$checkpoint}");
+        $checkpoint = $this->manager->currentValidationCheckpoint();
+        $this->components->info(sprintf('Resuming validation from checkpoint: %d', $checkpoint));
 
         $batchSize = (int) config('services.omdb.validation.batch_size', 50);
-        $testImdbId = config('services.omdb.validation.test_imdb_id', 'tt3896198');
+        $testImdbId = (string) config('services.omdb.validation.test_imdb_id', 'tt3896198');
         $timeout = (int) config('services.omdb.validation.timeout', 10);
+        $baseUrl = rtrim((string) config('services.omdb.base_url', 'http://www.omdbapi.com'), '/');
 
         $totalProcessed = 0;
         $totalValid = 0;
         $totalInvalid = 0;
+        $totalUnknown = 0;
 
         while (true) {
-            $keys = OmdbApiKey::pending()
-                ->where('id', '>', $checkpoint)
-                ->orderBy('id')
-                ->limit($batchSize)
-                ->get();
+            $result = $this->manager->validatePendingKeys($batchSize, $testImdbId, $timeout, $baseUrl, $checkpoint);
 
-            if ($keys->isEmpty()) {
-                $this->components->info('All keys validated!');
+            if ($result['processed'] === 0) {
+                if ($totalProcessed === 0) {
+                    $this->components->info('All keys validated!');
+                }
+
                 break;
             }
 
+            $range = $result['range'];
             $this->line(sprintf(
-                'Validating batch of %d keys (IDs %d to %d)...',
-                $keys->count(),
-                $keys->first()->id,
-                $keys->last()->id
+                'Validating batch of %d keys%s...',
+                $result['processed'],
+                $range['start'] !== null && $range['end'] !== null
+                    ? sprintf(' (IDs %d to %d)', $range['start'], $range['end'])
+                    : ''
             ));
 
-            // Async validation using Http::pool()
-            $responses = Http::pool(function (Pool $pool) use ($keys, $testImdbId, $timeout) {
-                foreach ($keys as $key) {
-                    $pool->as($key->id)
-                        ->timeout($timeout)
-                        ->get(config('services.omdb.base_url', 'http://www.omdbapi.com'), [
-                            'i' => $testImdbId,
-                            'apikey' => $key->key,
-                        ]);
-                }
-            });
+            $totalProcessed += $result['processed'];
+            $totalValid += $result['valid'];
+            $totalInvalid += $result['invalid'];
+            $totalUnknown += $result['unknown'];
 
-            // Process responses
-            foreach ($keys as $key) {
-                $response = $responses[$key->id];
-                $result = $this->processValidationResponse($key, $response);
-
-                if ($result === 'valid') {
-                    $totalValid++;
-                } elseif ($result === 'invalid') {
-                    $totalInvalid++;
-                }
-            }
-
-            $totalProcessed += $keys->count();
-
-            // Update checkpoint
-            $checkpoint = (int) $keys->last()->id;
-            Cache::forever('omdb:checkpoint', $checkpoint);
+            $checkpoint = $result['checkpoint'];
 
             $this->components->info(sprintf(
-                'Batch complete. Checkpoint: %d | Valid: %d | Invalid: %d | Total: %d',
+                'Batch complete. Checkpoint: %d | Valid: %d | Invalid: %d | Unknown: %d | Total: %d',
                 $checkpoint,
                 $totalValid,
                 $totalInvalid,
+                $totalUnknown,
                 $totalProcessed
             ));
 
-            // Rate limit pause (1 second between batches)
             sleep(1);
         }
 
         $this->newLine();
         $this->components->info(sprintf(
-            'Validation complete! Processed: %d | Valid: %d | Invalid: %d',
+            'Validation complete! Processed: %d | Valid: %d | Invalid: %d | Unknown: %d',
             $totalProcessed,
             $totalValid,
-            $totalInvalid
+            $totalInvalid,
+            $totalUnknown
         ));
         $this->newLine();
     }
@@ -197,170 +161,36 @@ class OmdbBruteforceCommand extends Command
      */
     protected function parseMovies(): void
     {
-        $validKeys = OmdbApiKey::valid()->pluck('key')->toArray();
+        $limit = (int) config('services.omdb.bruteforce.movie_limit', 1000);
+        $chunk = (int) config('services.omdb.bruteforce.movie_chunk', 50);
+        $timeout = (int) config('services.omdb.validation.timeout', 10);
+        $baseUrl = rtrim((string) config('services.omdb.base_url', 'http://www.omdbapi.com'), '/');
 
-        if (empty($validKeys)) {
+        $result = $this->manager->parseMoviesWithKeys($limit, $chunk, $baseUrl, $timeout);
+
+        if ($result['status'] === 'no_keys') {
             $this->components->warn('No valid API keys available for parsing.');
 
             return;
         }
 
-        $this->components->info('Parsing movies with '.count($validKeys).' valid key(s)...');
-
-        // Get movies that need OMDB data (movies without plot or with old data)
-        $movies = Movie::query()
-            ->where(function ($query) {
-                $query->whereNull('plot')
-                    ->orWhere('updated_at', '<', now()->subDays(30));
-            })
-            ->limit(1000) // Process up to 1000 movies per run
-            ->get();
-
-        if ($movies->isEmpty()) {
+        if ($result['status'] === 'no_movies') {
             $this->components->info('No movies need updating.');
 
             return;
         }
 
-        $this->line("Found {$movies->count()} movies to update");
+        $this->components->info(sprintf(
+            'Parsing movies with %d valid key(s) across %d candidate(s).',
+            $result['key_count'],
+            $result['candidates']
+        ));
 
-        $keyIndex = 0;
-        $moviesProcessed = 0;
-        $moviesUpdated = 0;
-
-        $bar = $this->output->createProgressBar($movies->count());
-        $bar->start();
-
-        foreach ($movies->chunk(50) as $chunk) {
-            $responses = Http::pool(function (Pool $pool) use ($chunk, $validKeys, &$keyIndex) {
-                foreach ($chunk as $movie) {
-                    $apiKey = $validKeys[$keyIndex % count($validKeys)];
-                    $keyIndex++;
-
-                    $pool->as($movie->id)
-                        ->timeout(10)
-                        ->get(config('services.omdb.base_url', 'http://www.omdbapi.com'), [
-                            'i' => $movie->imdb_id,
-                            'apikey' => $apiKey,
-                        ]);
-                }
-            });
-
-            foreach ($chunk as $movie) {
-                $response = $responses[$movie->id];
-
-                if ($this->updateMovieFromOmdb($movie, $response)) {
-                    $moviesUpdated++;
-                }
-
-                $moviesProcessed++;
-                $bar->advance();
-            }
-
-            // Rate limiting (1 second between batches)
-            sleep(1);
-        }
-
-        $bar->finish();
+        $this->components->info(sprintf(
+            'Movie parsing complete! Processed: %d | Updated: %d',
+            $result['processed'],
+            $result['updated']
+        ));
         $this->newLine();
-        $this->components->info("Movie parsing complete! Processed: {$moviesProcessed} | Updated: {$moviesUpdated}");
-        $this->newLine();
-    }
-
-    /**
-     * Generate a random API key.
-     */
-    protected function generateRandomKey(string $charset, int $length): string
-    {
-        $key = '';
-        $max = strlen($charset) - 1;
-
-        for ($i = 0; $i < $length; $i++) {
-            $key .= $charset[random_int(0, $max)];
-        }
-
-        return $key;
-    }
-
-    /**
-     * Process validation response and update key status.
-     */
-    protected function processValidationResponse(OmdbApiKey $key, $response): string
-    {
-        // Handle exceptions from HTTP pool
-        if ($response instanceof \Exception) {
-            $key->update([
-                'status' => OmdbApiKey::STATUS_UNKNOWN,
-                'last_checked_at' => now(),
-            ]);
-
-            return 'unknown';
-        }
-
-        if ($response->successful()) {
-            $data = $response->json();
-
-            if (isset($data['Response']) && $data['Response'] === 'True') {
-                $key->update([
-                    'status' => OmdbApiKey::STATUS_VALID,
-                    'last_checked_at' => now(),
-                    'last_confirmed_at' => now(),
-                    'last_response_code' => $response->status(),
-                ]);
-
-                $this->components->info("✓ Valid key: {$key->key}");
-
-                return 'valid';
-            }
-
-            if (str_contains(strtolower($data['Error'] ?? ''), 'invalid api key')) {
-                $key->update([
-                    'status' => OmdbApiKey::STATUS_INVALID,
-                    'last_checked_at' => now(),
-                    'last_response_code' => $response->status(),
-                ]);
-
-                return 'invalid';
-            }
-        }
-
-        $key->update([
-            'status' => OmdbApiKey::STATUS_UNKNOWN,
-            'last_checked_at' => now(),
-            'last_response_code' => $response->status(),
-        ]);
-
-        return 'unknown';
-    }
-
-    /**
-     * Update movie with OMDB data.
-     */
-    protected function updateMovieFromOmdb(Movie $movie, $response): bool
-    {
-        // Handle exceptions from HTTP pool
-        if ($response instanceof \Exception) {
-            return false;
-        }
-
-        if (! $response->successful()) {
-            return false;
-        }
-
-        $data = $response->json();
-
-        if (! isset($data['Response']) || $data['Response'] !== 'True') {
-            return false;
-        }
-
-        $movie->update([
-            'title' => $data['Title'] ?? $movie->title,
-            'year' => $data['Year'] ?? $movie->year,
-            'plot' => $data['Plot'] ?? $movie->plot,
-            'poster_path' => $data['Poster'] ?? $movie->poster_path,
-            'vote_average' => $data['imdbRating'] ?? $movie->vote_average,
-        ]);
-
-        return true;
     }
 }

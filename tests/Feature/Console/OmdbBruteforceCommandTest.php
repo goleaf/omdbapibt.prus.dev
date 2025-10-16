@@ -4,6 +4,7 @@ namespace Tests\Feature\Console;
 
 use App\Models\Movie;
 use App\Models\OmdbApiKey;
+use App\Services\OmdbApiKeyManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -18,7 +19,7 @@ class OmdbBruteforceCommandTest extends TestCase
         parent::setUp();
 
         // Clear checkpoint before each test
-        Cache::forget('omdb:checkpoint');
+        Cache::forget(OmdbApiKeyManager::VALIDATION_CHECKPOINT_CACHE_KEY);
     }
 
     public function test_command_generates_keys_when_below_minimum(): void
@@ -93,7 +94,7 @@ class OmdbBruteforceCommandTest extends TestCase
         $this->artisan('omdb:bruteforce')
             ->assertSuccessful();
 
-        $checkpoint = Cache::get('omdb:checkpoint');
+        $checkpoint = Cache::get(OmdbApiKeyManager::VALIDATION_CHECKPOINT_CACHE_KEY);
         $this->assertNotNull($checkpoint);
         $this->assertGreaterThan(0, $checkpoint);
     }
@@ -108,7 +109,7 @@ class OmdbBruteforceCommandTest extends TestCase
         ]);
 
         // Set checkpoint to skip first 5 keys
-        Cache::forever('omdb:checkpoint', 5);
+        Cache::forever(OmdbApiKeyManager::VALIDATION_CHECKPOINT_CACHE_KEY, 5);
 
         Http::fake([
             '*' => Http::response(['Response' => 'False', 'Error' => 'Invalid API key!'], 200),

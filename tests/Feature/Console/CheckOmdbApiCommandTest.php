@@ -4,6 +4,7 @@ namespace Tests\Feature\Console;
 
 use App\Console\Commands\CheckOmdbApi;
 use App\Models\OmdbApiKey;
+use App\Services\OmdbApiKeyManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
@@ -21,7 +22,7 @@ class CheckOmdbApiCommandTest extends TestCase
     {
         parent::setUp();
 
-        Cache::forget('commands:check-omdb-api:checkpoint');
+        Cache::forget(OmdbApiKeyManager::VALIDATION_CHECKPOINT_CACHE_KEY);
     }
 
     public function test_command_uses_configuration_defaults(): void
@@ -152,7 +153,8 @@ class CheckOmdbApiCommandTest extends TestCase
 
         $this->artisan('checkapi', ['--batch' => 1])
             ->expectsOutputToContain('Processing 1 key(s)')
-            ->expectsOutputToContain('Received unexpected response for key')
+            ->expectsOutputToContain('0 success, 0 invalid, 1 unknown')
+            ->expectsOutputToContain('1 marked unknown')
             ->assertSuccessful();
 
         $this->assertSame(

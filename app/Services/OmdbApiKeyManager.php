@@ -16,7 +16,17 @@ use Throwable;
 
 class OmdbApiKeyManager
 {
-    public const VALIDATION_CHECKPOINT_CACHE_KEY = 'services:omdb:validation:checkpoint';
+    public const VALIDATION_CHECKPOINT_CACHE_KEY = 'omdb:checkpoint';
+
+    public function countPendingKeys(): int
+    {
+        return OmdbApiKey::pending()->count();
+    }
+
+    public function currentValidationCheckpoint(): int
+    {
+        return (int) $this->cache->get(self::VALIDATION_CHECKPOINT_CACHE_KEY, 0);
+    }
 
     public function __construct(
         protected HttpFactory $http,
@@ -68,7 +78,14 @@ class OmdbApiKeyManager
     /**
      * Validate batches of pending keys by probing the OMDb API.
      *
-     * @return array{processed: int, valid: int, invalid: int, checkpoint: int}
+     * @return array{
+     *     processed: int,
+     *     valid: int,
+     *     invalid: int,
+     *     unknown: int,
+     *     checkpoint: int,
+     *     range: array{start: int|null, end: int|null}
+     * }
      */
     public function validatePendingKeys(
         int $batchSize,
@@ -77,7 +94,7 @@ class OmdbApiKeyManager
         string $baseUrl,
         ?int $startFrom = null
     ): array {
-        $checkpoint = $startFrom ?? (int) $this->cache->get(self::VALIDATION_CHECKPOINT_CACHE_KEY, 0);
+        $checkpoint = $startFrom ?? $this->currentValidationCheckpoint();
 
         $keys = OmdbApiKey::pending()
             ->when($checkpoint > 0, fn ($query) => $query->where('id', '>', $checkpoint))
@@ -90,7 +107,9 @@ class OmdbApiKeyManager
                 'processed' => 0,
                 'valid' => 0,
                 'invalid' => 0,
+                'unknown' => 0,
                 'checkpoint' => $checkpoint,
+                'range' => ['start' => null, 'end' => null],
             ];
         }
 
@@ -112,7 +131,9 @@ class OmdbApiKeyManager
             'processed' => 0,
             'valid' => 0,
             'invalid' => 0,
+            'unknown' => 0,
             'checkpoint' => $checkpoint,
+            'range' => ['start' => null, 'end' => null],
         ];
 
         foreach ($keys as $candidate) {
@@ -129,6 +150,16 @@ class OmdbApiKeyManager
             if ($result === OmdbApiKey::STATUS_INVALID) {
                 $stats['invalid']++;
             }
+
+            if ($result === OmdbApiKey::STATUS_UNKNOWN) {
+                $stats['unknown']++;
+            }
+
+            if ($stats['range']['start'] === null) {
+                $stats['range']['start'] = (int) $candidate->getKey();
+            }
+
+            $stats['range']['end'] = (int) $candidate->getKey();
 
             $stats['checkpoint'] = (int) $candidate->getKey();
         }
@@ -195,8 +226,14 @@ class OmdbApiKeyManager
     /**
      * Parse movies using available valid keys.
      *
-     * @return array{processed: int, updated: int}
-     */
+     * @return array{
+     *     processed: int,
+     *     updated: int,
+     *     status: 'no_keys'|'no_movies'|'success',
+     *     key_count: int,
+     *     candidates: int
+     * }
+    */
     public function parseMoviesWithKeys(
         int $movieLimit,
         int $chunkSize,
@@ -208,8 +245,16 @@ class OmdbApiKeyManager
             ->pluck('key')
             ->all();
 
-        if (empty($validKeys)) {
-            return ['processed' => 0, 'updated' => 0];
+        $keyCount = count($validKeys);
+
+        if ($keyCount === 0) {
+            return [
+                'processed' => 0,
+                'updated' => 0,
+                'status' => 'no_keys',
+                'key_count' => 0,
+                'candidates' => 0,
+            ];
         }
 
         $movies = Movie::query()
@@ -220,13 +265,20 @@ class OmdbApiKeyManager
             ->limit($movieLimit)
             ->get();
 
+        $candidateCount = $movies->count();
+
         if ($movies->isEmpty()) {
-            return ['processed' => 0, 'updated' => 0];
+            return [
+                'processed' => 0,
+                'updated' => 0,
+                'status' => 'no_movies',
+                'key_count' => $keyCount,
+                'candidates' => 0,
+            ];
         }
 
         $processed = 0;
         $updated = 0;
-        $keyCount = count($validKeys);
         $keyIndex = 0;
 
         foreach ($movies->chunk($chunkSize) as $chunk) {
@@ -256,9 +308,17 @@ class OmdbApiKeyManager
 
                 $processed++;
             }
+
+            sleep(1);
         }
 
-        return ['processed' => $processed, 'updated' => $updated];
+        return [
+            'processed' => $processed,
+            'updated' => $updated,
+            'status' => 'success',
+            'key_count' => $keyCount,
+            'candidates' => $candidateCount,
+        ];
     }
 
     protected function generateKey(string $charset, int $length): string

@@ -35,8 +35,14 @@ class ParseMoviesWithApiKeys extends Command
 
         $result = $this->manager->parseMoviesWithKeys($limit, $chunk, $baseUrl, $timeout);
 
-        if ($result['processed'] === 0) {
-            $this->components->warn('No eligible movies or valid keys were found.');
+        if ($result['status'] === 'no_keys') {
+            $this->components->warn('No valid OMDb keys are available.');
+
+            return self::SUCCESS;
+        }
+
+        if ($result['status'] === 'no_movies') {
+            $this->components->info('No eligible movies were found to update.');
 
             return self::SUCCESS;
         }

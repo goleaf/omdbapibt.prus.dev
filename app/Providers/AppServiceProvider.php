@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\OmdbApiKeyManager;
 use App\Services\OmdbApiKeyResolver;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use App\Support\ImpersonationManager;
@@ -9,7 +10,9 @@ use App\Support\RedisStubStore;
 use App\Support\UiTranslationRepository;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Http\Request;
+use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +35,14 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(\Illuminate\Cache\CacheManager::class),
                 (string) config('services.tmdb.key', ''),
                 (string) config('services.tmdb.base_url', 'https://api.themoviedb.org/3/')
+            );
+        });
+
+        $this->app->singleton(OmdbApiKeyManager::class, function ($app) {
+            return new OmdbApiKeyManager(
+                $app->make(HttpFactory::class),
+                $app->make(CacheRepository::class),
+                $app->make(ConnectionInterface::class),
             );
         });
 

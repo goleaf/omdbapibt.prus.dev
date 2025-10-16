@@ -26,7 +26,13 @@ class ParseMoviesWithApiKeysCommandTest extends TestCase
             {
                 $this->calledWith = [$movieLimit, $chunkSize, $baseUrl, $timeout];
 
-                return ['processed' => 5, 'updated' => 3];
+                return [
+                    'processed' => 5,
+                    'updated' => 3,
+                    'status' => 'success',
+                    'key_count' => 2,
+                    'candidates' => 5,
+                ];
             }
         };
 
@@ -54,14 +60,20 @@ class ParseMoviesWithApiKeysCommandTest extends TestCase
         ) extends OmdbApiKeyManager {
             public function parseMoviesWithKeys(int $movieLimit, int $chunkSize, string $baseUrl, int $timeout): array
             {
-                return ['processed' => 0, 'updated' => 0];
+                return [
+                    'processed' => 0,
+                    'updated' => 0,
+                    'status' => 'no_keys',
+                    'key_count' => 0,
+                    'candidates' => 0,
+                ];
             }
         };
 
         app()->instance(OmdbApiKeyManager::class, $manager);
 
         $this->artisan('omdb:parse-movies')
-            ->expectsOutputToContain('No eligible movies or valid keys were found.')
+            ->expectsOutputToContain('No valid OMDb keys are available.')
             ->assertSuccessful();
     }
 }
