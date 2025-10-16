@@ -132,16 +132,35 @@
             @yield('content')
         </main>
 
-        <footer class="surface-shell border-t py-8">
-            <div class="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-6 text-sm flux-text-muted sm:flex-row sm:items-center sm:justify-between 2xl:px-12">
-                <p>{{ __('ui.nav.footer.copyright', ['year' => now()->year]) }}</p>
-                <div class="flex items-center gap-4">
-                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.terms') }}</a>
-                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.privacy') }}</a>
-                    <a href="#" class="transition hover:text-emerald-300">{{ __('ui.nav.footer.support') }}</a>
-                </div>
-            </div>
-        </footer>
+        @php
+            $configuredFooterLinks = collect(config('site.footer.links', []))
+                ->map(function (array $link) {
+                    $href = null;
+
+                    if (isset($link['route'])) {
+                        $href = route($link['route'], $link['parameters'] ?? []);
+                    }
+
+                    if (! $href && isset($link['url'])) {
+                        $href = $link['url'];
+                    }
+
+                    return [
+                        'label' => __($link['label'] ?? ''),
+                        'href' => $href,
+                        'target' => $link['target'] ?? null,
+                        'rel' => $link['rel'] ?? null,
+                    ];
+                })
+                ->filter(fn (array $link) => filled($link['label']) && filled($link['href']))
+                ->values()
+                ->all();
+        @endphp
+
+        <x-layout.footer
+            :links="$configuredFooterLinks"
+            :copyright="__('ui.nav.footer.copyright', ['year' => now()->year])"
+        />
     </div>
 
     @livewireScripts

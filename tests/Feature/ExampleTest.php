@@ -69,4 +69,29 @@ class ExampleTest extends TestCase
             ->get('/')
             ->assertOk();
     }
+
+    public function test_footer_links_render_from_configuration(): void
+    {
+        config()->set('site.footer.links', [
+            [
+                'label' => 'ui.nav.footer.terms',
+                'url' => 'https://example.com/terms',
+            ],
+            [
+                'label' => 'ui.nav.footer.support',
+                'route' => 'login',
+                'target' => '_blank',
+                'rel' => 'noopener',
+            ],
+        ]);
+
+        $response = $this->followingRedirects()->get('/');
+
+        $response
+            ->assertSee(__('ui.nav.footer.terms'), false)
+            ->assertSee('https://example.com/terms', false)
+            ->assertSee(route('login'), false)
+            ->assertSee('_blank', false)
+            ->assertSee('noopener', false);
+    }
 }
