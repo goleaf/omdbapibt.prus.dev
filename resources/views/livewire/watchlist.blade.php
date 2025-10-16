@@ -1,8 +1,4 @@
-@php
-    $locale = app()->getLocale();
-@endphp
-
-<div>
+<div data-locale="{{ $locale }}">
     @if ($toggleMode)
         <div class="flex flex-wrap items-center gap-3">
             @if (! $isAuthenticated)
@@ -37,7 +33,7 @@
                     <p class="text-sm text-slate-500">{{ __('Keep track of movies and TV series you want to explore later.') }}</p>
                 </div>
                 <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                    {{ trans_choice(':count title saved|:count titles saved', count($items['movies']) + count($items['shows']), ['count' => count($items['movies']) + count($items['shows'])]) }}
+                    {{ trans_choice(':count title saved|:count titles saved', $summaryCount, ['count' => $summaryCount]) }}
                 </span>
             </header>
 
@@ -45,13 +41,13 @@
                 <p class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                     {{ __('Sign in to start curating your personal watchlist across all your devices.') }}
                 </p>
-            @elseif (empty($items['movies']) && empty($items['shows']))
+            @elseif ($movieCount === 0 && $showCount === 0)
                 <p class="rounded-lg border border-dashed border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">
                     {{ __('Your watchlist is empty. Browse movies and shows to add something that inspires you.') }}
                 </p>
             @else
                 <div class="space-y-8">
-                    @if (! empty($items['movies']))
+                    @if ($movieCount > 0)
                         <div class="space-y-3">
                             <h3 class="text-lg font-semibold text-slate-900">{{ __('Movies') }}</h3>
                             <ul class="grid gap-4 sm:grid-cols-2">
@@ -59,7 +55,7 @@
                                     <li wire:key="watchlist-movie-{{ $movie['id'] }}" class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                                         <div>
                                             <a
-                                                href="{{ $movie['slug'] ? route('movies.show', ['locale' => app()->getLocale(), 'movie' => $movie['slug']]) : '#' }}"
+                                                href="{{ $movieLinks[$movie['id']] ?? '#' }}"
                                                 class="text-sm font-semibold text-slate-900 hover:text-emerald-600"
                                             >
                                                 {{ $movie['title'] }}
@@ -78,7 +74,7 @@
                         </div>
                     @endif
 
-                    @if (! empty($items['shows']))
+                    @if ($showCount > 0)
                         <div class="space-y-3">
                             <h3 class="text-lg font-semibold text-slate-900">{{ __('TV Shows') }}</h3>
                             <ul class="grid gap-4 sm:grid-cols-2">
@@ -86,7 +82,7 @@
                                     <li wire:key="watchlist-show-{{ $show['id'] }}" class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                                         <div>
                                             <a
-                                                href="{{ $show['slug'] ? route('shows.show', ['locale' => app()->getLocale(), 'slug' => $show['slug']]) : '#' }}"
+                                                href="{{ $showLinks[$show['id']] ?? '#' }}"
                                                 class="text-sm font-semibold text-slate-900 hover:text-emerald-600"
                                             >
                                                 {{ $show['title'] }}
