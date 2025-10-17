@@ -31,6 +31,7 @@ return [
         ],
         'footer' => [
             'terms' => 'Términos',
+            'agreements' => 'Acuerdos',
             'privacy' => 'Privacidad',
             'support' => 'Soporte',
             'copyright' => '© :year OMDb Stream. Todos los derechos reservados.',
