@@ -207,6 +207,31 @@ class Movie extends Model
             ->withTimestamps();
     }
 
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'movie_tag')->withTimestamps();
+    }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function lists(): BelongsToMany
+    {
+        return $this->belongsToMany(ListModel::class, 'list_movie')->withTimestamps();
+    }
+
+    public function platforms(): BelongsToMany
+    {
+        return $this->belongsToMany(Platform::class, 'movie_platform')->withTimestamps();
+    }
+
     public function requiresSubscription(): bool
     {
         $metadataRequirement = data_get($this->translation_metadata, 'access.requires_subscription');

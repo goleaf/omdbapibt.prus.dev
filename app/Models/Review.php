@@ -22,6 +22,7 @@ class Review extends Model
     protected $fillable = [
         'user_id',
         'movie_id',
+        'movie_title',
         'rating',
         'body',
     ];
@@ -61,9 +62,6 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Movie being reviewed.
-     */
     public function movie(): BelongsTo
     {
         return $this->belongsTo(Movie::class);

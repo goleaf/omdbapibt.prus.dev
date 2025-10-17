@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Rating extends Model
+class Recommendation extends Model
 {
-    /** @use HasFactory<\Database\Factories\RatingFactory> */
+    /** @use HasFactory<\Database\Factories\RecommendationFactory> */
     use HasFactory;
 
     /**
@@ -18,10 +18,10 @@ class Rating extends Model
         'user_id',
         'movie_id',
         'score',
+        'reason',
         'source',
-        'comment',
         'metadata',
-        'rated_at',
+        'expires_at',
     ];
 
     /**
@@ -32,7 +32,7 @@ class Rating extends Model
         return [
             'score' => 'float',
             'metadata' => 'array',
-            'rated_at' => 'datetime',
+            'expires_at' => 'datetime',
         ];
     }
 

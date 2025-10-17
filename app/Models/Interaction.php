@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Rating extends Model
+class Interaction extends Model
 {
-    /** @use HasFactory<\Database\Factories\RatingFactory> */
+    /** @use HasFactory<\Database\Factories\InteractionFactory> */
     use HasFactory;
 
     /**
@@ -17,11 +17,10 @@ class Rating extends Model
     protected $fillable = [
         'user_id',
         'movie_id',
-        'score',
-        'source',
-        'comment',
+        'type',
+        'payload',
         'metadata',
-        'rated_at',
+        'interacted_at',
     ];
 
     /**
@@ -30,9 +29,9 @@ class Rating extends Model
     protected function casts(): array
     {
         return [
-            'score' => 'float',
+            'payload' => 'array',
             'metadata' => 'array',
-            'rated_at' => 'datetime',
+            'interacted_at' => 'datetime',
         ];
     }
 
