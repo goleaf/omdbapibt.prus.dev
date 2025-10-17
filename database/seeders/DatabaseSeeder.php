@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             GenreSeeder::class,
             TagSeeder::class,
+            PlatformSeeder::class,
             OmdbApiKeySeeder::class,
             OmdbApiKeyProgressSeeder::class,
         ]);
