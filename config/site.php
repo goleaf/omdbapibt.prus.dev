@@ -1,6 +1,9 @@
 <?php
 
-$baseUrl = rtrim(env('APP_URL', 'https://omdbstream.test'), '/');
+$baseUrl = rtrim(
+    env('OMDB_PUBLIC_URL', env('APP_URL', 'https://omdbapibt.prus.dev')),
+    '/',
+);
 
 return [
     'footer' => [
@@ -15,7 +18,7 @@ return [
             ],
             [
                 'label' => 'ui.nav.footer.support',
-                'url' => env('SUPPORT_URL', 'mailto:support@omdbstream.test'),
+                'url' => env('SUPPORT_URL', 'mailto:support@omdbapibt.prus.dev'),
             ],
         ],
     ],
