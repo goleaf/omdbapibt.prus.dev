@@ -14,6 +14,10 @@ class PricingPage extends Component
 
         return view('pages.pricing', [
             'plans' => $plans,
+        ])->layout('layouts.app', [
+            'title' => 'Pricing',
+            'header' => 'Choose the plan that unlocks every detail',
+            'subheader' => 'Monthly or yearly subscriptions with full OMDb + TMDb data, streaming availability, and personalized discovery.',
         ]);
     }
 
