@@ -2,11 +2,11 @@
 
 return [
     'welcome' => [
-        'subject' => 'Welcome to :app, :name!',
-        'greeting' => 'Hi :name,',
-        'intro' => 'Thanks for joining :app. We\'re excited to help you track releases, build watchlists, and discover new favorites.',
-        'features' => 'Expect curated drops, parser alerts, and tailored recommendations as you get comfortable exploring the catalog.',
-        'cta' => 'Log in anytime to explore what\'s new and keep your queue fresh with :app.',
-        'signature' => '— The :app Team',
+        'subject' => 'Добро пожаловать в :app, :name!',
+        'greeting' => 'Здравствуйте, :name,',
+        'intro' => 'Спасибо, что присоединились к :app. Мы рады помочь вам отслеживать релизы, собирать списки просмотра и открывать новые любимые проекты.',
+        'features' => 'Ожидайте тематические подборки, оповещения об обновлениях и персональные рекомендации, пока вы осваиваете каталог.',
+        'cta' => 'Войдите в любое время, чтобы узнавать о новинках и поддерживать свою очередь просмотра актуальной вместе с :app.',
+        'signature' => '— Команда :app',
     ],
 ];

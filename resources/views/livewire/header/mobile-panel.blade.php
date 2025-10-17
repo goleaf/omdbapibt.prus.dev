@@ -40,7 +40,7 @@
             @if ($user)
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 font-bold text-white shadow-lg">
-                        <span class="text-sm uppercase">{{ substr($user->name ?? 'U', 0, 1) }}</span>
+                        <span class="text-sm uppercase">{{ mb_substr($user->name ?? 'U', 0, 1, 'UTF-8') }}</span>
                     </div>
                     <div class="flex-1 overflow-hidden">
                         <p class="truncate text-sm font-semibold text-[color:var(--flux-text)]">{{ $user->name }}</p>
@@ -95,7 +95,7 @@
     <div
         x-data="{ open: @entangle('isOpen') }"
         x-show="open"
-        x-on:click="open = false"
+        x-on:click="$wire.close()"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"

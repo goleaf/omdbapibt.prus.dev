@@ -1,4 +1,4 @@
-<div class="relative" x-data="{ open: @entangle('isOpen') }" x-on:click.away="open = false">
+<div class="relative" x-data="{ open: @entangle('isOpen') }" x-on:click.away="open = false" x-on:keydown.window.escape="open = false">
     <button
         type="button"
         wire:click="toggle"
@@ -7,7 +7,7 @@
         aria-expanded="{{ $isOpen ? 'true' : 'false' }}"
     >
         <span class="text-sm uppercase">
-            {{ substr($user->name ?? 'U', 0, 1) }}
+            {{ substr($user?->name ?? 'U', 0, 1) }}
         </span>
     </button>
 
@@ -24,8 +24,8 @@
         x-cloak
     >
         <div class="border-b border-[color:var(--flux-border-soft)] px-4 py-3">
-            <p class="truncate text-sm font-semibold text-[color:var(--flux-text)]">{{ $user->name ?? 'User' }}</p>
-            <p class="truncate text-xs text-[color:var(--flux-text-muted)]">{{ $user->email ?? '' }}</p>
+            <p class="truncate text-sm font-semibold text-[color:var(--flux-text)]">{{ $user?->name ?? 'User' }}</p>
+            <p class="truncate text-xs text-[color:var(--flux-text-muted)]">{{ $user?->email ?? '' }}</p>
         </div>
 
         <div class="py-1">
@@ -37,7 +37,7 @@
                 {{ __('ui.nav.user_menu.account') }}
             </a>
 
-            @if (auth()->user()?->isAdmin())
+            @if ($user?->isAdmin())
                 <a
                     href="{{ localized_route('admin.panel') }}"
                     class="block px-4 py-2 text-sm text-[color:var(--flux-text)] transition hover:bg-emerald-500/10 hover:text-emerald-400"

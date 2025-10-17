@@ -18,7 +18,7 @@
         
         <!-- Search icon -->
         <div class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--flux-text-muted)]">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" focusable="false" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
         </div>
@@ -76,7 +76,7 @@
     <!-- Search results dropdown -->
     @if ($showResults && !empty($query))
         <div class="search-results-dropdown absolute top-full mt-2 w-full rounded-xl border border-[color:var(--flux-border-soft)] bg-[color:var(--flux-surface-card)] shadow-xl backdrop-blur-sm">
-            @if (empty($results['movies']) && empty($results['shows']) && empty($results['people']))
+            @if (empty($results['movies'] ?? []) && empty($results['shows'] ?? []) && empty($results['people'] ?? []))
                 <div class="p-6 text-center">
                     <svg class="mx-auto h-12 w-12 text-[color:var(--flux-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -87,11 +87,11 @@
                 </div>
             @else
                 <div class="max-h-[400px] overflow-y-auto p-2">
-                    @if (!empty($results['movies']))
+                    @if (!empty($results['movies'] ?? []))
                         <div class="mb-4">
                             <h4 class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-emerald-400">Movies</h4>
                             <div class="space-y-1">
-                                @foreach ($results['movies'] as $movie)
+                                @foreach ($results['movies'] ?? [] as $movie)
                                     <a href="{{ $movie['url'] }}" 
                                        wire:click="clear"
                                        class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10 {{ isset($movie['index']) && $movie['index'] === $activeIndex ? 'bg-emerald-500/10 ring-2 ring-emerald-400/50' : '' }}">
@@ -118,11 +118,11 @@
                         </div>
                     @endif
 
-                    @if (!empty($results['shows']))
+                    @if (!empty($results['shows'] ?? []))
                         <div class="mb-4">
                             <h4 class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-emerald-400">TV Shows</h4>
                             <div class="space-y-1">
-                                @foreach ($results['shows'] as $show)
+                                @foreach ($results['shows'] ?? [] as $show)
                                     <a href="{{ $show['url'] }}" 
                                        wire:click="clear"
                                        class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10 {{ isset($show['index']) && $show['index'] === $activeIndex ? 'bg-emerald-500/10 ring-2 ring-emerald-400/50' : '' }}">
@@ -149,11 +149,11 @@
                         </div>
                     @endif
 
-                    @if (!empty($results['people']))
+                    @if (!empty($results['people'] ?? []))
                         <div>
                             <h4 class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-emerald-400">People</h4>
                             <div class="space-y-1">
-                                @foreach ($results['people'] as $person)
+                                @foreach ($results['people'] ?? [] as $person)
                                     <a href="{{ $person['url'] }}" 
                                        wire:click="clear"
                                        class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10 {{ isset($person['index']) && $person['index'] === $activeIndex ? 'bg-emerald-500/10 ring-2 ring-emerald-400/50' : '' }}">
