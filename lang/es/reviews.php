@@ -2,10 +2,10 @@
 
 return [
     'validation' => [
-        'movie_title' => [
-            'required' => 'Por favor escribe el título de la película.',
-            'string' => 'El título de la película debe ser texto.',
-            'max' => 'El título de la película no puede tener más de :max caracteres.',
+        'movie_id' => [
+            'required' => 'Por favor selecciona una película.',
+            'integer' => 'La película seleccionada no es válida.',
+            'exists' => 'No se encontró la película seleccionada.',
         ],
         'rating' => [
             'required' => 'Por favor elige una calificación.',
@@ -20,5 +20,12 @@ return [
     ],
     'status' => [
         'submitted' => 'Tu reseña se envió correctamente.',
+    ],
+    'form' => [
+        'movie_label' => 'Película',
+        'select_movie_placeholder' => 'Selecciona una película',
+    ],
+    'labels' => [
+        'unknown_movie' => 'Película desconocida',
     ],
 ];

@@ -3,7 +3,7 @@
         <article class="rounded-lg bg-white p-6 shadow">
             <header class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900">{{ $review->movie_title }}</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">{{ $review->movie?->localizedTitle() ?? __('reviews.labels.unknown_movie') }}</h3>
                     <p class="text-sm text-gray-500">Reviewed by {{ $review->user->name }} &bull; Rated {{ $review->rating }} / 5</p>
                 </div>
                 <time class="text-xs text-gray-400" datetime="{{ $review->created_at->toIso8601String() }}">

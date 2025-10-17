@@ -3,6 +3,7 @@
 namespace App\Livewire\Reviews;
 
 use App\Livewire\Forms\ReviewSubmissionForm;
+use App\Models\Movie;
 use App\Models\Review;
 use App\Support\HtmlSanitizer;
 use Illuminate\Support\Facades\Auth;
@@ -29,13 +30,14 @@ class ReviewForm extends Component
 
         Review::create([
             'user_id' => $user->id,
-            'movie_title' => $validated['movieTitle'],
+            'movie_id' => $validated['movieId'],
             'rating' => $validated['rating'],
             'body' => $sanitized,
         ]);
 
         $this->form->reset();
         $this->form->rating = 5;
+        $this->form->movieId = null;
         $this->statusMessage = __('reviews.status.submitted');
 
         $this->dispatch('review-submitted');
@@ -43,6 +45,18 @@ class ReviewForm extends Component
 
     public function render(): View
     {
-        return view('livewire.reviews.review-form');
+        $locale = app()->getLocale();
+
+        $movies = Movie::query()
+            ->select(['id', 'title'])
+            ->orderBy('id')
+            ->get()
+            ->mapWithKeys(fn (Movie $movie) => [
+                $movie->id => $movie->localizedTitle($locale),
+            ]);
+
+        return view('livewire.reviews.review-form', [
+            'movies' => $movies,
+        ]);
     }
 }

@@ -6,7 +6,7 @@ use Livewire\Form;
 
 class ReviewSubmissionForm extends Form
 {
-    public string $movieTitle = '';
+    public ?int $movieId = null;
 
     public int $rating = 5;
 
@@ -18,7 +18,7 @@ class ReviewSubmissionForm extends Form
     public function rules(): array
     {
         return [
-            'movieTitle' => ['required', 'string', 'max:255'],
+            'movieId' => ['required', 'integer', 'exists:movies,id'],
             'rating' => ['required', 'integer', 'between:1,5'],
             'body' => ['required', 'string', 'max:2000'],
         ];
@@ -30,9 +30,9 @@ class ReviewSubmissionForm extends Form
     public function messages(): array
     {
         return [
-            'movieTitle.required' => __('reviews.validation.movie_title.required'),
-            'movieTitle.string' => __('reviews.validation.movie_title.string'),
-            'movieTitle.max' => __('reviews.validation.movie_title.max'),
+            'movieId.required' => __('reviews.validation.movie_id.required'),
+            'movieId.integer' => __('reviews.validation.movie_id.integer'),
+            'movieId.exists' => __('reviews.validation.movie_id.exists'),
             'rating.required' => __('reviews.validation.rating.required'),
             'rating.integer' => __('reviews.validation.rating.integer'),
             'rating.between' => __('reviews.validation.rating.between'),

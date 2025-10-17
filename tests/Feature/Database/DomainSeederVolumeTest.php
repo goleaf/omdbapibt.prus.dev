@@ -41,8 +41,9 @@ class DomainSeederVolumeTest extends TestCase
         $translationValues = $translation->getTranslations('value');
         $this->assertArrayHasKey('fr', $translationValues);
 
-        $review = Review::query()->firstOrFail();
-        $this->assertNotEmpty($review->movie_title);
+        $review = Review::query()->with('movie')->firstOrFail();
+        $this->assertNotNull($review->movie_id);
+        $this->assertNotNull($review->movie);
         $this->assertIsString($review->body);
     }
 }

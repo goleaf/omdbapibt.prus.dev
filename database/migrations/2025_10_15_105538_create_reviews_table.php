@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('movie_title');
+            $table->foreignId('movie_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('rating');
             $table->text('body');
             $table->timestamps();

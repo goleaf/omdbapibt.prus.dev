@@ -2,10 +2,10 @@
 
 return [
     'validation' => [
-        'movie_title' => [
-            'required' => 'Veuillez saisir le titre du film.',
-            'string' => 'Le titre du film doit être du texte.',
-            'max' => 'Le titre du film ne peut pas dépasser :max caractères.',
+        'movie_id' => [
+            'required' => 'Veuillez sélectionner un film.',
+            'integer' => 'Le film sélectionné est invalide.',
+            'exists' => 'Le film sélectionné est introuvable.',
         ],
         'rating' => [
             'required' => 'Veuillez choisir une note.',
@@ -20,5 +20,12 @@ return [
     ],
     'status' => [
         'submitted' => 'Votre avis a été envoyé avec succès.',
+    ],
+    'form' => [
+        'movie_label' => 'Film',
+        'select_movie_placeholder' => 'Sélectionnez un film',
+    ],
+    'labels' => [
+        'unknown_movie' => 'Film inconnu',
     ],
 ];

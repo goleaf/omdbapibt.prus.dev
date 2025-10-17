@@ -2,10 +2,10 @@
 
 return [
     'validation' => [
-        'movie_title' => [
-            'required' => 'Please enter the movie title.',
-            'string' => 'The movie title must be text.',
-            'max' => 'The movie title may not be greater than :max characters.',
+        'movie_id' => [
+            'required' => 'Please select a movie.',
+            'integer' => 'The selected movie is invalid.',
+            'exists' => 'The selected movie could not be found.',
         ],
         'rating' => [
             'required' => 'Please choose a rating.',
@@ -20,5 +20,12 @@ return [
     ],
     'status' => [
         'submitted' => 'Your review was submitted successfully.',
+    ],
+    'form' => [
+        'movie_label' => 'Movie',
+        'select_movie_placeholder' => 'Select a movie',
+    ],
+    'labels' => [
+        'unknown_movie' => 'Unknown movie',
     ],
 ];

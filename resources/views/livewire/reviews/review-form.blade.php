@@ -2,15 +2,18 @@
     <form wire:submit.prevent="submit" class="space-y-4 bg-white p-6 shadow rounded-lg">
         @csrf
         <div>
-            <label class="block text-sm font-medium text-gray-700" for="movieTitle">Movie title</label>
-            <input
-                id="movieTitle"
-                type="text"
-                wire:model.defer="form.movieTitle"
+            <label class="block text-sm font-medium text-gray-700" for="movieId">{{ __('reviews.form.movie_label') }}</label>
+            <select
+                id="movieId"
+                wire:model.defer="form.movieId"
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Enter the movie title"
-            />
-            @error('form.movieTitle')
+            >
+                <option value="">{{ __('reviews.form.select_movie_placeholder') }}</option>
+                @foreach ($movies as $movieId => $movieTitle)
+                    <option value="{{ $movieId }}">{{ $movieTitle }}</option>
+                @endforeach
+            </select>
+            @error('form.movieId')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
