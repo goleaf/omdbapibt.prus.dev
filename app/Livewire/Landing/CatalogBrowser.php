@@ -106,6 +106,7 @@ class CatalogBrowser extends Component
                 'release_year' => $releaseYear,
                 'vote_average' => $movie->vote_average ? number_format((float) $movie->vote_average, 1) : null,
                 'genres' => $movie->genres->map(fn ($genre) => $genre->localizedName())->filter()->take(2)->implode(' • '),
+                'tags' => $movie->tags->map(fn ($tag) => $tag->localizedName())->filter()->take(3)->implode(' • '),
             ];
         })->all();
 
@@ -151,6 +152,7 @@ class CatalogBrowser extends Component
             ->with([
                 'genres:id,slug,name_translations',
                 'languages:id,code,name_translations',
+                'tags:id,slug,name_i18n,type',
             ]);
 
         if ($collection === null) {

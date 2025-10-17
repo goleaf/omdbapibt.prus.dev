@@ -28,6 +28,10 @@
                 <span>{{ __('ui.admin.panel.sections.countries.nav') }}</span>
                 <span aria-hidden="true" class="text-emerald-400 transition group-hover:translate-x-1">→</span>
             </a>
+            <a href="#tags" class="group flex items-center justify-between rounded-2xl border border-slate-800/80 bg-slate-950/60 px-4 py-3 text-sm text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200">
+                <span>{{ __('ui.admin.panel.sections.tags.nav') }}</span>
+                <span aria-hidden="true" class="text-emerald-400 transition group-hover:translate-x-1">→</span>
+            </a>
         </div>
     </div>
 
@@ -59,5 +63,10 @@
     <section id="countries" aria-labelledby="countries-heading" class="space-y-6">
         <h2 id="countries-heading" class="text-xl font-semibold text-white">{{ __('ui.admin.panel.sections.countries.heading') }}</h2>
         <livewire:admin.crud.manage-countries :key="'countries-manager'" />
+    </section>
+
+    <section id="tags" aria-labelledby="tags-heading" class="space-y-6">
+        <h2 id="tags-heading" class="text-xl font-semibold text-white">{{ __('ui.admin.panel.sections.tags.heading') }}</h2>
+        <livewire:admin.crud.manage-tags :key="'tags-manager'" />
     </section>
 </div>

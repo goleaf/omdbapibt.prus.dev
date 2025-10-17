@@ -9,9 +9,7 @@ use Illuminate\Support\Carbon;
 
 class MovieCacheService
 {
-    public function __construct(protected CacheManager $cache)
-    {
-    }
+    public function __construct(protected CacheManager $cache) {}
 
     /**
      * Retrieve trending movies with an hour-long cache window tagged for invalidation.
@@ -26,6 +24,7 @@ class MovieCacheService
                 $key,
                 Carbon::now()->addSeconds(config('cache_ttls.queries.trending')),
                 fn () => Movie::query()
+                    ->with(['tags:id,slug,name_i18n,type'])
                     ->orderByDesc('updated_at')
                     ->orderByDesc('popularity')
                     ->limit($limit)
@@ -46,6 +45,7 @@ class MovieCacheService
                 $key,
                 Carbon::now()->addSeconds(config('cache_ttls.queries.popular')),
                 fn () => Movie::query()
+                    ->with(['tags:id,slug,name_i18n,type'])
                     ->orderByDesc('popularity')
                     ->orderByDesc('vote_count')
                     ->limit($limit)

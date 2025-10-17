@@ -151,6 +151,23 @@ class MigrationsTest extends TestCase
                 'updated_at',
                 'deleted_at',
             ]],
+            'tags table' => ['tags', [
+                'id',
+                'slug',
+                'name_i18n',
+                'type',
+                'created_at',
+                'updated_at',
+            ]],
+            'film_tag table' => ['film_tag', [
+                'id',
+                'movie_id',
+                'tag_id',
+                'user_id',
+                'weight',
+                'created_at',
+                'updated_at',
+            ]],
             'people table' => ['people', [
                 'id',
                 'tmdb_id',

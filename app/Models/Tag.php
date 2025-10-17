@@ -6,59 +6,75 @@ use App\Models\Concerns\ResolvesTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Arr;
 
 class Tag extends Model
 {
     /** @use HasFactory<\Database\Factories\TagFactory> */
     use HasFactory;
+
     use ResolvesTranslations;
+
+    public const TYPE_SYSTEM = 'system';
+
+    public const TYPE_COMMUNITY = 'community';
 
     /**
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'name_translations',
-        'slug',
-        'type',
-        'description',
-        'description_translations',
-        'metadata',
-        'is_active',
-        'is_featured',
+    public const TYPES = [
+        self::TYPE_SYSTEM,
+        self::TYPE_COMMUNITY,
     ];
 
     /**
-     * @return array<string, string>
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'name_translations' => 'array',
-            'description_translations' => 'array',
-            'metadata' => 'array',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
-        ];
-    }
+    protected $fillable = [
+        'slug',
+        'name_i18n',
+        'type',
+    ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'name_i18n' => 'array',
+    ];
+
+    /**
+     * Movies associated with the tag.
+     */
     public function movies(): BelongsToMany
     {
-        return $this->belongsToMany(Movie::class, 'movie_tag')->withTimestamps();
-    }
-
-    public function lists(): BelongsToMany
-    {
-        return $this->belongsToMany(ListModel::class, 'list_tag')->withTimestamps();
+        return $this->belongsToMany(Movie::class, 'film_tag')
+            ->withPivot(['user_id', 'weight'])
+            ->withTimestamps();
     }
 
     public function localizedName(?string $locale = null): string
     {
-        return $this->resolveLocalizedValue($this->name_translations, $this->getRawOriginal('name'), $locale);
+        $translations = $this->name_i18n;
+        $fallback = is_array($translations) ? Arr::first($translations, fn ($value) => is_string($value) && $value !== '', '') : null;
+
+        if (! $fallback) {
+            $fallback = $this->slug ?? '';
+        }
+
+        return $this->resolveLocalizedValue(
+            is_array($translations) ? $translations : null,
+            $fallback,
+            $locale,
+        );
     }
 
-    public function localizedDescription(?string $locale = null): string
+    public function getNameAttribute(): string
     {
-        return $this->resolveLocalizedValue($this->description_translations, $this->getRawOriginal('description'), $locale);
+        return $this->localizedName();
     }
 }

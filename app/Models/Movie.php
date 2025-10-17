@@ -208,29 +208,15 @@ class Movie extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Tags assigned to the movie.
+     */
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'movie_tag')->withTimestamps();
-    }
-
-    public function ratings(): HasMany
-    {
-        return $this->hasMany(Rating::class);
-    }
-
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class);
-    }
-
-    public function lists(): BelongsToMany
-    {
-        return $this->belongsToMany(ListModel::class, 'list_movie')->withTimestamps();
-    }
-
-    public function platforms(): BelongsToMany
-    {
-        return $this->belongsToMany(Platform::class, 'movie_platform')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'film_tag')
+            ->withPivot(['user_id', 'weight'])
+            ->withTimestamps()
+            ->orderByPivot('weight');
     }
 
     public function requiresSubscription(): bool

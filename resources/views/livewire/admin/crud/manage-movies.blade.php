@@ -113,6 +113,56 @@
                     <div class="space-y-3">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <div>
+                                <p class="text-xs uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.tags.label') }}</p>
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.tags.help') }}</p>
+                            </div>
+                            <input
+                                type="search"
+                                wire:model.live="relationSearch.tags"
+                                placeholder="{{ __('ui.admin.panel.placeholders.search_tags') }}"
+                                class="w-full rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-xs text-slate-100 focus:border-emerald-400 focus:outline-none sm:w-auto"
+                            />
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @forelse ($this->selectedTags as $tag)
+                                <button
+                                    type="button"
+                                    wire:click="toggleTag({{ $tag->id }})"
+                                    wire:key="selected-tag-{{ $tag->id }}"
+                                    class="group inline-flex items-center gap-2 rounded-full bg-purple-900/40 px-3 py-1 text-xs text-purple-100 transition hover:bg-purple-800/60"
+                                >
+                                    <span>{{ $tag->localizedName('en') }}</span>
+                                    <span class="text-[0.65rem] uppercase text-purple-200">{{ $tag->type }}</span>
+                                    <span aria-hidden="true" class="text-purple-300 group-hover:text-purple-100">×</span>
+                                    <span class="sr-only">{{ __('ui.admin.panel.relationships.tags.remove', ['name' => $tag->localizedName('en')]) }}</span>
+                                </button>
+                            @empty
+                                <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.tags.none') }}</p>
+                            @endforelse
+                        </div>
+                        <div class="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-3">
+                            <p class="text-[0.65rem] uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.suggestions') }}</p>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @forelse ($this->availableTags as $tag)
+                                    <button
+                                        type="button"
+                                        wire:click="toggleTag({{ $tag->id }})"
+                                        wire:key="available-tag-{{ $tag->id }}"
+                                        class="inline-flex items-center gap-2 rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 transition hover:border-purple-400 hover:text-purple-200"
+                                    >
+                                        <span>{{ $tag->localizedName('en') }}</span>
+                                        <span class="text-[0.65rem] uppercase text-slate-500">{{ $tag->slug }}</span>
+                                    </button>
+                                @empty
+                                    <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.empty') }}</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
                                 <p class="text-xs uppercase tracking-[0.35em] text-slate-400">{{ __('ui.admin.panel.relationships.genres.label') }}</p>
                                 <p class="text-xs text-slate-500">{{ __('ui.admin.panel.relationships.genres.help') }}</p>
                             </div>
