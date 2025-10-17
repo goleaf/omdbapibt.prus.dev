@@ -6,8 +6,14 @@
         aria-label="{{ __('ui.nav.user_menu.dropdown_label') }}"
         aria-expanded="{{ $isOpen ? 'true' : 'false' }}"
     >
+        @php
+            $displayName = trim((string) ($user?->name ?? ''));
+            if ($displayName === '') {
+                $displayName = 'U';
+            }
+        @endphp
         <span class="text-sm uppercase">
-            {{ substr($user?->name ?? 'U', 0, 1) }}
+            {{ substr($displayName, 0, 1) }}
         </span>
     </button>
 
