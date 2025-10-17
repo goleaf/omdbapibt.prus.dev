@@ -6,9 +6,31 @@ if [ -z "${BASH_VERSION:-}" ]; then
 fi
 
 set -euo pipefail
+set -o errtrace
+
+on_error() {
+    local exit_code=$?
+    local line_no=${BASH_LINENO[0]:-unknown}
+    printf '\n\033[1;31m✖ Deployment failed\033[0m (exit code %s at line %s).\n' "$exit_code" "$line_no" >&2
+    printf 'Review the log above for details.\n' >&2
+}
+
+trap on_error ERR
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 cd "$ROOT_DIR"
+
+banner() {
+    printf '\033[1;35m'
+    cat <<'BANNER'
+ ____        _           _                      _   _             _   _             _          
+|  _ \  ___ | |__  _   _| |__   ___  _ __   ___| |_(_)_ __   __ _| |_(_) ___  _ __ (_) ___ ___ 
+| | | |/ _ \| '_ \| | | | '_ \ / _ \| '_ \ / __| __| | '_ \ / _` | __| |/ _ \| '_ \| |/ __/ __|
+| |_| | (_) | |_) | |_| | |_) | (_) | | | | (__| |_| | | | | (_| | |_| | (_) | | | | | (__\__ \
+|____/ \___/|_.__/ \__,_|_.__/ \___/|_| |_|\___|\__|_|_| |_|\__,_|\__|_|\___/|_| |_|_|\___|___/
+BANNER
+    printf '\033[0m\n'
+}
 
 usage() {
     cat <<'USAGE'
@@ -19,6 +41,8 @@ production deployment workflows.
 
 Options:
   --fresh         Drop all tables and re-run every migration with seeding.
+  --install-only  Use Composer install instead of update (recommended for CI/prod).
+  --skip-composer Skip Composer dependency installation/update.
   --skip-node     Skip Node dependency installation/update and asset build.
   --skip-tests    Skip running database seeder regression tests.
   -h, --help      Display this help message.
@@ -29,7 +53,19 @@ USAGE
 }
 
 section() {
-    printf '\n\033[1;34m==> %s\033[0m\n' "$1"
+    printf '\n\033[1;34m➡ %s\033[0m\n' "$1"
+}
+
+info() {
+    printf '\033[0;36m• %s\033[0m\n' "$1"
+}
+
+success() {
+    printf '\033[1;32m✓ %s\033[0m\n' "$1"
+}
+
+warning() {
+    printf '\033[1;33m! %s\033[0m\n' "$1"
 }
 
 require_command() {
@@ -69,13 +105,15 @@ ensure_app_key() {
 
         php -r '$path = $argv[1]; $key = $argv[2]; $contents = file_get_contents($path); if ($contents === false) { fwrite(STDERR, "Unable to read $path\n"); exit(1); } $updated = preg_replace("/^APP_KEY=.*$/m", "APP_KEY=".$key, $contents, 1, $count); if ($updated === null || $count === 0) { fwrite(STDERR, "APP_KEY entry missing in $path\n"); exit(1); } if (file_put_contents($path, $updated) === false) { fwrite(STDERR, "Unable to write $path\n"); exit(1); }' .env "$generated_key"
 
-        printf 'Configured APP_KEY in .env.\n'
+        success 'Configured APP_KEY in .env.'
     else
-        printf 'APP_KEY already defined in .env.\n'
+        info 'APP_KEY already defined in .env.'
     fi
 }
 
 FRESH_SETUP=0
+SKIP_COMPOSER=0
+COMPOSER_INSTALL_ONLY=0
 SKIP_NODE=0
 SKIP_TESTS=0
 
@@ -83,6 +121,14 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --fresh)
             FRESH_SETUP=1
+            shift
+            ;;
+        --install-only)
+            COMPOSER_INSTALL_ONLY=1
+            shift
+            ;;
+        --skip-composer)
+            SKIP_COMPOSER=1
             shift
             ;;
         --skip-node)
@@ -110,17 +156,21 @@ if [[ ! -f artisan ]]; then
     exit 1
 fi
 
+banner
+
 section "Verifying required tooling"
 require_command php
 
 COMPOSER_BIN=""
-if command -v composer >/dev/null 2>&1; then
-    COMPOSER_BIN="composer"
-elif [[ -f composer.phar ]]; then
-    COMPOSER_BIN="php composer.phar"
-else
-    printf '\033[1;31mError:\033[0m Composer is required but not installed.\n' >&2
-    exit 1
+if [[ $SKIP_COMPOSER -eq 0 ]]; then
+    if command -v composer >/dev/null 2>&1; then
+        COMPOSER_BIN="composer"
+    elif [[ -f composer.phar ]]; then
+        COMPOSER_BIN="php composer.phar"
+    else
+        printf '\033[1;31mError:\033[0m Composer is required but not installed.\n' >&2
+        exit 1
+    fi
 fi
 
 if [[ $SKIP_NODE -eq 0 ]]; then
@@ -142,11 +192,17 @@ if [[ $RUN_SEEDER_TESTS -eq 1 || $RUN_PHP_TESTS -eq 1 ]]; then
     NEEDS_DEV_DEPENDENCIES=1
 fi
 
+if [[ $SKIP_COMPOSER -eq 1 && $RUN_PHP_TESTS -eq 1 ]]; then
+    warning 'Skipping PHP tests because Composer steps are disabled.'
+    RUN_PHP_TESTS=0
+    NEEDS_DEV_DEPENDENCIES=$((RUN_SEEDER_TESTS == 1 ? 1 : 0))
+fi
+
 section "Ensuring environment file"
 if [[ ! -f .env ]]; then
     run_cmd cp .env.example .env
 else
-    printf '.env file already present.\n'
+    info '.env file already present.'
 fi
 
 section "Ensuring application key"
@@ -158,7 +214,7 @@ if [[ ! -f "$DB_FILE" ]]; then
     run_cmd mkdir -p "$(dirname "$DB_FILE")"
     run_cmd touch "$DB_FILE"
 else
-    printf 'SQLite database file already present at %s.\n' "$DB_FILE"
+    info "SQLite database file already present at $DB_FILE."
 fi
 
 section "Clearing compiled caches"
@@ -171,7 +227,7 @@ printf '%s\n' "$OPTIMIZE_OUTPUT"
 
 if [[ $OPTIMIZE_STATUS -ne 0 ]]; then
     if echo "$OPTIMIZE_OUTPUT" | grep -qi 'no such table: cache'; then
-        printf 'Cache table is not yet present; continuing after migrations.\n'
+        info 'Cache table is not yet present; continuing after migrations.'
     else
         exit $OPTIMIZE_STATUS
     fi
@@ -182,16 +238,31 @@ if [[ $NEEDS_DEV_DEPENDENCIES -eq 0 ]]; then
     COMPOSER_UPDATE_ARGS+=(--no-dev)
 fi
 
-section "Updating PHP dependencies"
-run_cmd $COMPOSER_BIN "${COMPOSER_UPDATE_ARGS[@]}"
 COMPOSER_DEV_INSTALLED=$NEEDS_DEV_DEPENDENCIES
+
+if [[ $SKIP_COMPOSER -eq 0 ]]; then
+    if [[ $COMPOSER_INSTALL_ONLY -eq 1 ]]; then
+        section "Installing PHP dependencies"
+        run_cmd $COMPOSER_BIN install --no-interaction --prefer-dist --optimize-autoloader $([[ $NEEDS_DEV_DEPENDENCIES -eq 0 ]] && printf '%s' '--no-dev')
+    else
+        section "Updating PHP dependencies"
+        run_cmd $COMPOSER_BIN "${COMPOSER_UPDATE_ARGS[@]}"
+    fi
+else
+    section "Skipping Composer dependency steps"
+    COMPOSER_DEV_INSTALLED=0
+fi
 
 if [[ $SKIP_NODE -eq 0 ]]; then
     section "Updating Node dependencies"
     NODE_ENV= run_cmd npm update
 
     section "Installing Node dependencies"
-    NODE_ENV= run_cmd npm install --no-progress
+    if [[ -f package-lock.json ]]; then
+        NODE_ENV= run_cmd npm ci --no-progress
+    else
+        NODE_ENV= run_cmd npm install --no-progress
+    fi
 
     section "Building frontend assets"
     run_cmd npm run build
@@ -262,7 +333,7 @@ if [[ $FRESH_SETUP -eq 1 ]]; then
     run_cmd php artisan migrate:fresh --seed --force
 else
     if [[ ! -f "$DB_FILE" ]] || ! php artisan db:show >/dev/null 2>&1; then
-        printf 'Database missing or corrupted. Rebuilding...\n'
+        warning 'Database missing or corrupted. Rebuilding...'
         run_cmd rm -f database/database.sqlite database/database.sqlite-shm database/database.sqlite-wal
         run_cmd touch database/database.sqlite
         run_cmd chmod 664 database/database.sqlite
@@ -346,15 +417,15 @@ if php -r 'exit(extension_loaded("redis") ? 0 : 1);'; then
     run_cmd php artisan config:cache
     run_cmd php artisan optimize
 else
-    printf 'Redis extension not available; skipping cache and optimize steps that require it.\n'
-    printf 'Config cache clear skipped because Redis is unavailable.\n'
+    warning 'Redis extension not available; skipping cache and optimize steps that require it.'
+    warning 'Config cache clear skipped because Redis is unavailable.'
 fi
 
 if php -r 'exit(extension_loaded("redis") ? 0 : 1);'; then
     section "Terminating Horizon"
     php artisan horizon:terminate || true
 else
-    printf 'Skipping Horizon termination because Redis is unavailable.\n'
+    warning 'Skipping Horizon termination because Redis is unavailable.'
 fi
 
 if [[ $RUN_SEEDER_TESTS -eq 1 ]]; then
@@ -392,8 +463,8 @@ fi
 
 if [[ $SKIP_TESTS -eq 0 ]]; then
     section "Setup complete"
-    printf '\033[1;32mLaravel environment is ready.\033[0m\n'
+    success 'Laravel environment is ready.'
 else
     section "Deployment complete"
-    printf '\033[1;32mLaravel environment prepared (tests skipped).\033[0m\n'
+    success 'Laravel environment prepared (tests skipped).'
 fi
