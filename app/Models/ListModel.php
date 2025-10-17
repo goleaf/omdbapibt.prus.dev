@@ -50,7 +50,7 @@ class ListModel extends Model
      */
     public function movies(): BelongsToMany
     {
-        return $this->belongsToMany(Movie::class, 'list_items')
+        return $this->belongsToMany(Movie::class, 'list_items', 'list_id', 'movie_id')
             ->withPivot('position')
             ->withTimestamps();
     }

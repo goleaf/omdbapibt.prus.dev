@@ -151,7 +151,7 @@ class Movie extends Model
      */
     public function lists(): BelongsToMany
     {
-        return $this->belongsToMany(ListModel::class, 'list_items')
+        return $this->belongsToMany(ListModel::class, 'list_items', 'movie_id', 'list_id')
             ->withPivot('position')
             ->withTimestamps();
     }

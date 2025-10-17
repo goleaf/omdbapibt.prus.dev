@@ -19,8 +19,7 @@ class Interaction extends Model
         'movie_id',
         'type',
         'payload',
-        'metadata',
-        'interacted_at',
+        'occurred_at',
     ];
 
     /**
@@ -30,8 +29,7 @@ class Interaction extends Model
     {
         return [
             'payload' => 'array',
-            'metadata' => 'array',
-            'interacted_at' => 'datetime',
+            'occurred_at' => 'datetime',
         ];
     }
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\ValidationException;
 
 class Rating extends Model
 {
@@ -17,10 +18,9 @@ class Rating extends Model
     protected $fillable = [
         'user_id',
         'movie_id',
-        'score',
-        'source',
-        'comment',
-        'metadata',
+        'rating',
+        'liked',
+        'disliked',
         'rated_at',
     ];
 
@@ -30,10 +30,32 @@ class Rating extends Model
     protected function casts(): array
     {
         return [
-            'score' => 'float',
-            'metadata' => 'array',
+            'rating' => 'integer',
+            'liked' => 'boolean',
+            'disliked' => 'boolean',
             'rated_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Rating $rating): void {
+            if ($rating->liked && $rating->disliked) {
+                throw ValidationException::withMessages([
+                    'disliked' => 'A rating cannot be liked and disliked at the same time.',
+                ]);
+            }
+
+            if ($rating->rating === null) {
+                return;
+            }
+
+            if ($rating->rating < 1 || $rating->rating > 10) {
+                throw ValidationException::withMessages([
+                    'rating' => 'The rating must be between 1 and 10.',
+                ]);
+            }
+        });
     }
 
     public function movie(): BelongsTo
