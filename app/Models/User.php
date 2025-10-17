@@ -4,11 +4,8 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
@@ -84,72 +81,40 @@ class User extends Authenticatable
     }
 
     /**
-     * Movies saved to the user's watchlist.
+     * Lists created by the user.
      */
-    public function watchlistedMovies(): MorphToMany
+    public function lists(): HasMany
     {
-        return $this->morphedByMany(Movie::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+        return $this->hasMany(ListModel::class);
     }
 
     /**
-     * TV shows saved to the user's watchlist.
+     * Retrieve the default "watch later" list, creating it when necessary.
      */
-    public function watchlistedTvShows(): MorphToMany
+    public function ensureWatchLaterList(): ListModel
     {
-        return $this->morphedByMany(TvShow::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+        return $this->lists()->firstOrCreate(
+            ['title' => ListModel::WATCH_LATER_TITLE],
+            [
+                'public' => false,
+                'description' => null,
+                'cover_url' => null,
+            ],
+        );
     }
 
     /**
-     * Ratings the user has recorded.
+     * Determine if the default "watch later" list includes the movie.
      */
-    public function ratings(): HasMany
+    public function hasInWatchLater(Movie $movie): bool
     {
-        return $this->hasMany(Rating::class);
-    }
+        $list = $this->lists()->watchLater()->first();
 
-    public function ratingForMovie(Movie $movie): ?Rating
-    {
-        if ($this->relationLoaded('ratings')) {
-            /** @var \Illuminate\Support\Collection<int, Rating> $ratings */
-            $ratings = $this->getRelation('ratings');
-
-            return $ratings->firstWhere('movie_id', $movie->getKey());
+        if (! $list) {
+            return false;
         }
 
-        return $this->ratings()
-            ->where('movie_id', $movie->getKey())
-            ->first();
-    }
-
-    public function hasLikedMovie(Movie $movie): bool
-    {
-        return (bool) $this->ratingForMovie($movie)?->liked;
-    }
-
-    public function hasDislikedMovie(Movie $movie): bool
-    {
-        return (bool) $this->ratingForMovie($movie)?->disliked;
-    }
-
-    public function ratingScoreForMovie(Movie $movie): ?int
-    {
-        return $this->ratingForMovie($movie)?->rating;
-    }
-
-    /**
-     * Determine if the given model has been added to the watchlist.
-     */
-    public function hasInWatchlist(Model $model): bool
-    {
-        if ($model instanceof Movie) {
-            return $this->watchlistedMovies()->whereKey($model->getKey())->exists();
-        }
-
-        if ($model instanceof TvShow) {
-            return $this->watchlistedTvShows()->whereKey($model->getKey())->exists();
-        }
-
-        return false;
+        return $list->items()->where('movie_id', $movie->getKey())->exists();
     }
 
     /**

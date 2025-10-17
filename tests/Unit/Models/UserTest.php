@@ -4,9 +4,8 @@ namespace Tests\Unit\Models;
 
 use App\Enums\UserManagementAction;
 use App\Enums\UserRole;
+use App\Models\ListModel;
 use App\Models\Movie;
-use App\Models\Rating;
-use App\Models\TvShow;
 use App\Models\User;
 use App\Models\UserManagementLog;
 use App\Models\WatchHistory;
@@ -42,18 +41,23 @@ class UserTest extends TestCase
         $this->assertTrue($user->canBeImpersonated());
     }
 
-    public function test_watchlist_helpers_handle_movies_and_tv_shows(): void
+    public function test_watch_later_helpers_manage_movies(): void
     {
         $user = User::factory()->create();
         $movie = Movie::factory()->create();
-        $show = TvShow::factory()->create();
 
-        $user->watchlistedMovies()->attach($movie);
-        $user->watchlistedTvShows()->attach($show);
+        $list = $user->ensureWatchLaterList();
 
-        $this->assertTrue($user->hasInWatchlist($movie));
-        $this->assertTrue($user->hasInWatchlist($show));
-        $this->assertFalse($user->hasInWatchlist(Movie::factory()->create()));
+        $this->assertInstanceOf(ListModel::class, $list);
+        $this->assertTrue($list->isWatchLater());
+
+        $list->items()->create([
+            'movie_id' => $movie->getKey(),
+            'position' => 1,
+        ]);
+
+        $this->assertTrue($user->hasInWatchLater($movie));
+        $this->assertFalse($user->hasInWatchLater(Movie::factory()->create()));
     }
 
     public function test_watch_history_and_management_log_relationships(): void

@@ -2,73 +2,82 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\ResolvesTranslations;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ListModel extends Model
 {
-    /** @use HasFactory<\Database\Factories\ListModelFactory> */
     use HasFactory;
-    use ResolvesTranslations;
+
+    public const WATCH_LATER_TITLE = 'Watch Later';
 
     protected $table = 'lists';
 
-    /**
-     * @var list<string>
-     */
     protected $fillable = [
         'user_id',
         'title',
-        'title_translations',
-        'slug',
+        'public',
         'description',
-        'description_translations',
-        'is_public',
-        'visibility',
-        'metadata',
-        'featured_at',
-        'cover_image_url',
+        'cover_url',
+    ];
+
+    protected $casts = [
+        'public' => 'boolean',
     ];
 
     /**
-     * @return array<string, string>
+     * The owning user for the list.
      */
-    protected function casts(): array
+    public function user(): BelongsTo
     {
-        return [
-            'title_translations' => 'array',
-            'description_translations' => 'array',
-            'is_public' => 'boolean',
-            'metadata' => 'array',
-            'featured_at' => 'datetime',
-        ];
+        return $this->belongsTo(User::class);
     }
 
-    public function owner(): BelongsTo
+    /**
+     * Items contained within the list.
+     */
+    public function items(): HasMany
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasMany(ListItem::class, 'list_id');
     }
 
+    /**
+     * Movies that belong to the list.
+     */
     public function movies(): BelongsToMany
     {
-        return $this->belongsToMany(Movie::class, 'list_movie')->withTimestamps();
+        return $this->belongsToMany(Movie::class, 'list_items')
+            ->withPivot('position')
+            ->withTimestamps();
     }
 
-    public function tags(): BelongsToMany
+    /**
+     * Scope the query to the default "watch later" list.
+     */
+    public function scopeWatchLater(Builder $query): Builder
     {
-        return $this->belongsToMany(Tag::class, 'list_tag')->withTimestamps();
+        return $query->where('title', self::WATCH_LATER_TITLE);
     }
 
-    public function localizedTitle(?string $locale = null): string
+    /**
+     * Determine if the list represents the default "watch later" collection.
+     */
+    public function isWatchLater(): bool
     {
-        return $this->resolveLocalizedValue($this->title_translations, $this->getRawOriginal('title'), $locale);
+        return $this->title === self::WATCH_LATER_TITLE;
     }
 
-    public function localizedDescription(?string $locale = null): string
+    /**
+     * Retrieve the next position for a new item.
+     */
+    public function nextPosition(): int
     {
-        return $this->resolveLocalizedValue($this->description_translations, $this->getRawOriginal('description'), $locale);
+        $current = $this->items()->max('position');
+
+        return $current ? ((int) $current + 1) : 1;
     }
 }

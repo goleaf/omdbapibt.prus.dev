@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Movie extends Model
@@ -148,11 +147,13 @@ class Movie extends Model
     }
 
     /**
-     * Users who have added this movie to their watchlist.
+     * Lists that include this movie.
      */
-    public function watchlistedBy(): MorphToMany
+    public function lists(): BelongsToMany
     {
-        return $this->morphToMany(User::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+        return $this->belongsToMany(ListModel::class, 'list_items')
+            ->withPivot('position')
+            ->withTimestamps();
     }
 
     /**

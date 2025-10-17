@@ -3,8 +3,9 @@
 namespace Tests\Feature\Livewire;
 
 use App\Livewire\Watchlist;
+use App\Models\ListItem;
+use App\Models\ListModel;
 use App\Models\Movie;
-use App\Models\TvShow;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -14,39 +15,39 @@ class WatchlistTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_watchlist_component_computes_counts_and_links(): void
+    public function test_watchlist_component_renders_lists_and_items(): void
     {
         $locale = config('translatable.fallback_locale', config('app.fallback_locale'));
         app()->setLocale($locale);
 
         $user = User::factory()->create();
-        $movie = Movie::factory()->create();
-        $show = TvShow::factory()->create();
+        $primaryList = ListModel::factory()->watchLater()->for($user)->create();
+        $secondaryList = ListModel::factory()->for($user)->create(['title' => 'Festival Picks']);
 
-        $user->watchlistedMovies()->attach($movie->getKey());
-        $user->watchlistedTvShows()->attach($show->getKey());
+        $firstMovie = Movie::factory()->create();
+        $secondMovie = Movie::factory()->create();
 
-        $component = Livewire::actingAs($user)
-            ->test(Watchlist::class);
+        ListItem::factory()->create([
+            'list_id' => $primaryList->getKey(),
+            'movie_id' => $firstMovie->getKey(),
+            'position' => 1,
+        ]);
 
-        $expectedShowTitle = $show->name_translations[$locale] ?? $show->name;
+        ListItem::factory()->create([
+            'list_id' => $secondaryList->getKey(),
+            'movie_id' => $secondMovie->getKey(),
+            'position' => 1,
+        ]);
 
-        $component
+        Livewire::actingAs($user)
+            ->test(Watchlist::class)
             ->assertOk()
             ->assertSet('locale', $locale)
-            ->assertSet('movieCount', 1)
-            ->assertSet('showCount', 1)
             ->assertSet('summaryCount', 2)
-            ->assertSet('movieLinks.'.$movie->getKey(), route('movies.show', [
-                'locale' => $locale,
-                'movie' => $movie->slug,
-            ]))
-            ->assertSet('showLinks.'.$show->getKey(), route('shows.show', [
-                'locale' => $locale,
-                'slug' => $show->slug,
-            ]))
-            ->assertSee($movie->localizedTitle())
-            ->assertSee($expectedShowTitle)
+            ->assertSee('Watch Later')
+            ->assertSee('Festival Picks')
+            ->assertSee($firstMovie->localizedTitle())
+            ->assertSee($secondMovie->localizedTitle())
             ->assertSee(trans_choice(':count title saved|:count titles saved', 2, ['count' => 2]));
     }
 
@@ -58,12 +59,8 @@ class WatchlistTest extends TestCase
         Livewire::test(Watchlist::class)
             ->assertOk()
             ->assertSet('locale', $locale)
-            ->assertSet('movieCount', 0)
-            ->assertSet('showCount', 0)
             ->assertSet('summaryCount', 0)
-            ->assertSet('movieLinks', [])
-            ->assertSet('showLinks', [])
             ->assertSee(trans_choice(':count title saved|:count titles saved', 0, ['count' => 0]))
-            ->assertSee(__('Sign in to start curating your personal watchlist across all your devices.'));
+            ->assertSee(__('Sign in to start curating personal lists across all your devices.'));
     }
 }
