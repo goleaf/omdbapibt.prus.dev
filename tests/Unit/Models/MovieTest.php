@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\Country;
 use App\Models\Genre;
 use App\Models\Language;
+use App\Models\ListModel;
 use App\Models\Movie;
 use App\Models\Person;
 use App\Models\User;
@@ -116,7 +117,12 @@ class MovieTest extends TestCase
         $movie = Movie::factory()->create();
         $user = User::factory()->create();
 
-        $movie->watchlistedBy()->attach($user);
+        $list = ListModel::factory()->watchLater()->for($user)->create();
+
+        $list->items()->create([
+            'movie_id' => $movie->getKey(),
+            'position' => 1,
+        ]);
 
         $history = WatchHistory::factory()
             ->forMovie($movie)
@@ -124,9 +130,9 @@ class MovieTest extends TestCase
                 'user_id' => $user->id,
             ]);
 
-        $movie->load('watchlistedBy', 'watchHistories');
+        $movie->load('lists', 'watchHistories');
 
-        $this->assertTrue($movie->watchlistedBy->contains($user));
+        $this->assertTrue($movie->lists->contains($list));
         $this->assertTrue($movie->watchHistories->contains($history));
     }
 

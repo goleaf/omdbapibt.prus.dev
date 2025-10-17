@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TvShow extends Model
@@ -196,14 +195,6 @@ class TvShow extends Model
         }
 
         return $filtered === [] ? null : $filtered;
-    }
-
-    /**
-     * Users who have added this TV show to their watchlist.
-     */
-    public function watchlistedBy(): MorphToMany
-    {
-        return $this->morphToMany(User::class, 'watchlistable', 'user_watchlist')->withTimestamps();
     }
 
     /**

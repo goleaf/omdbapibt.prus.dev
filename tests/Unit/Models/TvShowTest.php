@@ -67,12 +67,10 @@ class TvShowTest extends TestCase
         $this->assertSame('Base tagline', $show->localizedTagline());
     }
 
-    public function test_watchlist_and_history_relationships(): void
+    public function test_history_relationship_includes_entries(): void
     {
         $show = TvShow::factory()->create();
         $user = User::factory()->create();
-
-        $show->watchlistedBy()->attach($user);
 
         $history = WatchHistory::factory()
             ->forTvShow($show)
@@ -80,9 +78,8 @@ class TvShowTest extends TestCase
                 'user_id' => $user->id,
             ]);
 
-        $show->load('watchlistedBy', 'watchHistories');
+        $show->load('watchHistories');
 
-        $this->assertTrue($show->watchlistedBy->contains($user));
         $this->assertTrue($show->watchHistories->contains($history));
     }
 

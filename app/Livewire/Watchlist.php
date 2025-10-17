@@ -2,17 +2,18 @@
 
 namespace App\Livewire;
 
+use App\Models\ListItem;
+use App\Models\ListModel;
 use App\Models\Movie;
-use App\Models\TvShow;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class Watchlist extends Component
 {
     public ?int $movieId = null;
-
-    public ?int $tvShowId = null;
 
     public bool $isSaved = false;
 
@@ -20,35 +21,38 @@ class Watchlist extends Component
 
     public string $locale = '';
 
-    public array $movieLinks = [];
+    /**
+     * @var list<array{id:int,title:string,public:bool,description:?string,cover_url:?string,is_watch_later:bool,items:list<array{id:int,movie_id:int,position:int,title:string,slug:?string,poster:?string,year:?string}>}>
+     */
+    public array $lists = [];
 
-    public array $showLinks = [];
-
-    public int $movieCount = 0;
-
-    public int $showCount = 0;
+    public ?int $activeListId = null;
 
     public int $summaryCount = 0;
 
-    /**
-     * @var array{movies: list<array<string, mixed>>, shows: list<array<string, mixed>>}
-     */
-    public array $items = [
-        'movies' => [],
-        'shows' => [],
+    public string $newListTitle = '';
+
+    public ?int $renamingListId = null;
+
+    public string $renamingTitle = '';
+
+    protected array $messages = [
+        'newListTitle.required' => 'Enter a title for your list.',
+        'newListTitle.max' => 'List titles must be fewer than 255 characters.',
+        'renamingTitle.required' => 'Enter a title for your list.',
+        'renamingTitle.max' => 'List titles must be fewer than 255 characters.',
     ];
 
-    public function mount(?int $movieId = null, ?int $tvShowId = null): void
+    public function mount(?int $movieId = null): void
     {
         $this->movieId = $movieId;
-        $this->tvShowId = $tvShowId;
         $this->isAuthenticated = Auth::check();
         $this->locale = app()->getLocale();
 
         if ($this->isToggleMode()) {
             $this->isSaved = $this->determineSavedState();
         } elseif ($this->isAuthenticated) {
-            $this->loadWatchlist();
+            $this->loadLists();
         }
     }
 
@@ -66,17 +70,35 @@ class Watchlist extends Component
 
         $user = $this->user();
 
-        if ($this->movieId !== null) {
-            $this->toggleMovie($user);
-        } elseif ($this->tvShowId !== null) {
-            $this->toggleTvShow($user);
+        $movie = Movie::find($this->movieId);
+
+        if (! $movie) {
+            session()->flash('error', 'We could not find this movie.');
+
+            return;
+        }
+
+        $list = $user->ensureWatchLaterList();
+
+        $existingItem = $list->items()->where('movie_id', $movie->getKey())->first();
+
+        if ($existingItem instanceof ListItem) {
+            $existingItem->delete();
+            session()->flash('status', 'Removed from your watch later list.');
+        } else {
+            $list->items()->create([
+                'movie_id' => $movie->getKey(),
+                'position' => $list->nextPosition(),
+            ]);
+
+            session()->flash('status', 'Added to your watch later list.');
         }
 
         $this->isSaved = $this->determineSavedState();
         $this->dispatch('watchlist-updated');
     }
 
-    public function remove(string $type, int $identifier): void
+    public function removeItem(int $itemId): void
     {
         if (! $this->isAuthenticated) {
             session()->flash('error', 'Sign in to manage your watchlist.');
@@ -86,160 +108,303 @@ class Watchlist extends Component
 
         $user = $this->user();
 
-        if ($type === 'movie') {
-            $user->watchlistedMovies()->detach($identifier);
-        } elseif ($type === 'tv') {
-            $user->watchlistedTvShows()->detach($identifier);
+        $item = ListItem::query()
+            ->whereKey($itemId)
+            ->whereHas('list', static function ($query) use ($user): void {
+                $query->where('user_id', $user->getKey());
+            })
+            ->first();
+
+        if (! $item instanceof ListItem) {
+            return;
         }
 
-        $this->loadWatchlist();
+        $listId = $item->list_id;
+        $item->delete();
+
+        $this->loadLists();
+        $this->activeListId = $listId;
         $this->dispatch('watchlist-updated');
     }
 
-    protected function toggleMovie(User $user): void
-    {
-        $movie = Movie::find($this->movieId);
-
-        if (! $movie) {
-            session()->flash('error', 'We could not find this movie.');
-
-            return;
-        }
-
-        if ($user->watchlistedMovies()->whereKey($movie->getKey())->exists()) {
-            $user->watchlistedMovies()->detach($movie->getKey());
-            session()->flash('status', 'Removed from your watchlist.');
-
-            return;
-        }
-
-        $user->watchlistedMovies()->syncWithoutDetaching([$movie->getKey()]);
-        session()->flash('status', 'Added to your watchlist.');
-    }
-
-    protected function toggleTvShow(User $user): void
-    {
-        $tvShow = TvShow::find($this->tvShowId);
-
-        if (! $tvShow) {
-            session()->flash('error', 'We could not find this series.');
-
-            return;
-        }
-
-        if ($user->watchlistedTvShows()->whereKey($tvShow->getKey())->exists()) {
-            $user->watchlistedTvShows()->detach($tvShow->getKey());
-            session()->flash('status', 'Removed from your watchlist.');
-
-            return;
-        }
-
-        $user->watchlistedTvShows()->syncWithoutDetaching([$tvShow->getKey()]);
-        session()->flash('status', 'Added to your watchlist.');
-    }
-
-    protected function loadWatchlist(): void
+    public function setActiveList(int $listId): void
     {
         if (! $this->isAuthenticated) {
-            $this->items = [
-                'movies' => [],
-                'shows' => [],
-            ];
-            $this->movieLinks = [];
-            $this->showLinks = [];
-            $this->movieCount = 0;
-            $this->showCount = 0;
+            return;
+        }
+
+        $ownsList = collect($this->lists)->contains(static fn (array $list): bool => $list['id'] === $listId);
+
+        if ($ownsList) {
+            $this->activeListId = $listId;
+        }
+    }
+
+    public function createList(): void
+    {
+        if (! $this->isAuthenticated) {
+            session()->flash('error', 'Sign in to manage your watchlist.');
+
+            return;
+        }
+
+        $input = ['newListTitle' => $this->newListTitle];
+
+        $validator = Validator::make($input, [
+            'newListTitle' => ['required', 'string', 'max:255'],
+        ], $this->messages);
+
+        try {
+            $validator->validate();
+        } catch (ValidationException $exception) {
+            $this->setErrorBag($exception->validator->errors());
+
+            return;
+        }
+
+        $user = $this->user();
+
+        $list = $user->lists()->create([
+            'title' => $this->newListTitle,
+            'public' => false,
+            'description' => null,
+            'cover_url' => null,
+        ]);
+
+        $this->newListTitle = '';
+        $this->loadLists();
+        $this->activeListId = $list->getKey();
+        $this->resetErrorBag();
+    }
+
+    public function startRenaming(int $listId): void
+    {
+        if (! $this->isAuthenticated) {
+            return;
+        }
+
+        $list = collect($this->lists)->firstWhere('id', $listId);
+
+        if (! $list) {
+            return;
+        }
+
+        $this->renamingListId = $listId;
+        $this->renamingTitle = $list['title'];
+    }
+
+    public function updateListTitle(): void
+    {
+        if (! $this->isAuthenticated || $this->renamingListId === null) {
+            return;
+        }
+
+        $validator = Validator::make([
+            'renamingTitle' => $this->renamingTitle,
+        ], [
+            'renamingTitle' => ['required', 'string', 'max:255'],
+        ], $this->messages);
+
+        try {
+            $validator->validate();
+        } catch (ValidationException $exception) {
+            $this->setErrorBag($exception->validator->errors());
+
+            return;
+        }
+
+        $user = $this->user();
+
+        $user->lists()
+            ->whereKey($this->renamingListId)
+            ->update([
+                'title' => $this->renamingTitle,
+            ]);
+
+        $this->renamingListId = null;
+        $this->renamingTitle = '';
+        $this->resetErrorBag();
+        $this->loadLists();
+    }
+
+    public function togglePrivacy(int $listId): void
+    {
+        if (! $this->isAuthenticated) {
+            return;
+        }
+
+        $user = $this->user();
+
+        $list = $user->lists()->whereKey($listId)->first();
+
+        if (! $list instanceof ListModel) {
+            return;
+        }
+
+        $list->update([
+            'public' => ! $list->public,
+        ]);
+
+        $this->loadLists();
+        $this->activeListId = $listId;
+    }
+
+    public function deleteList(int $listId): void
+    {
+        if (! $this->isAuthenticated) {
+            return;
+        }
+
+        $user = $this->user();
+
+        $list = $user->lists()->whereKey($listId)->first();
+
+        if (! $list instanceof ListModel) {
+            return;
+        }
+
+        if ($list->isWatchLater()) {
+            session()->flash('error', 'The default watch later list cannot be deleted.');
+
+            return;
+        }
+
+        $list->delete();
+
+        $this->loadLists();
+        $this->activeListId = $this->lists[0]['id'] ?? null;
+    }
+
+    public function moveItemUp(int $itemId): void
+    {
+        $this->swapItemPosition($itemId, 'up');
+    }
+
+    public function moveItemDown(int $itemId): void
+    {
+        $this->swapItemPosition($itemId, 'down');
+    }
+
+    protected function swapItemPosition(int $itemId, string $direction): void
+    {
+        if (! $this->isAuthenticated) {
+            return;
+        }
+
+        $user = $this->user();
+
+        $item = ListItem::query()
+            ->whereKey($itemId)
+            ->whereHas('list', static function ($query) use ($user): void {
+                $query->where('user_id', $user->getKey());
+            })
+            ->first();
+
+        if (! $item instanceof ListItem) {
+            return;
+        }
+
+        $query = $item->list->items()->where('id', '!=', $item->getKey());
+
+        if ($direction === 'up') {
+            $swap = $query
+                ->where('position', '<', $item->position)
+                ->orderByDesc('position')
+                ->first();
+        } else {
+            $swap = $query
+                ->where('position', '>', $item->position)
+                ->orderBy('position')
+                ->first();
+        }
+
+        if (! $swap instanceof ListItem) {
+            return;
+        }
+
+        $itemPosition = $item->position;
+        $item->update(['position' => $swap->position]);
+        $swap->update(['position' => $itemPosition]);
+
+        $this->loadLists();
+        $this->activeListId = $item->list_id;
+    }
+
+    protected function loadLists(): void
+    {
+        if (! $this->isAuthenticated) {
+            $this->lists = [];
+            $this->activeListId = null;
             $this->summaryCount = 0;
 
             return;
         }
 
         $user = $this->user();
+        $user->ensureWatchLaterList();
 
-        $movies = $user->watchlistedMovies()
-            ->withPivot('created_at')
-            ->orderByDesc('user_watchlist.created_at')
-            ->get(['movies.id', 'title', 'poster_path', 'slug', 'release_date']);
+        $lists = $user->lists()
+            ->with(['items' => function ($query): void {
+                $query->orderBy('position')
+                    ->with(['movie' => function ($movieQuery): void {
+                        $movieQuery->select('id', 'slug', 'poster_path', 'release_date', 'title');
+                    }]);
+            }])
+            ->orderBy('created_at')
+            ->get();
 
-        $shows = $user->watchlistedTvShows()
-            ->withPivot('created_at')
-            ->orderByDesc('user_watchlist.created_at')
-            ->get(['tv_shows.id', 'name', 'name_translations', 'poster_path', 'slug', 'first_air_date']);
+        $this->lists = $lists->map(function (ListModel $list): array {
+            $items = $list->items->map(function (ListItem $item): array {
+                $movie = $item->movie;
 
-        $this->items = [
-            'movies' => $movies->map(function (Movie $movie): array {
                 return [
-                    'id' => $movie->getKey(),
-                    'title' => $movie->localizedTitle(),
-                    'slug' => $movie->slug,
-                    'poster' => $movie->poster_path,
-                    'year' => $movie->release_date ? $movie->release_date->format('Y') : null,
+                    'id' => $item->getKey(),
+                    'movie_id' => $item->movie_id,
+                    'position' => $item->position,
+                    'title' => $movie ? $movie->localizedTitle($this->locale) : 'Untitled',
+                    'slug' => $movie?->slug,
+                    'poster' => $movie?->poster_path,
+                    'year' => $movie && $movie->release_date ? $movie->release_date->format('Y') : null,
                 ];
-            })->all(),
-            'shows' => $shows->map(function (TvShow $show): array {
-                return [
-                    'id' => $show->getKey(),
-                    'title' => $this->resolveShowTitle($show),
-                    'slug' => $show->slug,
-                    'poster' => $show->poster_path,
-                    'year' => $show->first_air_date ? $show->first_air_date->format('Y') : null,
-                ];
-            })->all(),
-        ];
+            })->values()->all();
 
-        $this->movieCount = count($this->items['movies']);
-        $this->showCount = count($this->items['shows']);
-        $this->summaryCount = $this->movieCount + $this->showCount;
+            return [
+                'id' => $list->getKey(),
+                'title' => $list->title,
+                'public' => $list->public,
+                'description' => $list->description,
+                'cover_url' => $list->cover_url,
+                'is_watch_later' => $list->isWatchLater(),
+                'items' => $items,
+            ];
+        })->values()->all();
 
-        $this->movieLinks = collect($this->items['movies'])
-            ->mapWithKeys(function (array $movie): array {
-                $url = $movie['slug']
-                    ? route('movies.show', [
-                        'locale' => $this->locale,
-                        'movie' => $movie['slug'],
-                    ])
-                    : '#';
+        if ($this->activeListId === null && isset($this->lists[0])) {
+            $this->activeListId = $this->lists[0]['id'];
+        }
 
-                return [$movie['id'] => $url];
-            })
-            ->all();
-
-        $this->showLinks = collect($this->items['shows'])
-            ->mapWithKeys(function (array $show): array {
-                $url = $show['slug']
-                    ? route('shows.show', [
-                        'locale' => $this->locale,
-                        'slug' => $show['slug'],
-                    ])
-                    : '#';
-
-                return [$show['id'] => $url];
-            })
-            ->all();
+        $this->summaryCount = array_sum(array_map(static fn (array $list): int => count($list['items']), $this->lists));
     }
 
     protected function determineSavedState(): bool
     {
-        if (! $this->isAuthenticated || ! $this->isToggleMode()) {
+        if (! $this->isAuthenticated || ! $this->isToggleMode() || $this->movieId === null) {
             return false;
         }
 
         $user = $this->user();
+        $movie = Movie::find($this->movieId);
 
-        if ($this->movieId !== null) {
-            return $user->watchlistedMovies()->whereKey($this->movieId)->exists();
+        if (! $movie) {
+            return false;
         }
 
-        if ($this->tvShowId !== null) {
-            return $user->watchlistedTvShows()->whereKey($this->tvShowId)->exists();
-        }
-
-        return false;
+        return $user->hasInWatchLater($movie);
     }
 
     protected function isToggleMode(): bool
     {
-        return $this->movieId !== null || $this->tvShowId !== null;
+        return $this->movieId !== null;
     }
 
     protected function user(): User
@@ -251,62 +416,19 @@ class Watchlist extends Component
         return $user;
     }
 
-    protected function resolveShowTitle(TvShow $show): string
-    {
-        $translations = $show->name_translations;
-
-        if (is_array($translations)) {
-            if ($this->locale !== ''
-                && isset($translations[$this->locale])
-                && is_string($translations[$this->locale])
-                && $translations[$this->locale] !== '') {
-                return $translations[$this->locale];
-            }
-
-            $fallbackLocale = config('app.fallback_locale');
-
-            if ($fallbackLocale
-                && isset($translations[$fallbackLocale])
-                && is_string($translations[$fallbackLocale])
-                && $translations[$fallbackLocale] !== '') {
-                return $translations[$fallbackLocale];
-            }
-
-            if (isset($translations['en']) && is_string($translations['en']) && $translations['en'] !== '') {
-                return $translations['en'];
-            }
-
-            foreach ($translations as $value) {
-                if (is_string($value) && $value !== '') {
-                    return $value;
-                }
-            }
-        }
-
-        if (is_string($show->name) && $show->name !== '') {
-            return $show->name;
-        }
-
-        if (is_string($show->original_name) && $show->original_name !== '') {
-            return $show->original_name;
-        }
-
-        return 'Untitled series';
-    }
-
     public function render()
     {
         if (! $this->isToggleMode() && $this->isAuthenticated) {
-            $this->loadWatchlist();
+            $this->loadLists();
         }
+
+        $activeList = collect($this->lists)->firstWhere('id', $this->activeListId);
 
         return view('livewire.watchlist', [
             'toggleMode' => $this->isToggleMode(),
             'locale' => $this->locale,
-            'movieLinks' => $this->movieLinks,
-            'showLinks' => $this->showLinks,
-            'movieCount' => $this->movieCount,
-            'showCount' => $this->showCount,
+            'lists' => $this->lists,
+            'activeList' => $activeList,
             'summaryCount' => $this->summaryCount,
         ]);
     }

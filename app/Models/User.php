@@ -4,10 +4,8 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
@@ -83,35 +81,40 @@ class User extends Authenticatable
     }
 
     /**
-     * Movies saved to the user's watchlist.
+     * Lists created by the user.
      */
-    public function watchlistedMovies(): MorphToMany
+    public function lists(): HasMany
     {
-        return $this->morphedByMany(Movie::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+        return $this->hasMany(ListModel::class);
     }
 
     /**
-     * TV shows saved to the user's watchlist.
+     * Retrieve the default "watch later" list, creating it when necessary.
      */
-    public function watchlistedTvShows(): MorphToMany
+    public function ensureWatchLaterList(): ListModel
     {
-        return $this->morphedByMany(TvShow::class, 'watchlistable', 'user_watchlist')->withTimestamps();
+        return $this->lists()->firstOrCreate(
+            ['title' => ListModel::WATCH_LATER_TITLE],
+            [
+                'public' => false,
+                'description' => null,
+                'cover_url' => null,
+            ],
+        );
     }
 
     /**
-     * Determine if the given model has been added to the watchlist.
+     * Determine if the default "watch later" list includes the movie.
      */
-    public function hasInWatchlist(Model $model): bool
+    public function hasInWatchLater(Movie $movie): bool
     {
-        if ($model instanceof Movie) {
-            return $this->watchlistedMovies()->whereKey($model->getKey())->exists();
+        $list = $this->lists()->watchLater()->first();
+
+        if (! $list) {
+            return false;
         }
 
-        if ($model instanceof TvShow) {
-            return $this->watchlistedTvShows()->whereKey($model->getKey())->exists();
-        }
-
-        return false;
+        return $list->items()->where('movie_id', $movie->getKey())->exists();
     }
 
     /**

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Person;
 use App\Models\TvShow;
-use App\Models\User;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
@@ -21,9 +20,7 @@ class TvShowSeeder extends Seeder
     {
         if (! Schema::hasTable('tv_shows')
             || ! Schema::hasTable('people')
-            || ! Schema::hasTable('users')
-            || ! Schema::hasTable('tv_show_person')
-            || ! Schema::hasTable('user_watchlist')) {
+            || ! Schema::hasTable('tv_show_person')) {
             return;
         }
 
@@ -32,12 +29,10 @@ class TvShowSeeder extends Seeder
         }
 
         $personIds = Person::query()->pluck('id');
-        $userIds = User::query()->pluck('id');
-
         TvShow::factory()
             ->count(1000)
             ->create()
-            ->each(function (TvShow $show) use ($personIds, $userIds): void {
+            ->each(function (TvShow $show) use ($personIds): void {
                 if ($personIds->isNotEmpty()) {
                     $creditCount = min($personIds->count(), random_int(4, 10));
 
@@ -62,14 +57,6 @@ class TvShowSeeder extends Seeder
                     }
                 }
 
-                if ($userIds->isNotEmpty()) {
-                    $watchlistCount = min($userIds->count(), random_int(0, 5));
-
-                    if ($watchlistCount > 0) {
-                        $selectedUsers = collect($userIds->random($watchlistCount))->values()->all();
-                        $show->watchlistedBy()->syncWithoutDetaching($selectedUsers);
-                    }
-                }
             });
     }
 

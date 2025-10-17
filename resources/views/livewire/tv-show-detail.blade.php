@@ -29,13 +29,9 @@
                 @endif
 
                 <div class="pt-3">
-                    @if ($tvShowId)
-                        <livewire:watchlist :tv-show-id="$tvShowId" :key="'tv-watchlist-' . $tvShowId" />
-                    @else
-                        <span class="inline-flex items-center rounded-full bg-slate-900/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            {{ __('Watchlist available when this series is synced.') }}
-                        </span>
-                    @endif
+                    <span class="inline-flex items-center rounded-full bg-slate-900/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        {{ __('Lists currently support movies. Add this series to your notes or follow its release schedule instead.') }}
+                    </span>
                 </div>
             </div>
 

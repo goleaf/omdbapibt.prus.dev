@@ -5,12 +5,12 @@ namespace Database\Seeders;
 use App\Models\Country;
 use App\Models\Genre;
 use App\Models\Language;
+use App\Models\ListModel;
 use App\Models\Movie;
 use App\Models\Person;
 use App\Models\User;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 class MovieSeeder extends Seeder
@@ -32,7 +32,8 @@ class MovieSeeder extends Seeder
             || ! Schema::hasTable('movie_language')
             || ! Schema::hasTable('movie_country')
             || ! Schema::hasTable('movie_person')
-            || ! Schema::hasTable('user_watchlist')) {
+            || ! Schema::hasTable('lists')
+            || ! Schema::hasTable('list_items')) {
             return;
         }
 
@@ -44,13 +45,29 @@ class MovieSeeder extends Seeder
         $languageIds = Language::query()->pluck('id');
         $countryIds = Country::query()->pluck('id');
         $personIds = Person::query()->pluck('id');
-        $userIds = User::query()->pluck('id');
+        $users = User::query()->get();
 
-        $this->forChunkedCount(1_000, 100, function (int $count) use ($genreIds, $languageIds, $countryIds, $personIds, $userIds): void {
+        $watchLaterLists = $users->mapWithKeys(function (User $user): array {
+            $list = ListModel::firstOrCreate(
+                [
+                    'user_id' => $user->getKey(),
+                    'title' => ListModel::WATCH_LATER_TITLE,
+                ],
+                [
+                    'public' => false,
+                    'description' => null,
+                    'cover_url' => null,
+                ],
+            );
+
+            return [$user->getKey() => $list];
+        });
+
+        $this->forChunkedCount(1_000, 100, function (int $count) use ($genreIds, $languageIds, $countryIds, $personIds, $watchLaterLists): void {
             Movie::factory()
                 ->count($count)
                 ->create()
-                ->each(function (Movie $movie) use ($genreIds, $languageIds, $countryIds, $personIds, $userIds): void {
+                ->each(function (Movie $movie) use ($genreIds, $languageIds, $countryIds, $personIds, $watchLaterLists): void {
                     if ($genreIds->isNotEmpty()) {
                         $genreCount = min($genreIds->count(), random_int(2, 4));
                         $selectedGenres = collect($genreIds->random($genreCount))->values()->all();
@@ -90,12 +107,18 @@ class MovieSeeder extends Seeder
                         );
                     }
 
-                    if ($userIds->isNotEmpty()) {
-                        $watchlistCount = min($userIds->count(), random_int(0, 5));
+                    if ($watchLaterLists->isNotEmpty()) {
+                        $watchlistCount = min($watchLaterLists->count(), random_int(0, 5));
 
                         if ($watchlistCount > 0) {
-                            $selectedUsers = collect($userIds->random($watchlistCount))->values()->all();
-                            $movie->watchlistedBy()->syncWithoutDetaching($selectedUsers);
+                            $selectedLists = $watchLaterLists->random($watchlistCount);
+
+                            foreach ($selectedLists as $list) {
+                                $list->items()->firstOrCreate(
+                                    ['movie_id' => $movie->getKey()],
+                                    ['position' => $list->nextPosition()],
+                                );
+                            }
                         }
                     }
                 });
