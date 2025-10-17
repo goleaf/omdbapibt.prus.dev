@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -160,6 +161,43 @@ class Movie extends Model
     public function watchHistories(): MorphMany
     {
         return $this->morphMany(WatchHistory::class, 'watchable');
+    }
+
+    /**
+     * Ratings submitted for the movie.
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function ratingForUser(User $user): ?Rating
+    {
+        if ($this->relationLoaded('ratings')) {
+            /** @var \Illuminate\Support\Collection<int, Rating> $ratings */
+            $ratings = $this->getRelation('ratings');
+
+            return $ratings->firstWhere('user_id', $user->getKey());
+        }
+
+        return $this->ratings()
+            ->where('user_id', $user->getKey())
+            ->first();
+    }
+
+    public function userRating(User $user): ?int
+    {
+        return $this->ratingForUser($user)?->rating;
+    }
+
+    public function likedBy(User $user): bool
+    {
+        return (bool) $this->ratingForUser($user)?->liked;
+    }
+
+    public function dislikedBy(User $user): bool
+    {
+        return (bool) $this->ratingForUser($user)?->disliked;
     }
 
     public function people(): BelongsToMany

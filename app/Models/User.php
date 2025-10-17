@@ -99,6 +99,43 @@ class User extends Authenticatable
     }
 
     /**
+     * Ratings the user has recorded.
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function ratingForMovie(Movie $movie): ?Rating
+    {
+        if ($this->relationLoaded('ratings')) {
+            /** @var \Illuminate\Support\Collection<int, Rating> $ratings */
+            $ratings = $this->getRelation('ratings');
+
+            return $ratings->firstWhere('movie_id', $movie->getKey());
+        }
+
+        return $this->ratings()
+            ->where('movie_id', $movie->getKey())
+            ->first();
+    }
+
+    public function hasLikedMovie(Movie $movie): bool
+    {
+        return (bool) $this->ratingForMovie($movie)?->liked;
+    }
+
+    public function hasDislikedMovie(Movie $movie): bool
+    {
+        return (bool) $this->ratingForMovie($movie)?->disliked;
+    }
+
+    public function ratingScoreForMovie(Movie $movie): ?int
+    {
+        return $this->ratingForMovie($movie)?->rating;
+    }
+
+    /**
      * Determine if the given model has been added to the watchlist.
      */
     public function hasInWatchlist(Model $model): bool

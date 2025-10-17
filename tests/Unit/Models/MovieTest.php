@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Language;
 use App\Models\Movie;
 use App\Models\Person;
+use App\Models\Rating;
 use App\Models\User;
 use App\Models\WatchHistory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -152,5 +153,28 @@ class MovieTest extends TestCase
         $movie->save();
 
         $this->assertFalse($movie->fresh()->requiresSubscription());
+    }
+
+    public function test_rating_helpers_return_user_state(): void
+    {
+        $movie = Movie::factory()->create();
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        Rating::factory()->create([
+            'user_id' => $user->id,
+            'movie_id' => $movie->id,
+            'rating' => 9,
+            'liked' => true,
+            'disliked' => false,
+        ]);
+
+        $this->assertSame(9, $movie->userRating($user));
+        $this->assertTrue($movie->likedBy($user));
+        $this->assertFalse($movie->dislikedBy($user));
+
+        $this->assertNull($movie->userRating($otherUser));
+        $this->assertFalse($movie->likedBy($otherUser));
+        $this->assertFalse($movie->dislikedBy($otherUser));
     }
 }

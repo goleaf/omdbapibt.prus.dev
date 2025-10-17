@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Enums\UserManagementAction;
 use App\Enums\UserRole;
 use App\Models\Movie;
+use App\Models\Rating;
 use App\Models\TvShow;
 use App\Models\User;
 use App\Models\UserManagementLog;
@@ -126,5 +127,28 @@ class UserTest extends TestCase
         $eligible->shouldReceive('subscription')->with('default')->andReturn($subscription);
 
         $this->assertTrue($eligible->canAccessBillingPortal());
+    }
+
+    public function test_rating_accessors_reflect_user_reactions(): void
+    {
+        $user = User::factory()->create();
+        $movie = Movie::factory()->create();
+        $otherMovie = Movie::factory()->create();
+
+        Rating::factory()->create([
+            'user_id' => $user->id,
+            'movie_id' => $movie->id,
+            'rating' => 3,
+            'liked' => false,
+            'disliked' => true,
+        ]);
+
+        $this->assertSame(3, $user->ratingScoreForMovie($movie));
+        $this->assertFalse($user->hasLikedMovie($movie));
+        $this->assertTrue($user->hasDislikedMovie($movie));
+
+        $this->assertNull($user->ratingScoreForMovie($otherMovie));
+        $this->assertFalse($user->hasLikedMovie($otherMovie));
+        $this->assertFalse($user->hasDislikedMovie($otherMovie));
     }
 }

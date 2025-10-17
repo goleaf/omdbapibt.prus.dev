@@ -3,8 +3,11 @@
 namespace App\Livewire;
 
 use App\Models\Movie;
+use App\Models\Rating;
+use App\Services\Movies\RatingService;
 use App\Support\TmdbImage;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -24,6 +27,12 @@ class MovieDetail extends Component
     public array $cast = [];
 
     public array $crew = [];
+
+    public ?int $userRating = null;
+
+    public bool $userLiked = false;
+
+    public bool $userDisliked = false;
 
     public function mount(string $movie): void
     {
@@ -47,11 +56,56 @@ class MovieDetail extends Component
                 'name' => $person->name,
                 'role' => $person->pivot->job ?? $person->pivot->department,
             ])->values()->all();
+
+        if ($user = Auth::user()) {
+            $this->applyRating(
+                app(RatingService::class)->findForUser($user, $this->movieModel)
+            );
+        }
     }
 
     public function setTab(string $tab): void
     {
         $this->activeTab = $tab;
+    }
+
+    public function submitRating(int $score, RatingService $ratingService): void
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            abort(403, 'Authentication required.');
+        }
+
+        $rating = $ratingService->submitScore($user, $this->movieModel, $score);
+
+        $this->applyRating($rating);
+    }
+
+    public function toggleLike(RatingService $ratingService): void
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            abort(403, 'Authentication required.');
+        }
+
+        $rating = $ratingService->toggleLike($user, $this->movieModel);
+
+        $this->applyRating($rating);
+    }
+
+    public function toggleDislike(RatingService $ratingService): void
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            abort(403, 'Authentication required.');
+        }
+
+        $rating = $ratingService->toggleDislike($user, $this->movieModel);
+
+        $this->applyRating($rating);
     }
 
     public function render(): View
@@ -87,5 +141,12 @@ class MovieDetail extends Component
         abort_if(! $movie, 404);
 
         return $movie;
+    }
+
+    protected function applyRating(?Rating $rating): void
+    {
+        $this->userRating = $rating?->rating;
+        $this->userLiked = (bool) ($rating?->liked);
+        $this->userDisliked = (bool) ($rating?->disliked);
     }
 }
