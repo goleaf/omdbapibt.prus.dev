@@ -327,7 +327,7 @@ return [
             'meta_description' => 'Lisez les règles qui s’appliquent à votre compte OMDb Stream.',
             'heading' => 'Conditions d’utilisation',
             'lede' => 'Ces conditions expliquent le fonctionnement du service et ce que vous pouvez attendre.',
-            'intro' => 'En utilisant OMDb Stream vous acceptez ces conditions ainsi que notre Politique de confidentialité. Prenez un moment pour comprendre vos responsabilités et les nôtres.',
+            'intro' => 'En utilisant OMDb Stream, vous acceptez ces conditions ainsi que notre Politique de confidentialité. Prenez un moment pour comprendre vos responsabilités et les nôtres.',
             'sections' => [
                 [
                     'title' => '1. Présentation de l’accord',
