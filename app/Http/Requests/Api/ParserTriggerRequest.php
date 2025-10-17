@@ -53,4 +53,21 @@ class ParserTriggerRequest extends FormRequest
 
         return ParserWorkload::from($value);
     }
+
+    /**
+     * Describe the supported request body parameters for Scribe.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            'workload' => [
+                'description' => 'The parser workload that should be queued for processing.',
+                'example' => ParserWorkload::Movies->value,
+                'type' => 'string',
+                'enumValues' => ParserWorkload::values(),
+            ],
+        ];
+    }
 }

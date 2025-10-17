@@ -100,4 +100,65 @@ class ImportOmdbKeysRequest extends FormRequest
             'errors' => $errors->toArray(),
         ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
     }
+
+    /**
+     * Provide human readable request body details for Scribe.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            'keys' => [
+                'description' => 'List of OMDb API key payloads that should be imported.',
+                'type' => 'array',
+                'example' => [
+                    [
+                        'key' => 'abcd1234',
+                        'status' => OmdbApiKey::STATUS_PENDING,
+                        'first_seen_at' => '2024-01-01T00:00:00Z',
+                        'last_checked_at' => '2024-01-02T13:45:00Z',
+                        'last_confirmed_at' => null,
+                        'last_response_code' => 200,
+                    ],
+                ],
+            ],
+            'keys.*.key' => [
+                'description' => 'Eight-character OMDb API key consisting only of lowercase letters and digits.',
+                'example' => 'abcd1234',
+                'type' => 'string',
+            ],
+            'keys.*.status' => [
+                'description' => 'Optional status that should be assigned to the imported key.',
+                'example' => OmdbApiKey::STATUS_PENDING,
+                'type' => 'string',
+                'enumValues' => [
+                    OmdbApiKey::STATUS_PENDING,
+                    OmdbApiKey::STATUS_VALID,
+                    OmdbApiKey::STATUS_INVALID,
+                    OmdbApiKey::STATUS_UNKNOWN,
+                ],
+            ],
+            'keys.*.first_seen_at' => [
+                'description' => 'ISO 8601 timestamp of when the key was first discovered.',
+                'example' => '2024-01-01T00:00:00Z',
+                'type' => 'string',
+            ],
+            'keys.*.last_checked_at' => [
+                'description' => 'ISO 8601 timestamp of the most recent validation attempt.',
+                'example' => '2024-01-02T13:45:00Z',
+                'type' => 'string',
+            ],
+            'keys.*.last_confirmed_at' => [
+                'description' => 'ISO 8601 timestamp of the most recent successful confirmation.',
+                'example' => '2024-01-03T18:30:00Z',
+                'type' => 'string',
+            ],
+            'keys.*.last_response_code' => [
+                'description' => 'HTTP status code that was returned by the OMDb API during the latest check.',
+                'example' => 401,
+                'type' => 'integer',
+            ],
+        ];
+    }
 }
