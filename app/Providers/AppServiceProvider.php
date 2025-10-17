@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use App\Services\OmdbApiKeyResolver;
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use App\Support\ImpersonationManager;
 use App\Support\RedisStubStore;
 use App\Support\UiTranslationRepository;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

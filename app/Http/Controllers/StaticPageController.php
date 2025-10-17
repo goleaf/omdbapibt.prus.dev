@@ -98,4 +98,3 @@ class StaticPageController extends Controller
         return config('support.contact_email', config('mail.from.address', 'support@omdbstream.test'));
     }
 }
-

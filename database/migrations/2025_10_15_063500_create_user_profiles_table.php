@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_profiles', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            
+
             // Social profile fields
             $table->string('display_name')->nullable();
             $table->string('tagline')->nullable();
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('timezone')->nullable();
             $table->date('birthday')->nullable();
-            
+
             // Preferences and settings
             $table->string('preferred_language')->nullable();
             $table->string('preferred_audio_language')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->boolean('autoplay_trailers')->default(false);
             $table->boolean('newsletter_opt_in')->default(false);
             $table->boolean('marketing_opt_in')->default(false);
-            
+
             // String-based favorites
             $table->string('favorite_genre')->nullable();
             $table->string('favorite_movie')->nullable();
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->string('favorite_actor')->nullable();
             $table->string('favorite_director')->nullable();
             $table->string('favorite_quote')->nullable();
-            
+
             // Social media links
             $table->string('website_url')->nullable();
             $table->string('twitter_url')->nullable();
@@ -49,7 +49,7 @@ return new class extends Migration
             $table->string('youtube_url')->nullable();
             $table->string('letterboxd_url')->nullable();
             $table->string('discord_handle')->nullable();
-            
+
             // Relational favorites and preferences
             $table->foreignId('home_country_id')->nullable()->constrained('countries')->nullOnDelete();
             $table->foreignId('primary_genre_id')->nullable()->constrained('genres')->nullOnDelete();
@@ -60,7 +60,7 @@ return new class extends Migration
             $table->foreignId('primary_language_id')->nullable()->constrained('languages')->nullOnDelete();
             $table->foreignId('secondary_language_id')->nullable()->constrained('languages')->nullOnDelete();
             $table->foreignId('subtitle_language_id')->nullable()->constrained('languages')->nullOnDelete();
-            
+
             // Viewer analytics
             $table->unsignedSmallInteger('weekly_watch_minutes')->default(0);
             $table->unsignedSmallInteger('average_session_minutes')->default(0);
@@ -69,7 +69,7 @@ return new class extends Migration
             $table->decimal('rewatch_affinity', 5, 2)->default(0);
             $table->timestamp('last_watched_at')->nullable();
             $table->json('recent_watch_highlights')->nullable();
-            
+
             $table->timestamps();
 
             $table->unique('user_id');

@@ -25,7 +25,7 @@ class OmdbClientTest extends TestCase
             ],
         ]);
 
-        $client = new OmdbClient();
+        $client = new OmdbClient;
 
         $client->get('/', ['t' => 'Inception']);
 

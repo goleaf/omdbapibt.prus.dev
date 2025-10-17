@@ -6,8 +6,6 @@ use App\Models\TvShow;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-use function fake;
-
 /**
  * @extends Factory<TvShow>
  */

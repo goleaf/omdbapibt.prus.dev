@@ -80,7 +80,7 @@ class OmdbApiKeyManagerTest extends TestCase
     {
         OmdbApiKey::factory()->create(['key' => 'existing1', 'status' => OmdbApiKey::STATUS_PENDING]);
 
-        Http::fake(["https://remote.test/keys" => Http::response([
+        Http::fake(['https://remote.test/keys' => Http::response([
             'data' => ['new1', 'existing1', 'new2'],
         ], 200)]);
 
@@ -170,7 +170,8 @@ class OmdbApiKeyManagerTest extends TestCase
             return new OmdbApiKeyManager($http, $cache, $connection);
         }
 
-        return new class($http, $cache, $connection, $generator) extends OmdbApiKeyManager {
+        return new class($http, $cache, $connection, $generator) extends OmdbApiKeyManager
+        {
             public function __construct(
                 HttpFactory $http,
                 CacheRepository $cache,

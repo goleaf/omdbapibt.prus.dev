@@ -3,8 +3,8 @@
 namespace Tests\Unit\Services\Clients;
 
 use App\Services\Clients\OmdbClient;
-use Illuminate\Cache\CacheManager;
 use App\Services\OmdbApiKeyResolver;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;

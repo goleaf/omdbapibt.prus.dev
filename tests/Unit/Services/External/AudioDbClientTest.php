@@ -25,7 +25,7 @@ class AudioDbClientTest extends TestCase
             ],
         ]);
 
-        $client = new AudioDbClient();
+        $client = new AudioDbClient;
 
         $client->get('search.php', ['s' => 'Daft Punk']);
 

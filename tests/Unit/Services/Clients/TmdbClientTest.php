@@ -104,7 +104,7 @@ class TmdbClientTest extends TestCase
 
     protected function makeClient(array $fakes): object
     {
-        $http = new Factory();
+        $http = new Factory;
 
         $patterns = [];
         foreach ($fakes as $pattern => $callback) {
@@ -114,7 +114,8 @@ class TmdbClientTest extends TestCase
 
         $cache = new CacheManager(app());
 
-        $client = new class($http, $cache) extends TmdbClient {
+        $client = new class($http, $cache) extends TmdbClient
+        {
             public function __construct(Factory $http, CacheManager $cache)
             {
                 parent::__construct($http, $cache, 'test-key', 'https://example.com/');

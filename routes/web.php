@@ -3,8 +3,8 @@
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\StaticPageController;
+use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Livewire\Admin\AnalyticsDashboard;
@@ -22,10 +22,10 @@ use App\Livewire\PricingPage;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Cashier\Http\Middleware\VerifyWebhookSignature;
 

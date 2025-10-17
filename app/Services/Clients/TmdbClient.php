@@ -15,8 +15,7 @@ class TmdbClient
         protected CacheManager $cache,
         protected string $apiKey,
         protected string $baseUrl = 'https://api.themoviedb.org/3/'
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch static TMDb resources (genres, configuration, etc.) with a 24-hour cache window.

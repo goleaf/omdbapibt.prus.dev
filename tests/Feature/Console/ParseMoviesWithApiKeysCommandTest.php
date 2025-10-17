@@ -15,11 +15,8 @@ class ParseMoviesWithApiKeysCommandTest extends TestCase
 
     public function test_command_invokes_manager_with_cli_overrides(): void
     {
-        $manager = new class(
-            app(HttpFactory::class),
-            app(CacheRepository::class),
-            app(ConnectionInterface::class)
-        ) extends OmdbApiKeyManager {
+        $manager = new class(app(HttpFactory::class), app(CacheRepository::class), app(ConnectionInterface::class)) extends OmdbApiKeyManager
+        {
             public array $calledWith = [];
 
             public function parseMoviesWithKeys(int $movieLimit, int $chunkSize, string $baseUrl, int $timeout): array
@@ -47,11 +44,8 @@ class ParseMoviesWithApiKeysCommandTest extends TestCase
 
     public function test_command_warns_when_no_movies_processed(): void
     {
-        $manager = new class(
-            app(HttpFactory::class),
-            app(CacheRepository::class),
-            app(ConnectionInterface::class)
-        ) extends OmdbApiKeyManager {
+        $manager = new class(app(HttpFactory::class), app(CacheRepository::class), app(ConnectionInterface::class)) extends OmdbApiKeyManager
+        {
             public function parseMoviesWithKeys(int $movieLimit, int $chunkSize, string $baseUrl, int $timeout): array
             {
                 return ['processed' => 0, 'updated' => 0];

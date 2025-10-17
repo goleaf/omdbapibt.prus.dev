@@ -10,8 +10,6 @@ use App\Support\ImpersonationManager;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Component;

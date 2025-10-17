@@ -7,7 +7,6 @@ use App\Models\TvShow;
 use App\Models\User;
 use App\Models\WatchHistory;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\WatchHistory>

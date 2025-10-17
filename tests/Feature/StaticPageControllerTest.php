@@ -50,4 +50,3 @@ class StaticPageControllerTest extends TestCase
             ->assertSee(trans('ui.pages.support.default_cta'));
     }
 }
-

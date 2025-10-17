@@ -22,7 +22,7 @@ class TvShowRepository
         try {
             $decoded = json_decode(File::get($path), true, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
-            throw new JsonException('Unable to decode TV show dataset: ' . $exception->getMessage(), previous: $exception);
+            throw new JsonException('Unable to decode TV show dataset: '.$exception->getMessage(), previous: $exception);
         }
 
         $this->shows = collect($decoded);

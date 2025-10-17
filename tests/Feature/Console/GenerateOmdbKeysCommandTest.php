@@ -19,11 +19,8 @@ class GenerateOmdbKeysCommandTest extends TestCase
         OmdbApiKey::factory()->count(2)->pending()->create();
 
         app()->bind(OmdbApiKeyManager::class, function ($app) {
-            return new class(
-                $app->make(HttpFactory::class),
-                $app->make(CacheRepository::class),
-                $app->make(ConnectionInterface::class)
-            ) extends OmdbApiKeyManager {
+            return new class($app->make(HttpFactory::class), $app->make(CacheRepository::class), $app->make(ConnectionInterface::class)) extends OmdbApiKeyManager
+            {
                 protected int $counter = 0;
 
                 protected function generateKey(string $charset, int $length): string

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Livewire;
+
 use Livewire\Component;
 
 class TvShowList extends Component
@@ -19,8 +20,11 @@ class TvShowList extends Component
      * Option lists for the available filters.
      */
     public array $genres = [];
+
     public array $statuses = [];
+
     public array $languages = [];
+
     public array $popularityRanges = [];
 
     public function mount(): void

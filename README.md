@@ -1,9 +1,11 @@
 # OMDb API BT Platform
 
-The OMDb API BT platform is a Laravel 12 application that aggregates metadata from OMDb and TMDb while offering subscription-gated access to premium content. The project couples Laravel Horizon powered queues with Livewire-driven browsing experiences.
+The OMDb API BT platform is a Laravel 12 application that aggregates metadata from OMDb and TMDb while offering subscription-gated access to premium content. The project couples Laravel Horizon powered queues with Livewire-driven browsing experiences and includes an advanced OMDB API key discovery system.
 
 - **Production**: https://omdbapibt.prus.dev
+- **Repository**: https://github.com/goleaf/omdbapibt.prus.dev
 - **Stack**: Laravel 12, PHP 8.3, MySQL/MariaDB, Redis, Horizon, Livewire 3, Vite, Tailwind CSS
+- **Features**: See [FEATURES.md](FEATURES.md) for a comprehensive feature list
 
 ## Local development
 

@@ -9,9 +9,7 @@ use InvalidArgumentException;
 
 class ParsedMoviePersister
 {
-    public function __construct(protected MovieCacheService $movieCache)
-    {
-    }
+    public function __construct(protected MovieCacheService $movieCache) {}
 
     /**
      * Persist parsed movie attributes while intentionally bypassing cache writes.

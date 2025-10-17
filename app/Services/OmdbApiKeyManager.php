@@ -22,8 +22,7 @@ class OmdbApiKeyManager
         protected HttpFactory $http,
         protected CacheRepository $cache,
         protected ConnectionInterface $connection
-    ) {
-    }
+    ) {}
 
     /**
      * Ensure the pending key pool meets the minimum threshold.

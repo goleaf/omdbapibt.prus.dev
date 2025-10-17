@@ -71,7 +71,7 @@ class OmdbApiKeyResolver
 
     public function reportFailure(string $key, ?int $statusCode = null, ?string $reason = null): void
     {
-        $this->whenTableExists(function () use ($key, $statusCode, $reason): void {
+        $this->whenTableExists(function () use ($key, $statusCode): void {
             /** @var OmdbApiKey|null $record */
             $record = OmdbApiKey::query()->where('key', $key)->first();
 

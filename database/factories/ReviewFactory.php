@@ -22,7 +22,7 @@ class ReviewFactory extends Factory
             'user_id' => User::factory(),
             'movie_id' => Movie::factory(),
             'rating' => $this->faker->numberBetween(1, 5),
-            'body' => '<p>' . implode('</p><p>', $this->faker->paragraphs(2)) . '</p>',
+            'body' => '<p>'.implode('</p><p>', $this->faker->paragraphs(2)).'</p>',
         ];
     }
 }

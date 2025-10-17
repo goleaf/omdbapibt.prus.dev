@@ -29,6 +29,11 @@ class Platform extends Model
         'slug',
         'url',
         'is_active',
+        'name_translations',
+        'type',
+        'website_url',
+        'metadata',
+        'is_featured',
     ];
 
     /**
@@ -38,6 +43,9 @@ class Platform extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+        'name_translations' => 'array',
+        'metadata' => 'array',
     ];
 
     public function movies(): BelongsToMany

@@ -7,7 +7,6 @@ use App\Models\TvShow;
 use App\Models\User;
 use App\Models\WatchHistory;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 class WatchHistorySeeder extends Seeder

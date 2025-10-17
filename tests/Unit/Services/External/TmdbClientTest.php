@@ -25,7 +25,7 @@ class TmdbClientTest extends TestCase
             ],
         ]);
 
-        $client = new TmdbClient();
+        $client = new TmdbClient;
 
         $client->get('movie/123', ['language' => 'en-US']);
 

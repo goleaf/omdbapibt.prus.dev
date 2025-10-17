@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Movie;
-use App\Models\User;
 use App\Support\HtmlSanitizer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

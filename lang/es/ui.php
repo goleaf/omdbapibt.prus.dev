@@ -478,4 +478,10 @@ return [
             'default_cta' => 'Contactar soporte',
         ],
     ],
+    'impersonation' => [
+        'banner_title' => 'Suplantando a :name',
+        'banner_help' => 'Estás navegando el sitio como este usuario. Cuando termines, regresa a tu cuenta de administrador.',
+        'stop' => 'Dejar de suplantar',
+        'stopped' => 'Sesión de suplantación finalizada. Ahora estás de vuelta en tu cuenta de administrador.',
+    ],
 ];

@@ -25,7 +25,7 @@ class JustWatchClientTest extends TestCase
             ],
         ]);
 
-        $client = new JustWatchClient();
+        $client = new JustWatchClient;
 
         $client->post('titles', ['query' => 'test']);
 

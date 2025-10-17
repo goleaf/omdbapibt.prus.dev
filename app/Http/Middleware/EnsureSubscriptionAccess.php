@@ -11,9 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureSubscriptionAccess
 {
-    public function __construct(private Translator $translator)
-    {
-    }
+    public function __construct(private Translator $translator) {}
 
     /**
      * Handle an incoming request.

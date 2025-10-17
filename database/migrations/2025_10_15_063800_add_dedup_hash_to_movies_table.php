@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('movies', 'dedup_hash')) {
+        if (! Schema::hasColumn('movies', 'dedup_hash')) {
             Schema::table('movies', function (Blueprint $table) {
                 $table->string('dedup_hash', 32)->nullable()->after('imdb_id');
                 $table->unique('dedup_hash', 'movies_dedup_hash_unique');

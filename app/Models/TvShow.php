@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TvShow extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     use ResolvesTranslations;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

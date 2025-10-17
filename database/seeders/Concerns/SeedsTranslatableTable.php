@@ -66,7 +66,8 @@ trait SeedsTranslatableTable
      */
     private function makeDynamicModel(string $table, array $columns): Model
     {
-        return new class($table, $columns) extends Model {
+        return new class($table, $columns) extends Model
+        {
             /**
              * @param  array<int, string>  $columns
              */

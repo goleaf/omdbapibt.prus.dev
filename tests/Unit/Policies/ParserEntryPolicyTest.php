@@ -14,7 +14,7 @@ class ParserEntryPolicyTest extends TestCase
 
     public function test_admins_can_trigger_all_workloads(): void
     {
-        $policy = new ParserEntryPolicy();
+        $policy = new ParserEntryPolicy;
         $admin = User::factory()->admin()->create();
 
         foreach (ParserWorkload::cases() as $workload) {
@@ -24,7 +24,7 @@ class ParserEntryPolicyTest extends TestCase
 
     public function test_non_admins_cannot_trigger_any_workload(): void
     {
-        $policy = new ParserEntryPolicy();
+        $policy = new ParserEntryPolicy;
         $user = User::factory()->create();
 
         foreach (ParserWorkload::cases() as $workload) {
