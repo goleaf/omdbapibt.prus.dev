@@ -32,7 +32,7 @@ class UiTranslationFormTest extends TestCase
     public function test_persist_normalizes_keys_and_trims_values(): void
     {
         $form = $this->makeForm();
-        $form->configure(['en', 'es', 'fr'], 'en');
+        $form->configure(['en', 'es', 'fr', 'ru'], 'en');
         $form->startCreating();
 
         $form->group = 'Nav Links';
