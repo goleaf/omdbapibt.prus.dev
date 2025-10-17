@@ -10,9 +10,9 @@ return [
             'home' => 'Accueil',
             'browse' => 'Explorer',
             'pricing' => 'Tarifs',
-            'components' => 'Composants UI',
+            'components' => 'Composants de l’interface utilisateur',
             'account' => 'Compte',
-            'admin' => 'Admin',
+            'admin' => 'Administration',
         ],
         'auth' => [
             'login' => 'Connexion',
@@ -32,7 +32,7 @@ return [
         'footer' => [
             'terms' => 'Conditions',
             'privacy' => 'Confidentialité',
-            'support' => 'Support',
+            'support' => 'Assistance',
             'copyright' => '© :year OMDb Stream. Tous droits réservés.',
         ],
     ],
@@ -50,7 +50,7 @@ return [
             ],
             'fields' => [
                 'title' => 'Titre',
-                'slug' => 'Slug',
+                'slug' => 'Identifiant lisible',
                 'status' => 'Statut',
                 'release_date' => 'Date de sortie',
                 'vote_average' => 'Note moyenne',
@@ -220,7 +220,7 @@ return [
     'dashboard' => [
         'title' => 'Tableau de bord',
         'layout' => [
-            'sidebar_heading' => 'Navigation',
+            'sidebar_heading' => 'Menu',
             'default_header' => 'Vue d’ensemble du tableau de bord',
         ],
         'nav' => [
@@ -264,7 +264,7 @@ return [
     'filters' => [
         'heading' => 'Filtres avancés',
         'description' => 'Affinez votre flux de découverte par genres, langues et années de sortie.',
-        'type_label' => 'Type',
+        'type_label' => 'Catégorie',
         'types' => [
             'movies' => 'Films',
             'shows' => 'Séries',
