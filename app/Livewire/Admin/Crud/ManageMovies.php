@@ -6,10 +6,11 @@ use App\Models\Country;
 use App\Models\Genre;
 use App\Models\Language;
 use App\Models\Movie;
+use App\Models\Tag;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
@@ -20,6 +21,7 @@ class ManageMovies extends CrudComponent
         'genres' => '',
         'languages' => '',
         'countries' => '',
+        'tags' => '',
     ];
 
     protected function model(): string
@@ -44,6 +46,7 @@ class ManageMovies extends CrudComponent
             'genre_ids' => [],
             'language_ids' => [],
             'country_ids' => [],
+            'tag_ids' => [],
         ];
     }
 
@@ -67,6 +70,8 @@ class ManageMovies extends CrudComponent
             'form.language_ids.*' => ['integer', Rule::exists('languages', 'id')],
             'form.country_ids' => ['array'],
             'form.country_ids.*' => ['integer', Rule::exists('countries', 'id')],
+            'form.tag_ids' => ['array'],
+            'form.tag_ids.*' => ['integer', Rule::exists('tags', 'id')],
         ];
     }
 
@@ -106,7 +111,7 @@ class ManageMovies extends CrudComponent
     protected function fillFromModel(Model $model): array
     {
         /** @var Movie $model */
-        $model->loadMissing(['genres:id', 'languages:id', 'countries:id']);
+        $model->loadMissing(['genres:id', 'languages:id', 'countries:id', 'tags:id']);
         $titles = $model->title;
 
         $title = '';
@@ -127,6 +132,7 @@ class ManageMovies extends CrudComponent
             'genre_ids' => $model->genres->pluck('id')->map(static fn (int $id) => $id)->all(),
             'language_ids' => $model->languages->pluck('id')->map(static fn (int $id) => $id)->all(),
             'country_ids' => $model->countries->pluck('id')->map(static fn (int $id) => $id)->all(),
+            'tag_ids' => $model->tags->pluck('id')->map(static fn (int $id) => $id)->all(),
         ];
     }
 
@@ -142,6 +148,7 @@ class ManageMovies extends CrudComponent
             'form.genre_ids' => 'genres',
             'form.language_ids' => 'languages',
             'form.country_ids' => 'countries',
+            'form.tag_ids' => 'tags',
         ];
     }
 
@@ -167,6 +174,31 @@ class ManageMovies extends CrudComponent
                 $builder->whereNotIn('id', $selected);
             })
             ->orderBy('name')
+            ->limit(12)
+            ->get();
+    }
+
+    #[Computed]
+    public function availableTags(): Collection
+    {
+        $search = $this->relationSearchTerm('tags');
+        $selected = $this->sanitizeSelection('tag_ids');
+
+        return Tag::query()
+            ->select(['id', 'slug', 'name_i18n', 'type'])
+            ->when($search !== '', function (Builder $builder) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $builder->where(function (Builder $inner) use ($like): void {
+                    $inner
+                        ->where('slug', 'like', $like)
+                        ->orWhere('name_i18n->en', 'like', $like);
+                });
+            })
+            ->when($selected !== [], function (Builder $builder) use ($selected): void {
+                $builder->whereNotIn('id', $selected);
+            })
+            ->orderBy('slug')
             ->limit(12)
             ->get();
     }
@@ -274,6 +306,23 @@ class ManageMovies extends CrudComponent
             ->values();
     }
 
+    #[Computed]
+    public function selectedTags(): Collection
+    {
+        $ids = $this->sanitizeSelection('tag_ids');
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        return Tag::query()
+            ->select(['id', 'slug', 'name_i18n', 'type'])
+            ->whereIn('id', $ids)
+            ->get()
+            ->sortBy(fn (Tag $tag) => array_search($tag->id, $ids, true))
+            ->values();
+    }
+
     public function toggleGenre(int $genreId): void
     {
         $this->form['genre_ids'] = $this->toggleIds($this->sanitizeSelection('genre_ids'), $genreId);
@@ -289,12 +338,49 @@ class ManageMovies extends CrudComponent
         $this->form['country_ids'] = $this->toggleIds($this->sanitizeSelection('country_ids'), $countryId);
     }
 
+    public function toggleTag(int $tagId): void
+    {
+        $this->form['tag_ids'] = $this->toggleIds($this->sanitizeSelection('tag_ids'), $tagId);
+    }
+
+    public function delete(int $id): void
+    {
+        /** @var Movie $model */
+        $model = $this->findModel($id);
+
+        $this->authorize('delete', $model);
+
+        $model->genres()->detach();
+        $model->languages()->detach();
+        $model->countries()->detach();
+        $model->tags()->detach();
+
+        $model->delete();
+
+        if ($this->editingId === $id) {
+            $this->create();
+        }
+
+        $this->dispatch('record-deleted');
+    }
+
     protected function afterSave(Model $model): void
     {
         /** @var Movie $model */
         $model->genres()->sync($this->sanitizeSelection('genre_ids'));
         $model->languages()->sync($this->sanitizeSelection('language_ids'));
         $model->countries()->sync($this->sanitizeSelection('country_ids'));
+        $model->tags()->sync(
+            collect($this->sanitizeSelection('tag_ids'))
+                ->values()
+                ->mapWithKeys(fn (int $tagId, int $index) => [
+                    $tagId => [
+                        'user_id' => null,
+                        'weight' => ($index + 1) * 10,
+                    ],
+                ])
+                ->all()
+        );
     }
 
     private function relationSearchTerm(string $key): string

@@ -227,6 +227,11 @@
                                     {{ $movie['tagline'] }}
                                 </p>
                             @endif
+                            @if (! empty($movie['tags']))
+                                <p class="text-xs uppercase tracking-[0.35em] text-purple-300">
+                                    {{ $movie['tags'] }}
+                                </p>
+                            @endif
                             @if (! empty($movie['genres']))
                                 <p class="text-xs uppercase tracking-[0.35em] text-slate-400">
                                     {{ $movie['genres'] }}

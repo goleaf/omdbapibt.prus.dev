@@ -8,8 +8,8 @@ use App\Models\Language;
 use App\Models\TvShow;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
@@ -288,6 +288,26 @@ class ManageTvShows extends CrudComponent
     public function toggleCountry(int $countryId): void
     {
         $this->form['country_ids'] = $this->toggleIds($this->sanitizeSelection('country_ids'), $countryId);
+    }
+
+    public function delete(int $id): void
+    {
+        /** @var TvShow $model */
+        $model = $this->findModel($id);
+
+        $this->authorize('delete', $model);
+
+        $model->genres()->detach();
+        $model->languages()->detach();
+        $model->countries()->detach();
+
+        $model->delete();
+
+        if ($this->editingId === $id) {
+            $this->create();
+        }
+
+        $this->dispatch('record-deleted');
     }
 
     protected function afterSave(Model $model): void

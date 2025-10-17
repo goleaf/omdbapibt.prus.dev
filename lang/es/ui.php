@@ -85,6 +85,7 @@ return [
                 'search_languages' => 'Buscar por idioma o código…',
                 'country_name' => 'ej. Estados Unidos',
                 'search_countries' => 'Buscar por país o código…',
+                'search_tags' => 'Buscar por nombre o slug de etiqueta…',
             ],
             'table' => [
                 'movie' => 'Película',
@@ -95,6 +96,40 @@ return [
                 'country' => 'País',
                 'actions' => 'Acciones',
                 'empty' => 'No hay registros que coincidan con los filtros.',
+            ],
+            'tags' => [
+                'fields' => [
+                    'name_en' => 'Nombre (inglés)',
+                    'name_es' => 'Nombre (español)',
+                    'name_fr' => 'Nombre (francés)',
+                    'type' => 'Tipo de etiqueta',
+                ],
+                'placeholders' => [
+                    'name_en' => 'ej. Ganadora de premios',
+                    'name_es' => 'Traducción opcional…',
+                    'name_fr' => 'Traducción opcional…',
+                    'search' => 'Buscar por nombre o slug de etiqueta…',
+                ],
+                'types' => [
+                    'system' => 'Sistema',
+                    'community' => 'Comunidad',
+                ],
+                'merge' => [
+                    'title' => 'Fusionar etiquetas duplicadas',
+                    'subtitle' => 'Consolida vocabularios superpuestos y mantén limpias las colecciones.',
+                    'source' => 'ID de etiqueta origen',
+                    'target' => 'ID de etiqueta destino',
+                    'placeholders' => [
+                        'source' => 'ID de la etiqueta que se fusionará',
+                        'target' => 'ID de la etiqueta que conservarás',
+                    ],
+                    'action' => 'Fusionar etiquetas',
+                ],
+                'table' => [
+                    'tag' => 'Etiqueta',
+                    'type' => 'Tipo',
+                    'usage' => 'Uso',
+                ],
             ],
             'labels' => [
                 'active' => 'Activo',
@@ -137,6 +172,12 @@ return [
                     'nav' => 'Países',
                     'heading' => 'Gestionar países',
                 ],
+                'tags' => [
+                    'title' => 'Curación de etiquetas',
+                    'subtitle' => 'Modera etiquetas de descubrimiento, fusiona duplicados y guía los espacios editoriales.',
+                    'nav' => 'Etiquetas',
+                    'heading' => 'Gestionar etiquetas',
+                ],
             ],
             'people' => [
                 'gender_unknown' => 'Sin especificar',
@@ -145,8 +186,8 @@ return [
                 'gender_non_binary' => 'No binario',
             ],
             'relationships' => [
-                'title' => 'Taxonomías y localizaciones',
-                'subtitle' => 'Asocia géneros, idiomas y países de origen para potenciar el portal.',
+                'title' => 'Taxonomías, etiquetas y localizaciones',
+                'subtitle' => 'Asocia géneros, etiquetas curadas, idiomas y países de origen para potenciar el portal.',
                 'suggestions' => 'Sugerencias',
                 'empty' => 'No hay sugerencias para la búsqueda actual.',
                 'genres' => [
@@ -154,6 +195,12 @@ return [
                     'help' => 'Usa etiquetas de género curadas para mejorar los filtros de descubrimiento y el escaparate.',
                     'none' => 'Aún no hay géneros seleccionados.',
                     'remove' => 'Quitar :name de los géneros seleccionados',
+                ],
+                'tags' => [
+                    'label' => 'Etiquetas',
+                    'help' => 'Fija etiquetas editoriales y del sistema para destacar títulos en la parrilla.',
+                    'none' => 'Aún no hay etiquetas seleccionadas.',
+                    'remove' => 'Quitar :name de las etiquetas seleccionadas',
                 ],
                 'languages' => [
                     'label' => 'Idiomas',

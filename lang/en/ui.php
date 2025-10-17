@@ -91,6 +91,7 @@ return [
                 'search_languages' => 'Search by language name or code…',
                 'country_name' => 'e.g. United States',
                 'search_countries' => 'Search by country name or code…',
+                'search_tags' => 'Search by tag name or slug…',
             ],
             'table' => [
                 'movie' => 'Movie',
@@ -101,6 +102,40 @@ return [
                 'country' => 'Country',
                 'actions' => 'Actions',
                 'empty' => 'No records match the current filters.',
+            ],
+            'tags' => [
+                'fields' => [
+                    'name_en' => 'Name (English)',
+                    'name_es' => 'Name (Spanish)',
+                    'name_fr' => 'Name (French)',
+                    'type' => 'Tag type',
+                ],
+                'placeholders' => [
+                    'name_en' => 'e.g. Award-winning',
+                    'name_es' => 'Traducción opcional…',
+                    'name_fr' => 'Traduction facultative…',
+                    'search' => 'Search by tag name or slug…',
+                ],
+                'types' => [
+                    'system' => 'System',
+                    'community' => 'Community',
+                ],
+                'merge' => [
+                    'title' => 'Merge duplicate tags',
+                    'subtitle' => 'Consolidate overlapping vocabulary and keep curated rails clean.',
+                    'source' => 'Source tag ID',
+                    'target' => 'Target tag ID',
+                    'placeholders' => [
+                        'source' => 'Tag ID to merge from',
+                        'target' => 'Tag ID to merge into',
+                    ],
+                    'action' => 'Merge tags',
+                ],
+                'table' => [
+                    'tag' => 'Tag',
+                    'type' => 'Type',
+                    'usage' => 'Usage',
+                ],
             ],
             'labels' => [
                 'active' => 'Active',
@@ -143,6 +178,12 @@ return [
                     'nav' => 'Countries',
                     'heading' => 'Manage countries',
                 ],
+                'tags' => [
+                    'title' => 'Tag curation',
+                    'subtitle' => 'Moderate discovery tags, merge duplicates, and steer merchandising rails.',
+                    'nav' => 'Tags',
+                    'heading' => 'Manage tags',
+                ],
             ],
             'people' => [
                 'gender_unknown' => 'Not specified',
@@ -151,8 +192,8 @@ return [
                 'gender_non_binary' => 'Non-binary',
             ],
             'relationships' => [
-                'title' => 'Taxonomies & locales',
-                'subtitle' => 'Attach genres, languages, and origin countries to power downstream experiences.',
+                'title' => 'Taxonomies, tags & locales',
+                'subtitle' => 'Attach genres, curated tags, languages, and origin countries to power downstream experiences.',
                 'suggestions' => 'Suggestions',
                 'empty' => 'No suggestions match the current search.',
                 'genres' => [
@@ -160,6 +201,12 @@ return [
                     'help' => 'Use curated genre tags to strengthen discovery filters and storefront rails.',
                     'none' => 'No genres selected yet.',
                     'remove' => 'Remove :name from the selected genres',
+                ],
+                'tags' => [
+                    'label' => 'Tags',
+                    'help' => 'Pin editorial and system tags to surface titles in merchandising slots.',
+                    'none' => 'No tags selected yet.',
+                    'remove' => 'Remove :name from the selected tags',
                 ],
                 'languages' => [
                     'label' => 'Languages',

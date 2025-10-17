@@ -7,10 +7,10 @@ use App\Models\Genre;
 use App\Models\Language;
 use App\Models\Movie;
 use App\Models\Person;
+use App\Models\Tag;
 use App\Models\User;
 use Database\Seeders\Concerns\HandlesSeederChunks;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 class MovieSeeder extends Seeder
@@ -32,7 +32,9 @@ class MovieSeeder extends Seeder
             || ! Schema::hasTable('movie_language')
             || ! Schema::hasTable('movie_country')
             || ! Schema::hasTable('movie_person')
-            || ! Schema::hasTable('user_watchlist')) {
+            || ! Schema::hasTable('user_watchlist')
+            || ! Schema::hasTable('tags')
+            || ! Schema::hasTable('film_tag')) {
             return;
         }
 
@@ -45,6 +47,7 @@ class MovieSeeder extends Seeder
         $countryIds = Country::query()->pluck('id');
         $personIds = Person::query()->pluck('id');
         $userIds = User::query()->pluck('id');
+        $tagIds = Tag::query()->pluck('id');
 
         $this->forChunkedCount(1_000, 100, function (int $count) use ($genreIds, $languageIds, $countryIds, $personIds, $userIds): void {
             Movie::factory()
@@ -67,6 +70,24 @@ class MovieSeeder extends Seeder
                         $countryCount = min($countryIds->count(), random_int(1, 2));
                         $selectedCountries = collect($countryIds->random($countryCount))->values()->all();
                         $movie->countries()->syncWithoutDetaching($selectedCountries);
+                    }
+
+                    if ($tagIds->isNotEmpty()) {
+                        $tagCount = min($tagIds->count(), random_int(1, 3));
+                        $selectedTags = collect($tagIds->random($tagCount))->values();
+
+                        $movie->tags()->syncWithoutDetaching(
+                            $selectedTags
+                                ->mapWithKeys(function (int $tagId, int $index): array {
+                                    return [
+                                        $tagId => [
+                                            'user_id' => null,
+                                            'weight' => ($index + 1) * 10,
+                                        ],
+                                    ];
+                                })
+                                ->all()
+                        );
                     }
 
                     if ($personIds->isNotEmpty()) {

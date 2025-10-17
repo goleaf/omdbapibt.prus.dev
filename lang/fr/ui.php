@@ -85,6 +85,7 @@ return [
                 'search_languages' => 'Rechercher une langue ou un code…',
                 'country_name' => 'ex. États-Unis',
                 'search_countries' => 'Rechercher un pays ou un code…',
+                'search_tags' => 'Rechercher une étiquette ou un slug…',
             ],
             'table' => [
                 'movie' => 'Film',
@@ -95,6 +96,40 @@ return [
                 'country' => 'Pays',
                 'actions' => 'Actions',
                 'empty' => 'Aucun enregistrement ne correspond aux filtres.',
+            ],
+            'tags' => [
+                'fields' => [
+                    'name_en' => 'Nom (anglais)',
+                    'name_es' => 'Nom (espagnol)',
+                    'name_fr' => 'Nom (français)',
+                    'type' => 'Type d’étiquette',
+                ],
+                'placeholders' => [
+                    'name_en' => 'ex. Primée',
+                    'name_es' => 'Traduction optionnelle…',
+                    'name_fr' => 'Traduction optionnelle…',
+                    'search' => 'Rechercher une étiquette ou un slug…',
+                ],
+                'types' => [
+                    'system' => 'Système',
+                    'community' => 'Communauté',
+                ],
+                'merge' => [
+                    'title' => 'Fusionner les étiquettes en double',
+                    'subtitle' => 'Rassemblez les vocabulaires qui se chevauchent et gardez les rails éditoriaux propres.',
+                    'source' => 'ID de l’étiquette source',
+                    'target' => 'ID de l’étiquette cible',
+                    'placeholders' => [
+                        'source' => 'ID à fusionner',
+                        'target' => 'ID à conserver',
+                    ],
+                    'action' => 'Fusionner les étiquettes',
+                ],
+                'table' => [
+                    'tag' => 'Étiquette',
+                    'type' => 'Type',
+                    'usage' => 'Utilisation',
+                ],
             ],
             'labels' => [
                 'active' => 'Actif',
@@ -137,6 +172,12 @@ return [
                     'nav' => 'Pays',
                     'heading' => 'Gérer les pays',
                 ],
+                'tags' => [
+                    'title' => 'Curation des étiquettes',
+                    'subtitle' => 'Modérez les étiquettes de découverte, fusionnez les doublons et pilotez les rails de mise en avant.',
+                    'nav' => 'Étiquettes',
+                    'heading' => 'Gérer les étiquettes',
+                ],
             ],
             'people' => [
                 'gender_unknown' => 'Non spécifié',
@@ -145,8 +186,8 @@ return [
                 'gender_non_binary' => 'Non binaire',
             ],
             'relationships' => [
-                'title' => 'Taxonomies et langues',
-                'subtitle' => 'Associez des genres, des langues et des pays d’origine à chaque fiche.',
+                'title' => 'Taxonomies, étiquettes et langues',
+                'subtitle' => 'Associez genres, étiquettes éditoriales, langues et pays d’origine à chaque fiche.',
                 'suggestions' => 'Suggestions',
                 'empty' => 'Aucune suggestion ne correspond à la recherche.',
                 'genres' => [
@@ -154,6 +195,12 @@ return [
                     'help' => 'Utilisez des genres éditoriaux pour enrichir les filtres de découverte.',
                     'none' => 'Aucun genre sélectionné.',
                     'remove' => 'Retirer :name des genres sélectionnés',
+                ],
+                'tags' => [
+                    'label' => 'Étiquettes',
+                    'help' => 'Épinglez des étiquettes système ou éditoriales pour mettre des titres en avant.',
+                    'none' => 'Aucune étiquette sélectionnée.',
+                    'remove' => 'Retirer :name des étiquettes sélectionnées',
                 ],
                 'languages' => [
                     'label' => 'Langues',

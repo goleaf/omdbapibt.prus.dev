@@ -169,6 +169,17 @@ class Movie extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Tags assigned to the movie.
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'film_tag')
+            ->withPivot(['user_id', 'weight'])
+            ->withTimestamps()
+            ->orderByPivot('weight');
+    }
+
     public function requiresSubscription(): bool
     {
         $metadataRequirement = data_get($this->translation_metadata, 'access.requires_subscription');

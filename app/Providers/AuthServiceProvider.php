@@ -8,6 +8,7 @@ use App\Models\Language;
 use App\Models\Movie;
 use App\Models\ParserEntry;
 use App\Models\Person;
+use App\Models\Tag;
 use App\Models\TvShow;
 use App\Models\UiTranslation;
 use App\Models\User;
@@ -32,6 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         Genre::class => AdminCrudPolicy::class,
         Language::class => AdminCrudPolicy::class,
         Country::class => AdminCrudPolicy::class,
+        Tag::class => AdminCrudPolicy::class,
         ParserEntry::class => ParserEntryPolicy::class,
         UiTranslation::class => UiTranslationPolicy::class,
         User::class => UserPolicy::class,

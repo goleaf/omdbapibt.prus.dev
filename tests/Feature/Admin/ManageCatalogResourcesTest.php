@@ -8,12 +8,14 @@ use App\Livewire\Admin\Crud\ManageGenres;
 use App\Livewire\Admin\Crud\ManageLanguages;
 use App\Livewire\Admin\Crud\ManageMovies;
 use App\Livewire\Admin\Crud\ManagePeople;
+use App\Livewire\Admin\Crud\ManageTags;
 use App\Livewire\Admin\Crud\ManageTvShows;
 use App\Models\Country;
 use App\Models\Genre;
 use App\Models\Language;
 use App\Models\Movie;
 use App\Models\Person;
+use App\Models\Tag;
 use App\Models\TvShow;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -43,6 +45,8 @@ class ManageCatalogResourcesTest extends TestCase
         $secondaryLanguage = Language::factory()->create(['code' => 'bm']);
         $country = Country::factory()->create(['code' => 'AM']);
         $secondaryCountry = Country::factory()->create(['code' => 'BM']);
+        $tag = Tag::factory()->create(['type' => Tag::TYPE_SYSTEM]);
+        $secondaryTag = Tag::factory()->create(['type' => Tag::TYPE_SYSTEM]);
 
         Livewire::actingAs($admin)
             ->test(ManageMovies::class)
@@ -55,6 +59,7 @@ class ManageCatalogResourcesTest extends TestCase
             ->set('form.genre_ids', [$genre->id])
             ->set('form.language_ids', [$language->id])
             ->set('form.country_ids', [$country->id])
+            ->set('form.tag_ids', [$tag->id])
             ->call('save')
             ->assertDispatched('record-saved');
 
@@ -72,6 +77,12 @@ class ManageCatalogResourcesTest extends TestCase
             'movie_id' => $movie->id,
             'country_id' => $country->id,
         ]);
+        $this->assertDatabaseHas('film_tag', [
+            'movie_id' => $movie->id,
+            'tag_id' => $tag->id,
+            'user_id' => null,
+            'weight' => 10,
+        ]);
 
         Livewire::actingAs($admin)
             ->test(ManageMovies::class)
@@ -80,6 +91,7 @@ class ManageCatalogResourcesTest extends TestCase
             ->set('form.genre_ids', [$secondaryGenre->id])
             ->set('form.language_ids', [$secondaryLanguage->id])
             ->set('form.country_ids', [$secondaryCountry->id])
+            ->set('form.tag_ids', [$secondaryTag->id])
             ->call('save')
             ->assertDispatched('record-saved');
 
@@ -111,6 +123,14 @@ class ManageCatalogResourcesTest extends TestCase
             'movie_id' => $movie->id,
             'country_id' => $country->id,
         ]);
+        $this->assertDatabaseHas('film_tag', [
+            'movie_id' => $movie->id,
+            'tag_id' => $secondaryTag->id,
+        ]);
+        $this->assertDatabaseMissing('film_tag', [
+            'movie_id' => $movie->id,
+            'tag_id' => $tag->id,
+        ]);
 
         Livewire::actingAs($admin)
             ->test(ManageMovies::class)
@@ -129,6 +149,51 @@ class ManageCatalogResourcesTest extends TestCase
         $this->assertDatabaseMissing('movie_country', [
             'movie_id' => $movie->id,
             'country_id' => $secondaryCountry->id,
+        ]);
+        $this->assertDatabaseMissing('film_tag', [
+            'movie_id' => $movie->id,
+        ]);
+    }
+
+    public function test_admin_can_manage_tags(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test(ManageTags::class)
+            ->set('form.name.en', 'Spotlight Classic')
+            ->set('form.slug', '')
+            ->set('form.type', Tag::TYPE_SYSTEM)
+            ->call('save')
+            ->assertDispatched('record-saved');
+
+        $tag = Tag::query()->where('name_i18n->en', 'Spotlight Classic')->firstOrFail();
+
+        Livewire::actingAs($admin)
+            ->test(ManageTags::class)
+            ->call('edit', $tag->id)
+            ->set('form.name.en', 'Spotlight Prime')
+            ->call('save')
+            ->assertDispatched('record-saved');
+
+        $this->assertSame('Spotlight Prime', $tag->fresh()->name_i18n['en']);
+
+        $targetTag = Tag::factory()->create(['type' => Tag::TYPE_SYSTEM]);
+
+        $movie = Movie::factory()->create();
+        $movie->tags()->attach($tag->id, ['user_id' => null, 'weight' => 30]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageTags::class)
+            ->set('merge.source_id', (string) $tag->id)
+            ->set('merge.target_id', (string) $targetTag->id)
+            ->call('merge')
+            ->assertDispatched('tags-merged');
+
+        $this->assertDatabaseMissing('tags', ['id' => $tag->id]);
+        $this->assertDatabaseHas('film_tag', [
+            'movie_id' => $movie->id,
+            'tag_id' => $targetTag->id,
         ]);
     }
 
