@@ -245,6 +245,16 @@ class MigrationsTest extends TestCase
                 'created_at',
                 'updated_at',
             ]],
+            'ratings table' => ['ratings', [
+                'user_id',
+                'movie_id',
+                'rating',
+                'liked',
+                'disliked',
+                'rated_at',
+                'created_at',
+                'updated_at',
+            ]],
             'user watchlist table' => ['user_watchlist', [
                 'id',
                 'user_id',

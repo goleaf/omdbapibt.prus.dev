@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             SubscriptionPaymentSeeder::class,
             PersonSeeder::class,
             MovieSeeder::class,
+            RatingSeeder::class,
             TvShowSeeder::class,
             UiTranslationSeeder::class,
             ReviewSeeder::class,
