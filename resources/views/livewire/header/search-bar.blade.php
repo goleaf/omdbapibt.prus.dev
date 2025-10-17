@@ -10,8 +10,8 @@
             type="search"
             wire:model.live.debounce.300ms="query"
             placeholder="{{ __('ui.nav.search.placeholder') }}"
-            x-on:focus="focused = true"
-            x-on:blur="focused = false"
+            x-on:focus="focused = true; $wire.showRecentSearches()"
+            x-on:blur="setTimeout(() => focused = false, 200)"
             x-on:focus-search-input.window="$el.focus()"
             class="w-full rounded-xl border border-[color:var(--flux-border-soft)] bg-[color:var(--flux-surface-card)] px-4 py-2 pl-10 pr-10 text-sm backdrop-blur-sm transition-all duration-300 placeholder:text-[color:var(--flux-text-muted)] hover:border-emerald-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
         />
@@ -44,6 +44,34 @@
             </button>
         @endif
     </div>
+
+    <!-- Recent searches dropdown -->
+    @if ($showRecent && !empty($this->recentSearches))
+        <div class="search-results-dropdown absolute top-full mt-2 w-full rounded-xl border border-[color:var(--flux-border-soft)] bg-[color:var(--flux-surface-card)] shadow-xl backdrop-blur-sm">
+            <div class="p-3">
+                <div class="mb-2 flex items-center justify-between">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-[color:var(--flux-text-muted)]">Recent Searches</h4>
+                    <button 
+                        wire:click="clearRecentSearches"
+                        class="text-xs text-[color:var(--flux-text-muted)] transition hover:text-red-400">
+                        Clear
+                    </button>
+                </div>
+                <div class="space-y-1">
+                    @foreach ($this->recentSearches as $recent)
+                        <button
+                            wire:click="selectRecentSearch('{{ $recent }}')"
+                            class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-emerald-500/10">
+                            <svg class="h-4 w-4 text-[color:var(--flux-text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-sm text-[color:var(--flux-text)]">{{ $recent }}</span>
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Search results dropdown -->
     @if ($showResults && !empty($query))

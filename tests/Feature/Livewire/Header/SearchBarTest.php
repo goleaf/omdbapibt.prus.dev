@@ -219,4 +219,100 @@ class SearchBarTest extends TestCase
         $this->assertEquals('Medium Popular', $results[1]['title']);
         $this->assertEquals('Least Popular', $results[2]['title']);
     }
+
+    public function test_it_stores_search_history(): void
+    {
+        Movie::factory()->create([
+            'title' => ['en' => 'Matrix'],
+            'slug' => 'matrix',
+        ]);
+
+        Livewire::test(SearchBar::class)
+            ->set('query', 'Matrix');
+
+        $history = session()->get('search_history', []);
+        $this->assertContains('Matrix', $history);
+    }
+
+    public function test_it_displays_recent_searches_when_focused(): void
+    {
+        session()->put('search_history', ['Matrix', 'Inception', 'Avatar']);
+
+        Livewire::test(SearchBar::class)
+            ->call('showRecentSearches')
+            ->assertSet('showRecent', true);
+    }
+
+    public function test_it_selects_recent_search_and_performs_search(): void
+    {
+        Movie::factory()->create([
+            'title' => ['en' => 'Matrix'],
+            'slug' => 'matrix',
+        ]);
+
+        session()->put('search_history', ['Matrix']);
+
+        Livewire::test(SearchBar::class)
+            ->call('selectRecentSearch', 'Matrix')
+            ->assertSet('query', 'Matrix')
+            ->assertSet('showRecent', false)
+            ->assertSet('showResults', true);
+    }
+
+    public function test_it_clears_recent_searches(): void
+    {
+        session()->put('search_history', ['Matrix', 'Inception']);
+
+        Livewire::test(SearchBar::class)
+            ->call('clearRecentSearches')
+            ->assertSet('showRecent', false);
+
+        $this->assertEmpty(session()->get('search_history', []));
+    }
+
+    public function test_it_limits_recent_searches_to_five(): void
+    {
+        for ($i = 1; $i <= 7; $i++) {
+            Movie::factory()->create([
+                'title' => ['en' => "Movie {$i}"],
+                'slug' => "movie-{$i}",
+            ]);
+        }
+
+        $component = Livewire::test(SearchBar::class);
+
+        for ($i = 1; $i <= 7; $i++) {
+            $component->set('query', "Movie {$i}");
+        }
+
+        $history = session()->get('search_history', []);
+        $this->assertCount(5, $history);
+        $this->assertEquals('Movie 7', $history[0]); // Most recent first
+    }
+
+    public function test_it_moves_existing_search_to_top_of_history(): void
+    {
+        session()->put('search_history', ['Avatar', 'Matrix', 'Inception']);
+
+        Movie::factory()->create([
+            'title' => ['en' => 'Matrix'],
+            'slug' => 'matrix',
+        ]);
+
+        Livewire::test(SearchBar::class)
+            ->set('query', 'Matrix');
+
+        $history = session()->get('search_history', []);
+        $this->assertEquals('Matrix', $history[0]); // Moved to top
+        $this->assertCount(3, $history); // Same count, not duplicated
+    }
+
+    public function test_it_does_not_add_to_history_if_no_results(): void
+    {
+        Livewire::test(SearchBar::class)
+            ->set('query', 'NonexistentMovie');
+
+        $history = session()->get('search_history', []);
+        $this->assertEmpty($history);
+    }
 }

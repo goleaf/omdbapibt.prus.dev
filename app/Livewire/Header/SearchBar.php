@@ -7,6 +7,7 @@ use App\Models\Person;
 use App\Models\TvShow;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -14,6 +15,8 @@ use Livewire\Component;
 class SearchBar extends Component
 {
     private const MIN_QUERY_LENGTH = 2;
+
+    private const MAX_RECENT_SEARCHES = 5;
 
     public string $query = '';
 
@@ -25,6 +28,8 @@ class SearchBar extends Component
 
     public bool $showResults = false;
 
+    public bool $showRecent = false;
+
     public bool $isLoading = false;
 
     protected int $limit = 5;
@@ -34,9 +39,16 @@ class SearchBar extends Component
      */
     protected array $fullTextCache = [];
 
+    public function mount(): void
+    {
+        // Initialize recent searches display when focused
+        $this->showRecent = false;
+    }
+
     public function updatedQuery(): void
     {
         $this->activeIndex = -1;
+        $this->showRecent = false;
 
         if (strlen($this->query) < self::MIN_QUERY_LENGTH) {
             $this->reset(['results', 'flatResults', 'showResults']);
@@ -48,6 +60,48 @@ class SearchBar extends Component
         $this->search();
         $this->showResults = true;
         $this->isLoading = false;
+    }
+
+    public function showRecentSearches(): void
+    {
+        if (empty($this->query)) {
+            $this->showRecent = true;
+            $this->showResults = false;
+        }
+    }
+
+    public function selectRecentSearch(string $term): void
+    {
+        $this->query = $term;
+        $this->showRecent = false;
+        $this->updatedQuery();
+    }
+
+    public function clearRecentSearches(): void
+    {
+        Session::forget('search_history');
+        $this->showRecent = false;
+    }
+
+    protected function addToSearchHistory(string $term): void
+    {
+        $history = Session::get('search_history', []);
+
+        // Remove if already exists (to move to top)
+        $history = array_filter($history, fn ($item) => $item !== $term);
+
+        // Add to beginning
+        array_unshift($history, $term);
+
+        // Limit to max recent searches
+        $history = array_slice($history, 0, self::MAX_RECENT_SEARCHES);
+
+        Session::put('search_history', $history);
+    }
+
+    public function getRecentSearchesProperty(): array
+    {
+        return Session::get('search_history', []);
     }
 
     protected function search(): void
@@ -66,6 +120,11 @@ class SearchBar extends Component
         $people = $this->formatPeople($this->searchPeople($term));
 
         $this->storeResults($movies, $shows, $people);
+
+        // Add to search history if we have results
+        if (! empty($movies) || ! empty($shows) || ! empty($people)) {
+            $this->addToSearchHistory($term);
+        }
     }
 
     protected function storeResults(array $movies, array $shows, array $people): void
@@ -98,6 +157,7 @@ class SearchBar extends Component
         }
 
         $this->showResults = true;
+        $this->showRecent = false;
         $this->activeIndex = ($this->activeIndex + 1) % count($this->flatResults);
     }
 
@@ -108,6 +168,7 @@ class SearchBar extends Component
         }
 
         $this->showResults = true;
+        $this->showRecent = false;
         $this->activeIndex = $this->activeIndex <= 0
             ? count($this->flatResults) - 1
             : $this->activeIndex - 1;
@@ -264,19 +325,21 @@ class SearchBar extends Component
 
     public function clear(): void
     {
-        $this->reset(['query', 'results', 'flatResults', 'showResults', 'activeIndex']);
+        $this->reset(['query', 'results', 'flatResults', 'showResults', 'showRecent', 'activeIndex']);
     }
 
     #[On('focusSearch')]
     public function focusSearch(): void
     {
         $this->dispatch('focus-search-input');
+        $this->showRecentSearches();
     }
 
     #[On('closeAllDropdowns')]
     public function closeDropdowns(): void
     {
         $this->showResults = false;
+        $this->showRecent = false;
         $this->activeIndex = -1;
     }
 
