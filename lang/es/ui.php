@@ -10,6 +10,8 @@ return [
             'home' => 'Inicio',
             'browse' => 'Explorar',
             'pricing' => 'Precios',
+            'about' => 'Acerca de',
+            'support' => 'Soporte',
             'components' => 'Componentes de la interfaz de usuario',
             'account' => 'Cuenta',
             'admin' => 'Administración',
@@ -30,9 +32,27 @@ return [
             'close' => 'Cerrar navegación',
         ],
         'footer' => [
-            'terms' => 'Términos',
-            'privacy' => 'Privacidad',
-            'support' => 'Soporte',
+            'tagline' => 'El compañero de metadatos para flujos de trabajo modernos de cine y TV.',
+            'sections' => [
+                'product' => [
+                    'title' => 'Producto',
+                ],
+                'company' => [
+                    'title' => 'Compañía',
+                ],
+                'legal' => [
+                    'title' => 'Legal',
+                    'links' => [
+                        'terms' => 'Términos',
+                        'privacy' => 'Privacidad',
+                    ],
+                ],
+            ],
+            'support' => [
+                'title' => '¿Necesitas ayuda?',
+                'body' => 'Escríbenos a :email y responderemos en un día hábil.',
+                'link_label' => 'Contactar soporte',
+            ],
             'copyright' => '© :year OMDb Stream. Todos los derechos reservados.',
         ],
     ],
@@ -303,6 +323,53 @@ return [
         ],
     ],
     'pages' => [
+        'about' => [
+            'title' => 'Acerca de OMDb Stream',
+            'meta_description' => 'Descubre por qué creamos OMDb Stream y conoce al equipo que cuida la experiencia del catálogo.',
+            'heading' => 'Conoce al equipo detrás de OMDb Stream',
+            'lede' => 'Combinamos fuentes abiertas de datos con curación editorial para ayudar a los fans del cine y la TV a decidir qué ver.',
+            'intro' => 'OMDb Stream nació de la curiosidad de cinéfilos que querían herramientas de descubrimiento más precisas. Mezclamos datos de OMDb y TMDb con nuestro propio pipeline editorial para que críticos, curadores y espectadores casuales exploren el catálogo con confianza.',
+            'sections' => [
+                [
+                    'title' => 'Nuestra misión',
+                    'paragraphs' => [
+                        'Los catálogos en streaming cambian cada semana, pero los metadatos fiables no deberían hacerlo. Organizamos títulos, créditos y disponibilidad para que siempre sepas dónde mirar y qué hace especial a cada historia.',
+                        'Desde reseñistas independientes hasta servicios boutique, diseñamos herramientas que se adaptan a cada flujo de trabajo sin saturar con jerga ni paneles complejos.',
+                    ],
+                ],
+                [
+                    'title' => 'Lo que construimos',
+                    'paragraphs' => [
+                        'OMDb Stream equilibra la mirada editorial con la automatización. Tras bambalinas normalizamos títulos, detectamos tendencias y destacamos recomendaciones que se sienten hechas a mano.',
+                    ],
+                    'items' => [
+                        'Una lista unificada que se mantiene sincronizada en todos tus dispositivos.',
+                        'Carruseles curados de estrenos, joyas ocultas y favoritos del equipo actualizados a diario.',
+                        'Páginas de personas y franquicias que conectan filmografías con contexto, curiosidades e historial de estrenos.',
+                    ],
+                ],
+                [
+                    'title' => 'Cómo trabajamos',
+                    'paragraphs' => [
+                        'Somos un equipo distribuido en tres husos horarios. Colaboramos en sprints enfocados para lanzar mejoras frecuentes sin sacrificar detalles.',
+                    ],
+                    'items' => [
+                        'Un estándar de calidad que prioriza accesibilidad, rendimiento y claridad.',
+                        'Alianzas con comunidades de datos públicos y licenciatarios boutique que comparten nuestra pasión por el cine.',
+                        'Hojas de ruta transparentes moldeadas por los comentarios de los suscriptores y el uso real de la plataforma.',
+                    ],
+                ],
+                [
+                    'title' => 'Hablemos',
+                    'paragraphs' => [
+                        '¿Tienes una idea de función, una solicitud de corrección o quieres colaborar en un proyecto editorial? Leemos cada mensaje.',
+                    ],
+                    'cta' => [
+                        'label' => 'Escríbenos',
+                    ],
+                ],
+            ],
+        ],
         'terms' => [
             'title' => 'Términos del servicio',
             'meta_description' => 'Consulta los términos que rigen tu cuenta, las suscripciones y el uso de las herramientas de catálogo de OMDb Stream.',

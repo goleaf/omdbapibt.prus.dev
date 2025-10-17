@@ -25,6 +25,16 @@ class StaticPageController extends Controller
         ]);
     }
 
+    public function about(string $locale): View
+    {
+        $supportEmail = $this->resolveSupportEmail();
+
+        return view('pages.about', [
+            'supportEmail' => $supportEmail,
+            'sections' => $this->resolveSections('about', includeItems: true, supportEmail: $supportEmail),
+        ]);
+    }
+
     public function support(string $locale): View
     {
         $supportEmail = $this->resolveSupportEmail();

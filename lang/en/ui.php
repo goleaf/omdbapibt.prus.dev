@@ -10,6 +10,8 @@ return [
             'home' => 'Home',
             'browse' => 'Browse',
             'pricing' => 'Pricing',
+            'about' => 'About',
+            'support' => 'Support',
             'components' => 'UI components',
             'account' => 'Account',
             'admin' => 'Admin',
@@ -30,9 +32,27 @@ return [
             'close' => 'Close navigation',
         ],
         'footer' => [
-            'terms' => 'Terms',
-            'privacy' => 'Privacy',
-            'support' => 'Support',
+            'tagline' => 'The metadata companion for modern film and TV workflows.',
+            'sections' => [
+                'product' => [
+                    'title' => 'Product',
+                ],
+                'company' => [
+                    'title' => 'Company',
+                ],
+                'legal' => [
+                    'title' => 'Legal',
+                    'links' => [
+                        'terms' => 'Terms',
+                        'privacy' => 'Privacy',
+                    ],
+                ],
+            ],
+            'support' => [
+                'title' => 'Need a hand?',
+                'body' => 'Email our team at :email and we will get back to you within one business day.',
+                'link_label' => 'Contact support',
+            ],
             'copyright' => '© :year OMDb Stream. All rights reserved.',
         ],
     ],
@@ -309,6 +329,53 @@ return [
         ],
     ],
     'pages' => [
+        'about' => [
+            'title' => 'About OMDb Stream',
+            'meta_description' => 'Learn why we built OMDb Stream and meet the team curating the catalog experience.',
+            'heading' => 'Meet the team behind OMDb Stream',
+            'lede' => 'We combine open data sources with editorial curation to help film and TV fans find what to watch next.',
+            'intro' => 'OMDb Stream is a labor of curiosity from movie lovers who wanted sharper discovery tools. We pair OMDb and TMDb data with our own enrichment pipeline so critics, curators, and casual viewers can explore the catalog with confidence.',
+            'sections' => [
+                [
+                    'title' => 'Our mission',
+                    'paragraphs' => [
+                        'Streaming libraries shift every week, but trustworthy metadata should not. We organize titles, credits, and availability so you always know where to watch and what makes a story special.',
+                        'From solo reviewers to boutique streaming services, we build tools that adapt to unique workflows without overwhelming anyone with jargon or dashboards.',
+                    ],
+                ],
+                [
+                    'title' => 'What we build',
+                    'paragraphs' => [
+                        'OMDb Stream blends editorial insights with automation. Behind the scenes we normalize titles, flag trends, and surface recommendations that feel hand-picked.',
+                    ],
+                    'items' => [
+                        'A unified watchlist that stays in sync across your devices.',
+                        'Curated rails for premieres, deep cuts, and staff picks updated daily.',
+                        'People and franchise pages that connect filmographies with context, trivia, and release history.',
+                    ],
+                ],
+                [
+                    'title' => 'How we work',
+                    'paragraphs' => [
+                        'We are a distributed team spanning three time zones. Collaboration happens in focused sprints so we can ship frequently without sacrificing polish.',
+                    ],
+                    'items' => [
+                        'A quality bar that favors accessibility, performance, and readability.',
+                        'Partnerships with public data communities and boutique licensors who share our love for film.',
+                        'Transparent roadmaps shaped by subscriber feedback and usage analytics.',
+                    ],
+                ],
+                [
+                    'title' => 'Say hello',
+                    'paragraphs' => [
+                        'Have an idea for a feature, a request for metadata fixes, or want to collaborate on an editorial project? We read every message.',
+                    ],
+                    'cta' => [
+                        'label' => 'Email the team',
+                    ],
+                ],
+            ],
+        ],
         'terms' => [
             'title' => 'Terms of Service',
             'meta_description' => 'Review the terms that govern your OMDb Stream account, subscriptions, and use of our catalog tools.',

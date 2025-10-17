@@ -16,19 +16,66 @@
         </div>
 
         @php
-            $footerLinks = [
+            $supportEmail = config('support.contact_email', config('mail.from.address', 'support@omdbstream.test'));
+
+            $footerBrand = [
+                'primary' => __('ui.nav.brand.primary'),
+                'secondary' => __('ui.nav.brand.secondary'),
+                'tagline' => __('ui.nav.footer.tagline'),
+            ];
+
+            $footerSections = [
                 [
-                    'label' => __('ui.nav.footer.terms'),
-                    'href' => localized_route('terms'),
+                    'title' => __('ui.nav.footer.sections.product.title'),
+                    'links' => [
+                        [
+                            'label' => __('ui.nav.links.browse'),
+                            'href' => localized_route('browse'),
+                        ],
+                        [
+                            'label' => __('ui.nav.links.pricing'),
+                            'href' => localized_route('pricing'),
+                        ],
+                        [
+                            'label' => __('ui.nav.links.components'),
+                            'href' => localized_route('ui.components'),
+                        ],
+                    ],
                 ],
                 [
-                    'label' => __('ui.nav.footer.privacy'),
-                    'href' => localized_route('privacy'),
+                    'title' => __('ui.nav.footer.sections.company.title'),
+                    'links' => [
+                        [
+                            'label' => __('ui.nav.links.about'),
+                            'href' => localized_route('about'),
+                        ],
+                        [
+                            'label' => __('ui.nav.links.support'),
+                            'href' => localized_route('support'),
+                        ],
+                    ],
                 ],
                 [
-                    'label' => __('ui.nav.footer.support'),
-                    'href' => localized_route('support'),
+                    'title' => __('ui.nav.footer.sections.legal.title'),
+                    'links' => [
+                        [
+                            'label' => __('ui.nav.footer.sections.legal.links.terms'),
+                            'href' => localized_route('terms'),
+                        ],
+                        [
+                            'label' => __('ui.nav.footer.sections.legal.links.privacy'),
+                            'href' => localized_route('privacy'),
+                        ],
+                    ],
                 ],
+            ];
+
+            $footerSupport = [
+                'title' => __('ui.nav.footer.support.title'),
+                'body' => __('ui.nav.footer.support.body', ['email' => $supportEmail]),
+                'email' => $supportEmail,
+                'href' => 'mailto:'.$supportEmail,
+                'label' => __('ui.nav.footer.support.link_label'),
             ];
         @endphp
 
@@ -75,7 +122,11 @@
             @yield('content')
         </main>
 
-        <x-layout.footer :links="$footerLinks" />
+        <x-layout.footer
+            :brand="$footerBrand"
+            :sections="$footerSections"
+            :support="$footerSupport"
+        />
     </div>
 
     @livewireScripts

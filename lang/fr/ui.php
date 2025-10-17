@@ -10,6 +10,8 @@ return [
             'home' => 'Accueil',
             'browse' => 'Explorer',
             'pricing' => 'Tarifs',
+            'about' => 'À propos',
+            'support' => 'Assistance',
             'components' => 'Composants de l’interface utilisateur',
             'account' => 'Compte',
             'admin' => 'Administration',
@@ -30,9 +32,27 @@ return [
             'close' => 'Fermer la navigation',
         ],
         'footer' => [
-            'terms' => 'Conditions',
-            'privacy' => 'Confidentialité',
-            'support' => 'Assistance',
+            'tagline' => 'Le compagnon de métadonnées pour les workflows cinéma et séries modernes.',
+            'sections' => [
+                'product' => [
+                    'title' => 'Produit',
+                ],
+                'company' => [
+                    'title' => 'Équipe',
+                ],
+                'legal' => [
+                    'title' => 'Mentions légales',
+                    'links' => [
+                        'terms' => 'Conditions',
+                        'privacy' => 'Confidentialité',
+                    ],
+                ],
+            ],
+            'support' => [
+                'title' => 'Besoin d’aide ?',
+                'body' => 'Écrivez-nous à :email et nous répondrons sous un jour ouvrable.',
+                'link_label' => 'Contacter l’assistance',
+            ],
             'copyright' => '© :year OMDb Stream. Tous droits réservés.',
         ],
     ],
@@ -303,6 +323,53 @@ return [
         ],
     ],
     'pages' => [
+        'about' => [
+            'title' => 'À propos d’OMDb Stream',
+            'meta_description' => 'Découvrez pourquoi nous avons créé OMDb Stream et rencontrez l’équipe qui façonne l’expérience du catalogue.',
+            'heading' => 'Rencontrez l’équipe derrière OMDb Stream',
+            'lede' => 'Nous associons des sources ouvertes et une curation éditoriale pour aider les passionnés de cinéma et de séries à trouver leur prochain coup de cœur.',
+            'intro' => 'OMDb Stream est né de notre envie de disposer d’outils de découverte plus fins. Nous enrichissons les données d’OMDb et de TMDb avec notre propre pipeline afin que critiques, programmateurs et curieux explorent la bibliothèque en toute confiance.',
+            'sections' => [
+                [
+                    'title' => 'Notre mission',
+                    'paragraphs' => [
+                        'Les catalogues de streaming évoluent sans cesse, mais des métadonnées fiables doivent rester stables. Nous réunissons titres, crédits et disponibilités pour que vous sachiez toujours où regarder et pourquoi un récit mérite votre attention.',
+                        'Qu’il s’agisse de chroniqueurs indépendants ou de plateformes spécialisées, nous concevons des outils souples qui s’intègrent à chaque flux de travail sans complexité inutile.',
+                    ],
+                ],
+                [
+                    'title' => 'Ce que nous construisons',
+                    'paragraphs' => [
+                        'OMDb Stream marie analyse éditoriale et automatisation. En coulisses, nous normalisons les titres, détectons les tendances et proposons des recommandations qui semblent sélectionnées à la main.',
+                    ],
+                    'items' => [
+                        'Une liste de suivi unifiée qui reste synchronisée sur tous vos appareils.',
+                        'Des sélections éditées — nouveautés, pépites cachées, coups de cœur de l’équipe — mises à jour quotidiennement.',
+                        'Des pages personnes et franchises qui relient filmographies, anecdotes et historique de sortie.',
+                    ],
+                ],
+                [
+                    'title' => 'Notre façon de travailler',
+                    'paragraphs' => [
+                        'Nous sommes une équipe distribuée sur trois fuseaux horaires. Nous travaillons par sprints ciblés pour livrer régulièrement sans sacrifier le soin apporté aux détails.',
+                    ],
+                    'items' => [
+                        'Un niveau d’exigence qui privilégie accessibilité, performance et clarté.',
+                        'Des partenariats avec des communautés de données ouvertes et des éditeurs indépendants partageant notre amour du cinéma.',
+                        'Des feuilles de route transparentes influencées par les retours des abonnés et l’usage réel de la plateforme.',
+                    ],
+                ],
+                [
+                    'title' => 'Dites bonjour',
+                    'paragraphs' => [
+                        'Une idée de fonctionnalité, une correction à suggérer ou un projet éditorial commun ? Chaque message est lu avec attention.',
+                    ],
+                    'cta' => [
+                        'label' => 'Écrire à l’équipe',
+                    ],
+                ],
+            ],
+        ],
         'terms' => [
             'title' => 'Conditions d’utilisation',
             'meta_description' => 'Consultez les conditions qui encadrent votre compte, votre abonnement et l’usage des outils de catalogue OMDb Stream.',
