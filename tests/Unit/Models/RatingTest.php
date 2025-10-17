@@ -95,21 +95,24 @@ class RatingTest extends TestCase
     {
         $movie = Movie::factory()->create();
         $tag = Tag::factory()->create();
+        $user = User::factory()->create();
 
-        DB::table('movie_tag')->insert([
+        DB::table('film_tag')->insert([
             'movie_id' => $movie->id,
             'tag_id' => $tag->id,
-            'weight' => 1.0,
+            'user_id' => $user->id,
+            'weight' => 1,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $this->expectException(QueryException::class);
 
-        DB::table('movie_tag')->insert([
+        DB::table('film_tag')->insert([
             'movie_id' => $movie->id,
             'tag_id' => $tag->id,
-            'weight' => 1.0,
+            'user_id' => $user->id,
+            'weight' => 1,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
