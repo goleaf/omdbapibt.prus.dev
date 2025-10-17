@@ -95,6 +95,6 @@ class StaticPageController extends Controller
 
     private function resolveSupportEmail(): string
     {
-        return config('support.contact_email', config('mail.from.address', 'support@omdbstream.test'));
+        return config('support.contact_email', config('mail.from.address', 'support@omdbapibt.prus.dev'));
     }
 }
