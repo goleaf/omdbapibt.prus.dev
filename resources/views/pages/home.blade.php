@@ -110,18 +110,30 @@
     ];
 @endphp
 
-<div class="space-y-20">
-    <section class="relative overflow-hidden rounded-[2.75rem] border border-slate-800/60 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-900 p-8 shadow-2xl ring-1 ring-emerald-500/15 sm:p-12">
-        <div class="pointer-events-none absolute -top-32 right-20 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl"></div>
-        <div class="pointer-events-none absolute -bottom-10 left-1/3 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl"></div>
-        <div class="pointer-events-none absolute top-1/2 left-0 hidden h-px w-full bg-gradient-to-r from-emerald-400/0 via-emerald-400/40 to-transparent lg:block"></div>
+<div class="space-y-24">
+    <section class="group relative overflow-hidden rounded-3xl border border-[color:var(--flux-border-soft)] bg-gradient-to-br from-[color:var(--flux-surface-card)] via-[color:var(--flux-surface-backdrop)] to-[color:var(--flux-surface-card)] p-8 shadow-2xl backdrop-blur-2xl sm:p-14 lg:p-16">
+        <!-- Animated Background Gradients -->
+        <div class="pointer-events-none absolute -top-40 right-20 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-500/25 to-emerald-600/15 blur-3xl transition-all duration-1000 group-hover:scale-110 motion-soft-glow"></div>
+        <div class="pointer-events-none absolute -bottom-20 left-1/4 h-80 w-80 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-600/10 blur-3xl transition-all duration-1000 group-hover:scale-110 motion-float"></div>
+        <div class="pointer-events-none absolute top-1/2 right-1/4 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500/15 to-purple-600/10 blur-3xl"></div>
+        
+        <!-- Decorative Lines -->
+        <div class="pointer-events-none absolute top-1/3 left-0 hidden h-px w-full bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent lg:block"></div>
+        <div class="pointer-events-none absolute bottom-1/3 left-0 hidden h-px w-full bg-gradient-to-r from-transparent via-blue-400/20 to-transparent lg:block"></div>
 
-        <div class="relative grid gap-12 lg:grid-cols-[minmax(0,1fr),minmax(320px,400px)] lg:items-center">
-            <div class="space-y-8">
-                <div class="space-y-4">
-                    <flux:badge variant="solid" color="emerald">Flux + Livewire orchestration</flux:badge>
-                    <h1 class="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">Command streaming releases from every screen</h1>
-                    <p class="text-base text-slate-300 sm:text-lg">
+        <div class="relative grid gap-14 lg:grid-cols-[minmax(0,1fr),minmax(320px,440px)] lg:items-center">
+            <div class="space-y-10">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-emerald-300 shadow-lg shadow-emerald-500/20 backdrop-blur-sm">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Flux + Livewire orchestration
+                    </div>
+                    <h1 class="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-4xl font-bold leading-tight tracking-tight text-transparent sm:text-5xl lg:text-7xl">
+                        Command streaming releases from every screen
+                    </h1>
+                    <p class="max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
                         Curate slates, audit rights, and launch cross-network programming in a single responsive hub. Optimized controls keep tablet editors and desktop strategists aligned without context switching.
                     </p>
                 </div>
@@ -201,7 +213,9 @@
                                 <p class="text-base font-semibold text-white">{{ $stat['value'] }}</p>
                             </div>
                             <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-200">
-                                <flux:icon icon="arrow-path" class="size-4" />
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                </svg>
                                 Syncing
                             </span>
                         </div>
@@ -221,11 +235,15 @@
                         <p class="text-slate-300">Queues overnight updates with localized metadata tweaks and approval requests.</p>
                         <div class="flex flex-wrap gap-2">
                             <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-emerald-200">
-                                <flux:icon icon="clock" class="size-4" />
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                                 Autoschedule
                             </span>
                             <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-slate-200">
-                                <flux:icon icon="adjustments-horizontal" class="size-4" />
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                                </svg>
                                 Tablet ready
                             </span>
                         </div>
@@ -342,7 +360,23 @@
                         </span>
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
                             <span class="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-200 ring-1 ring-inset ring-emerald-500/40">
-                                <flux:icon icon="{{ $step['icon'] }}" class="size-6" />
+                                @if($step['icon'] === 'arrow-down-tray')
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                    </svg>
+                                @elseif($step['icon'] === 'sparkles')
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                                    </svg>
+                                @elseif($step['icon'] === 'user-group')
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                                    </svg>
+                                @elseif($step['icon'] === 'rocket-launch')
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                    </svg>
+                                @endif
                             </span>
                             <div class="space-y-2">
                                 <p class="text-sm font-semibold uppercase tracking-[0.35em] text-emerald-200">Stage {{ $index + 1 }}</p>
@@ -442,7 +476,9 @@
                     <summary class="flex cursor-pointer items-center justify-between gap-4 text-left text-base font-semibold text-white">
                         <span>{{ $faq['question'] }}</span>
                         <span class="flex size-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition group-open:rotate-45 group-open:border-emerald-400/40 group-open:text-emerald-200">
-                            <flux:icon icon="plus" class="size-5" />
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
                         </span>
                     </summary>
                     <p class="mt-4 text-sm leading-relaxed text-slate-300">{{ $faq['answer'] }}</p>
