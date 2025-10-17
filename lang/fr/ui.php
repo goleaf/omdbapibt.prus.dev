@@ -478,4 +478,10 @@ return [
             'default_cta' => 'Contacter le support',
         ],
     ],
+    'impersonation' => [
+        'banner_title' => 'Usurpation de :name',
+        'banner_help' => 'Vous naviguez sur le site en tant que cet utilisateur. Lorsque vous avez terminé, retournez à votre compte administrateur.',
+        'stop' => 'Arrêter l\'usurpation',
+        'stopped' => 'Session d\'usurpation terminée. Vous êtes maintenant de retour sur votre compte administrateur.',
+    ],
 ];

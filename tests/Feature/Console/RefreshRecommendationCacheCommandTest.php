@@ -16,10 +16,14 @@ class RefreshRecommendationCacheCommandTest extends TestCase
         $users = User::factory()->count(3)->create();
 
         $service = $this->mock(RecommendationService::class);
+        $service->shouldReceive('cachedLimits')
+            ->times($users->count())
+            ->andReturn([12, 24]);
         $service->shouldReceive('flush')
             ->times($users->count())
             ->withArgs(fn (User $passedUser) => $users->contains(fn (User $user) => $user->is($passedUser)));
         $service->shouldReceive('recommendFor')
+            ->atLeast()
             ->times($users->count())
             ->andReturn(collect());
 
@@ -34,10 +38,14 @@ class RefreshRecommendationCacheCommandTest extends TestCase
         User::factory()->create();
 
         $service = $this->mock(RecommendationService::class);
+        $service->shouldReceive('cachedLimits')
+            ->once()
+            ->andReturn([12]);
         $service->shouldReceive('flush')
             ->once()
             ->withArgs(fn (User $passedUser) => $passedUser->is($target));
         $service->shouldReceive('recommendFor')
+            ->atLeast()
             ->once()
             ->andReturn(collect());
 

@@ -8,27 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasTable('tags')) {
-            Schema::create('tags', function (Blueprint $table): void {
-                $table->bigIncrements('id');
-                $table->string('name');
-                $table->string('slug')->unique();
-                $table->text('description')->nullable();
-                $table->timestamps();
-            });
-        }
-
-        if (! Schema::hasTable('movie_tag')) {
-            Schema::create('movie_tag', function (Blueprint $table): void {
-                $table->foreignId('movie_id')->constrained('movies')->cascadeOnDelete();
-                $table->foreignId('tag_id')->constrained('tags')->cascadeOnDelete();
-                $table->decimal('weight', 5, 2)->default(1.00);
-                $table->timestamps();
-
-                $table->primary(['movie_id', 'tag_id']);
-                $table->index(['tag_id', 'weight']);
-            });
-        }
+        // Tags and movie_tag tables are created in 2025_10_20_050000_create_tags_tables.php
 
         if (! Schema::hasTable('ratings')) {
             Schema::create('ratings', function (Blueprint $table): void {
@@ -152,12 +132,6 @@ return new class extends Migration
             Schema::dropIfExists('ratings');
         }
 
-        if (Schema::hasTable('movie_tag')) {
-            Schema::dropIfExists('movie_tag');
-        }
-
-        if (Schema::hasTable('tags')) {
-            Schema::dropIfExists('tags');
-        }
+        // Tags and movie_tag tables are dropped in their own migration
     }
 };
