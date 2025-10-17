@@ -1,4 +1,5 @@
 import './bootstrap';
+import './header';
 
 const themeStorageKey = 'omdb-theme';
 

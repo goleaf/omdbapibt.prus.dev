@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\BillingPortalController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\StopImpersonationController;
 use App\Http\Controllers\SubscriptionController;
@@ -46,6 +47,7 @@ $registerAppRoutes = function (): void {
     Route::get('/browse', BrowsePage::class)->name('browse');
     Route::get('/pricing', PricingPage::class)->name('pricing');
     Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
     Route::get('/terms', [StaticPageController::class, 'terms'])->name('terms');
     Route::get('/privacy', [StaticPageController::class, 'privacy'])->name('privacy');
     Route::get('/support', [StaticPageController::class, 'support'])->name('support');

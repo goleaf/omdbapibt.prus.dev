@@ -355,50 +355,54 @@ if [[ ! -f storage/app/private/scribe/openapi.yaml ]]; then
 fi
 
 section "Generating PHP documentation with phpDocumentor"
-PHPDOC_BIN=""
-if [[ -x vendor/bin/phpdoc ]]; then
-    PHPDOC_BIN="vendor/bin/phpdoc"
-fi
-
-PHPDOC_STORAGE_DIR="storage/app/private/phpdoc"
-PHPDOC_HTML_DIR="$PHPDOC_STORAGE_DIR/html"
-PHPDOC_CACHE_DIR="$PHPDOC_STORAGE_DIR/cache"
-PHPDOC_PHAR="$PHPDOC_STORAGE_DIR/phpDocumentor.phar"
-
-run_cmd mkdir -p "$PHPDOC_STORAGE_DIR"
-
-if [[ -z "$PHPDOC_BIN" ]]; then
-    if [[ ! -f "$PHPDOC_PHAR" ]]; then
-        PHPDOC_RELEASE="v3.8.1"
-        if command -v curl >/dev/null 2>&1; then
-            run_cmd curl -fsSL -o "$PHPDOC_PHAR" "https://github.com/phpDocumentor/phpDocumentor/releases/download/${PHPDOC_RELEASE}/phpDocumentor.phar"
-        elif command -v wget >/dev/null 2>&1; then
-            run_cmd wget -q -O "$PHPDOC_PHAR" "https://github.com/phpDocumentor/phpDocumentor/releases/download/${PHPDOC_RELEASE}/phpDocumentor.phar"
-        else
-            printf '\033[1;31mError:\033[0m phpDocumentor is not installed and neither curl nor wget are available to download it.\n' >&2
-            exit 1
-        fi
+if [[ -f phpdoc.dist.xml ]]; then
+    PHPDOC_BIN=""
+    if [[ -x vendor/bin/phpdoc ]]; then
+        PHPDOC_BIN="vendor/bin/phpdoc"
     fi
 
-    if [[ ! -f "$PHPDOC_PHAR" ]]; then
-        printf '\033[1;31mError:\033[0m phpDocumentor PHAR download failed.\n' >&2
+    PHPDOC_STORAGE_DIR="storage/app/private/phpdoc"
+    PHPDOC_HTML_DIR="$PHPDOC_STORAGE_DIR/html"
+    PHPDOC_CACHE_DIR="$PHPDOC_STORAGE_DIR/cache"
+    PHPDOC_PHAR="$PHPDOC_STORAGE_DIR/phpDocumentor.phar"
+
+    run_cmd mkdir -p "$PHPDOC_STORAGE_DIR"
+
+    if [[ -z "$PHPDOC_BIN" ]]; then
+        if [[ ! -f "$PHPDOC_PHAR" ]]; then
+            PHPDOC_RELEASE="v3.8.1"
+            if command -v curl >/dev/null 2>&1; then
+                run_cmd curl -fsSL -o "$PHPDOC_PHAR" "https://github.com/phpDocumentor/phpDocumentor/releases/download/${PHPDOC_RELEASE}/phpDocumentor.phar"
+            elif command -v wget >/dev/null 2>&1; then
+                run_cmd wget -q -O "$PHPDOC_PHAR" "https://github.com/phpDocumentor/phpDocumentor/releases/download/${PHPDOC_RELEASE}/phpDocumentor.phar"
+            else
+                printf '\033[1;31mError:\033[0m phpDocumentor is not installed and neither curl nor wget are available to download it.\n' >&2
+                exit 1
+            fi
+        fi
+
+        if [[ ! -f "$PHPDOC_PHAR" ]]; then
+            printf '\033[1;31mError:\033[0m phpDocumentor PHAR download failed.\n' >&2
+            exit 1
+        fi
+
+        run_cmd chmod +x "$PHPDOC_PHAR"
+        PHPDOC_BIN="php $PHPDOC_PHAR"
+    fi
+
+    run_cmd rm -rf "$PHPDOC_HTML_DIR" "$PHPDOC_CACHE_DIR"
+
+    if ! $PHPDOC_BIN --ansi --config=phpdoc.dist.xml; then
+        printf '\033[1;31mError:\033[0m phpDocumentor generation failed.\n' >&2
         exit 1
     fi
 
-    run_cmd chmod +x "$PHPDOC_PHAR"
-    PHPDOC_BIN="php $PHPDOC_PHAR"
-fi
-
-run_cmd rm -rf "$PHPDOC_HTML_DIR" "$PHPDOC_CACHE_DIR"
-
-if ! $PHPDOC_BIN --ansi --config=phpdoc.dist.xml; then
-    printf '\033[1;31mError:\033[0m phpDocumentor generation failed.\n' >&2
-    exit 1
-fi
-
-if [[ ! -f "$PHPDOC_HTML_DIR/index.html" ]]; then
-    printf '\033[1;31mError:\033[0m phpDocumentor output missing (%s/index.html).\n' "$PHPDOC_HTML_DIR" >&2
-    exit 1
+    if [[ ! -f "$PHPDOC_HTML_DIR/index.html" ]]; then
+        printf '\033[1;31mError:\033[0m phpDocumentor output missing (%s/index.html).\n' "$PHPDOC_HTML_DIR" >&2
+        exit 1
+    fi
+else
+    warning 'phpdoc.dist.xml not found; skipping phpDocumentor generation.'
 fi
 
 section "Setting filesystem permissions"
