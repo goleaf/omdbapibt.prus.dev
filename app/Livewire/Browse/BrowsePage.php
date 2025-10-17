@@ -23,13 +23,13 @@ class BrowsePage extends Component
     {
         return view('livewire.browse.browse-page')
             ->layout('layouts.app', [
-                'title' => __('Browse the catalog'),
+                'title' => __('browse.meta.title'),
                 'header' => $this->locked
-                    ? __('Unlock the full OMDb experience')
-                    : __('Browse trending movies and shows'),
+                    ? __('browse.meta.locked_header')
+                    : __('browse.meta.unlocked_header'),
                 'subheader' => $this->locked
-                    ? __('Sign in and upgrade to explore the complete catalog, streaming options, and personalized filters.')
-                    : __('Use filters, curated categories, and real-time streaming availability to zero in on what to watch next.'),
+                    ? __('browse.meta.locked_subheader')
+                    : __('browse.meta.unlocked_subheader'),
             ]);
     }
 }
