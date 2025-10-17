@@ -50,7 +50,7 @@ return [
             ],
             'fields' => [
                 'title' => 'Título',
-                'slug' => 'Slug',
+                'slug' => 'Identificador legible',
                 'status' => 'Estado',
                 'release_date' => 'Fecha de estreno',
                 'vote_average' => 'Valoración media',
@@ -295,7 +295,7 @@ return [
         'popularity_label' => 'Popularidad',
         'biography_heading' => 'Biografía',
         'movies_heading' => 'Películas',
-        'tv_heading' => 'TV',
+        'tv_heading' => 'Televisión',
         'credits_heading' => 'Créditos de :type',
         'credit_types' => [
             'cast' => 'Elenco',

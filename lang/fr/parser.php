@@ -6,7 +6,7 @@ return [
             'heading' => 'Décision',
             'description' => 'Ajoutez du contexte à votre décision. Les notes sont obligatoires lorsque vous rejetez une entrée.',
             'fields' => [
-                'notes' => 'Notes',
+                'notes' => 'Remarques',
             ],
             'placeholder' => [
                 'notes' => 'Résumez pourquoi ce payload doit être approuvé ou rejeté',
