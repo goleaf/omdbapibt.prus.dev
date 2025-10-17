@@ -13,6 +13,7 @@ use App\Livewire\Admin\HorizonMonitor;
 use App\Livewire\Admin\ParserModerationDashboard;
 use App\Livewire\Admin\UiTranslationManager;
 use App\Livewire\Admin\UserDirectory;
+use App\Livewire\Auth\ForgotPasswordForm;
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Auth\SignupForm;
 use App\Livewire\Browse\BrowsePage;
@@ -48,8 +49,10 @@ $registerAppRoutes = function (): void {
     Route::get('/terms', [StaticPageController::class, 'terms'])->name('terms');
     Route::get('/privacy', [StaticPageController::class, 'privacy'])->name('privacy');
     Route::get('/support', [StaticPageController::class, 'support'])->name('support');
+    Route::view('/agreements', 'pages.agreements')->name('agreements');
     Route::get('/checkout', PlanSelector::class)->name('checkout');
     Route::get('/login', LoginForm::class)->name('login');
+    Route::get('/forgot-password', ForgotPasswordForm::class)->name('password.request');
     Route::get('/signup', SignupForm::class)->name('signup');
     Route::get('/register', SignupForm::class)->name('register');
 

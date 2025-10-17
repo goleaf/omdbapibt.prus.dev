@@ -18,6 +18,8 @@ class SignupForm extends Component
 
     public string $password = '';
 
+    public bool $agreementsAccepted = false;
+
     protected CreateUser $createUser;
 
     public function boot(CreateUser $createUser): void
@@ -39,7 +41,7 @@ class SignupForm extends Component
         Auth::login($user);
         session()->regenerate();
 
-        $this->reset('password');
+        $this->reset('password', 'agreementsAccepted');
 
         $this->redirectRoute('dashboard', ['locale' => app()->getLocale()], navigate: true);
     }
@@ -67,6 +69,7 @@ class SignupForm extends Component
                 Rule::unique(User::class, 'email'),
             ],
             'password' => ['required', 'string', 'max:255', Password::min(8)],
+            'agreementsAccepted' => ['accepted'],
         ];
     }
 }
