@@ -13,7 +13,7 @@
             }
         @endphp
         <span class="text-sm uppercase">
-            {{ substr($displayName, 0, 1) }}
+            {{ mb_substr($displayName, 0, 1, 'UTF-8') }}
         </span>
     </button>
 
