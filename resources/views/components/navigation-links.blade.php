@@ -20,9 +20,6 @@ $linkClass = $layout === 'horizontal'
     <a href="{{ localized_route('pricing') }}" class="{{ $linkClass }}">
         {{ __('ui.nav.links.pricing') }}
     </a>
-    <a href="{{ localized_route('ui.components') }}" class="{{ $linkClass }}">
-        {{ __('ui.nav.links.components') }}
-    </a>
     @auth
         @if (auth()->user()?->isAdmin())
             <a href="{{ localized_route('admin.panel') }}" class="{{ $linkClass }}">
