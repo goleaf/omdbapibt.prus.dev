@@ -57,6 +57,7 @@ class StoreSubscriptionRequestTest extends TestCase
             ['en', 'A Stripe price identifier is required to start your trial.'],
             ['es', 'Se requiere un identificador de precio de Stripe para iniciar tu prueba.'],
             ['fr', 'Un identifiant de prix Stripe est requis pour démarrer votre essai.'],
+            ['ru', 'Чтобы запустить пробный период, укажите идентификатор цены Stripe.'],
         ];
     }
 

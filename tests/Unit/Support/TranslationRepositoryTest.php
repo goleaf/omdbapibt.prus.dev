@@ -13,7 +13,7 @@ class TranslationRepositoryTest extends TestCase
     {
         $repository = app(TranslationRepository::class);
 
-        $this->assertSame(['en', 'es', 'fr'], $repository->locales());
+        $this->assertSame(['en', 'es', 'fr', 'ru'], $repository->locales());
     }
 
     public function test_keys_are_flattened_with_group_prefixes(): void

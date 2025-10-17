@@ -251,7 +251,7 @@ class TvShow extends Model
             return $fallback;
         }
 
-        foreach (['en', 'es', 'fr'] as $preferredLocale) {
+        foreach (['en', 'es', 'fr', 'ru'] as $preferredLocale) {
             if ($this->hasNonEmptyTranslation($translations, $preferredLocale)) {
                 return $translations[$preferredLocale];
             }
