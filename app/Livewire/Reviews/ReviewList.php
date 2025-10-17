@@ -15,6 +15,7 @@ class ReviewList extends Component
     public function render()
     {
         $reviews = Review::query()
+            ->with(['movie', 'user'])
             ->latest()
             ->paginate(5);
 

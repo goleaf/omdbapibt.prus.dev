@@ -4,6 +4,7 @@ namespace Tests\Feature\Livewire;
 
 use App\Livewire\Reviews\ReviewForm;
 use App\Livewire\Reviews\ReviewList;
+use App\Models\Movie;
 use App\Models\Review;
 use App\Support\HtmlSanitizer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,12 +27,13 @@ class ReviewSecurityTest extends TestCase
     public function test_review_submission_sanitizes_malicious_html(): void
     {
         $user = \App\Models\User::factory()->create();
+        $movie = Movie::factory()->create();
 
         $malicious = '<script>alert(1)</script><p><strong>Great</strong> movie!</p>';
 
         Livewire::actingAs($user)
             ->test(ReviewForm::class)
-            ->set('form.movieTitle', 'Example Film')
+            ->set('form.movieId', $movie->id)
             ->set('form.rating', 4)
             ->set('form.body', $malicious)
             ->call('submit')
@@ -41,6 +43,7 @@ class ReviewSecurityTest extends TestCase
         $review = Review::first();
 
         $this->assertNotNull($review);
+        $this->assertSame($movie->id, $review->movie_id);
         $this->assertStringNotContainsString('<script>', $review->body);
         $this->assertSame(HtmlSanitizer::clean($malicious), $review->body);
         $this->assertStringContainsString('<strong>Great</strong> movie!', $review->body);

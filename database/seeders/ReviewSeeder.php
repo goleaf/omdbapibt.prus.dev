@@ -38,12 +38,12 @@ class ReviewSeeder extends Seeder
         $this->forChunkedCount(1_000, 200, function (int $count) use ($userIds, $movies): void {
             Review::factory()
                 ->count($count)
-                ->make(['user_id' => null])
+                ->make(['user_id' => null, 'movie_id' => null])
                 ->each(function (Review $review) use ($userIds, $movies): void {
                     $movie = $movies->random();
 
                     $review->user_id = $userIds->random();
-                    $review->movie_title = $movie->localizedTitle('en');
+                    $review->movie_id = $movie->id;
 
                     $review->save();
                 });

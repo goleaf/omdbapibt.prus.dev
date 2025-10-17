@@ -239,7 +239,7 @@ class MigrationsTest extends TestCase
             'reviews table' => ['reviews', [
                 'id',
                 'user_id',
-                'movie_title',
+                'movie_id',
                 'rating',
                 'body',
                 'created_at',

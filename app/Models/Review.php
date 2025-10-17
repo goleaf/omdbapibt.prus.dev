@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Movie;
 use App\Models\User;
 use App\Support\HtmlSanitizer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,9 +21,18 @@ class Review extends Model
      */
     protected $fillable = [
         'user_id',
-        'movie_title',
+        'movie_id',
         'rating',
         'body',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'movie_id' => 'integer',
     ];
 
     /**
@@ -32,6 +42,7 @@ class Review extends Model
      */
     protected $with = [
         'user',
+        'movie',
     ];
 
     /**
@@ -48,5 +59,13 @@ class Review extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Movie being reviewed.
+     */
+    public function movie(): BelongsTo
+    {
+        return $this->belongsTo(Movie::class);
     }
 }

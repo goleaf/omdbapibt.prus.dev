@@ -3,6 +3,7 @@
 namespace Tests\Feature\Livewire;
 
 use App\Livewire\Reviews\ReviewForm;
+use App\Models\Movie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -15,17 +16,17 @@ class ReviewFormValidationTest extends TestCase
     {
         $expectations = [
             'en' => [
-                'movie' => 'Please enter the movie title.',
+                'movie' => 'Please select a movie.',
                 'rating' => 'Choose a rating between 1 and 5.',
                 'body' => 'Please share your review.',
             ],
             'es' => [
-                'movie' => 'Por favor escribe el título de la película.',
+                'movie' => 'Por favor selecciona una película.',
                 'rating' => 'Elige una calificación entre 1 y 5.',
                 'body' => 'Por favor comparte tu reseña.',
             ],
             'fr' => [
-                'movie' => 'Veuillez saisir le titre du film.',
+                'movie' => 'Veuillez sélectionner un film.',
                 'rating' => 'Choisissez une note entre 1 et 5.',
                 'body' => 'Veuillez partager votre avis.',
             ],
@@ -35,12 +36,12 @@ class ReviewFormValidationTest extends TestCase
             app()->setLocale($locale);
 
             Livewire::test(ReviewForm::class)
-                ->set('form.movieTitle', '')
+                ->set('form.movieId', '')
                 ->set('form.rating', 0)
                 ->set('form.body', '')
                 ->call('submit')
                 ->assertHasErrors([
-                    'form.movieTitle' => ['required'],
+                    'form.movieId' => ['required'],
                     'form.rating' => ['between'],
                     'form.body' => ['required'],
                 ])
@@ -58,9 +59,11 @@ class ReviewFormValidationTest extends TestCase
 
         app()->setLocale('fr');
 
+        $movie = Movie::factory()->create();
+
         Livewire::actingAs($user)
             ->test(ReviewForm::class)
-            ->set('form.movieTitle', 'Le Fabuleux Destin d\'Amélie Poulain')
+            ->set('form.movieId', $movie->id)
             ->set('form.rating', 5)
             ->set('form.body', 'Un classique moderne.')
             ->call('submit')
