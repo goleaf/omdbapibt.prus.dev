@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\ListMoviePivot;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,8 +16,18 @@ class ListModel extends Model
 
     public const WATCH_LATER_TITLE = 'Watch Later';
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'lists';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'user_id',
         'title',
@@ -25,6 +36,11 @@ class ListModel extends Model
         'cover_url',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'public' => 'boolean',
     ];
@@ -50,8 +66,9 @@ class ListModel extends Model
      */
     public function movies(): BelongsToMany
     {
-        return $this->belongsToMany(Movie::class, 'list_items')
-            ->withPivot('position')
+        return $this->belongsToMany(Movie::class, 'list_items', 'list_id', 'movie_id')
+            ->using(ListMoviePivot::class)
+            ->withPivot(['position'])
             ->withTimestamps();
     }
 

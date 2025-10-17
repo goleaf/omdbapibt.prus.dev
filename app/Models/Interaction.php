@@ -12,28 +12,34 @@ class Interaction extends Model
     use HasFactory;
 
     /**
-     * @var list<string>
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'interactions';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
         'user_id',
         'movie_id',
         'type',
         'payload',
-        'metadata',
-        'interacted_at',
+        'occurred_at',
     ];
 
     /**
-     * @return array<string, string>
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'payload' => 'array',
-            'metadata' => 'array',
-            'interacted_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'payload' => 'array',
+        'occurred_at' => 'datetime',
+    ];
 
     public function movie(): BelongsTo
     {

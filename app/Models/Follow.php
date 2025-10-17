@@ -3,32 +3,51 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Follow extends Model
+class Follow extends Pivot
 {
     /** @use HasFactory<\Database\Factories\FollowFactory> */
     use HasFactory;
 
     /**
-     * @var list<string>
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'follows';
+
+    /**
+     * Indicates if the pivot has timestamp columns.
+     *
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string|null
+     */
+    protected $primaryKey = null;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
         'follower_id',
         'followed_id',
-        'accepted_at',
     ];
-
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'accepted_at' => 'datetime',
-        ];
-    }
 
     public function follower(): BelongsTo
     {

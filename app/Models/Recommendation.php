@@ -12,29 +12,50 @@ class Recommendation extends Model
     use HasFactory;
 
     /**
-     * @var list<string>
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'recommendations';
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string|null
+     */
+    protected $primaryKey = null;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
         'user_id',
+        'algo',
         'movie_id',
+        'rank',
         'score',
-        'reason',
-        'source',
-        'metadata',
-        'expires_at',
+        'context',
     ];
 
     /**
-     * @return array<string, string>
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'score' => 'float',
-            'metadata' => 'array',
-            'expires_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'rank' => 'integer',
+        'score' => 'float',
+        'context' => 'array',
+    ];
 
     public function movie(): BelongsTo
     {

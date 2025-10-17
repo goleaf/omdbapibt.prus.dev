@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\ResolvesTranslations;
+use App\Models\Pivots\FilmTagPivot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -26,6 +27,13 @@ class Tag extends Model
         self::TYPE_SYSTEM,
         self::TYPE_COMMUNITY,
     ];
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'tags';
 
     /**
      * The attributes that are mass assignable.
@@ -53,6 +61,7 @@ class Tag extends Model
     public function movies(): BelongsToMany
     {
         return $this->belongsToMany(Movie::class, 'film_tag')
+            ->using(FilmTagPivot::class)
             ->withPivot(['user_id', 'weight'])
             ->withTimestamps();
     }
