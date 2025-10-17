@@ -60,4 +60,25 @@ class MovieLookupRequest extends FormRequest
             'errors' => $errors->toArray(),
         ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
     }
+
+    /**
+     * Provide the request body parameter descriptions for Scribe.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function bodyParameters(): array
+    {
+        return [
+            'query' => [
+                'description' => 'Search phrase that will be matched against movie titles.',
+                'example' => 'The Matrix',
+                'type' => 'string',
+            ],
+            'limit' => [
+                'description' => 'Maximum number of results that should be returned. Defaults to 10 when omitted.',
+                'example' => 10,
+                'type' => 'integer',
+            ],
+        ];
+    }
 }

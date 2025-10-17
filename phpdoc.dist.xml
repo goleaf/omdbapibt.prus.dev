@@ -15,11 +15,7 @@
         <api>
             <source dsn=".">
                 <path>app</path>
-                <path>bootstrap</path>
-                <path>config</path>
-                <path>database</path>
                 <path>routes</path>
-                <path>tests</path>
             </source>
             <output>api</output>
             <ignore hidden="true" symlinks="true">
