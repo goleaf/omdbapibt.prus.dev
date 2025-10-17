@@ -16,20 +16,43 @@
         </div>
 
         @php
-            $footerLinks = [
-                [
-                    'label' => __('ui.nav.footer.terms'),
-                    'href' => localized_route('terms'),
-                ],
-                [
-                    'label' => __('ui.nav.footer.privacy'),
-                    'href' => localized_route('privacy'),
-                ],
-                [
-                    'label' => __('ui.nav.footer.support'),
-                    'href' => localized_route('support'),
-                ],
-            ];
+            $configuredFooterLinks = collect(config('site.footer.links', []))
+                ->map(function ($link) {
+                    $href = $link['url'] ?? null;
+
+                    if (! $href && isset($link['route'])) {
+                        $href = localized_route($link['route']);
+                    }
+
+                    return [
+                        'label' => isset($link['label']) ? __($link['label']) : null,
+                        'href' => $href,
+                        'target' => $link['target'] ?? null,
+                        'rel' => $link['rel'] ?? null,
+                    ];
+                })
+                ->filter(fn ($link) => filled($link['href']) && filled($link['label']));
+
+            $footerLinks = $configuredFooterLinks->isNotEmpty()
+                ? $configuredFooterLinks->all()
+                : [
+                    [
+                        'label' => __('ui.nav.footer.terms'),
+                        'href' => localized_route('terms'),
+                    ],
+                    [
+                        'label' => __('ui.nav.footer.agreements'),
+                        'href' => localized_route('agreements'),
+                    ],
+                    [
+                        'label' => __('ui.nav.footer.privacy'),
+                        'href' => localized_route('privacy'),
+                    ],
+                    [
+                        'label' => __('ui.nav.footer.support'),
+                        'href' => localized_route('support'),
+                    ],
+                ];
         @endphp
 
         <x-layout.navigation />

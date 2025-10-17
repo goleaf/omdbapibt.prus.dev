@@ -21,6 +21,7 @@ class SignupFormTest extends TestCase
             ->set('name', 'New Member')
             ->set('email', 'new-member@example.com')
             ->set('password', 'secret-pass')
+            ->set('agreementsAccepted', true)
             ->call('register')
             ->assertHasNoErrors()
             ->assertRedirect(route('dashboard', ['locale' => app()->getLocale()]));
@@ -32,5 +33,17 @@ class SignupFormTest extends TestCase
         ]);
 
         Mail::assertQueued(WelcomeUser::class);
+    }
+
+    public function test_agreements_are_required_to_register(): void
+    {
+        Mail::fake();
+
+        Livewire::test(SignupForm::class)
+            ->set('name', 'New Member')
+            ->set('email', 'new-member@example.com')
+            ->set('password', 'secret-pass')
+            ->call('register')
+            ->assertHasErrors(['agreementsAccepted' => 'accepted']);
     }
 }

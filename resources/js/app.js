@@ -414,6 +414,52 @@ const setupInfiniteScroll = (root) => {
     root._infiniteObserver = observer;
 };
 
+const setupPasswordToggles = () => {
+    document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+        if (button._passwordHandler) {
+            return;
+        }
+
+        const targetId = button.getAttribute('data-password-target');
+        const input = targetId ? document.getElementById(targetId) : null;
+
+        if (! input) {
+            return;
+        }
+
+        const updateState = () => {
+            const isVisible = input.type === 'text';
+            button.setAttribute('aria-pressed', isVisible ? 'true' : 'false');
+
+            const showIcon = button.querySelector('[data-password-icon="show"]');
+            const hideIcon = button.querySelector('[data-password-icon="hide"]');
+
+            if (showIcon && hideIcon) {
+                showIcon.classList.toggle('hidden', isVisible);
+                hideIcon.classList.toggle('hidden', !isVisible);
+            }
+        };
+
+        const handleClick = (event) => {
+            event.preventDefault();
+
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+
+            updateState();
+            input.focus({ preventScroll: true });
+        };
+
+        button.addEventListener('click', handleClick);
+        button._passwordHandler = handleClick;
+
+        updateState();
+    });
+};
+
 const bootCatalogModules = () => {
     document.querySelectorAll('[data-infinite-scroll="true"]').forEach((root) => {
         setupSidebar(root);
@@ -426,6 +472,7 @@ const bootCatalogModules = () => {
 document.addEventListener('DOMContentLoaded', () => {
     setupThemeToggle();
     setupMobileNavigation();
+    setupPasswordToggles();
     bootCatalogModules();
 });
 
@@ -436,14 +483,17 @@ document.addEventListener('livewire:init', () => {
         const root = component.el.closest('[data-infinite-scroll="true"]');
 
         if (!root) {
+            setupPasswordToggles();
             return;
         }
 
         setupSidebar(root);
         setupInfiniteScroll(root);
         setupMobileNavigation();
+        setupPasswordToggles();
     });
 
     setupThemeToggle();
     setupMobileNavigation();
+    setupPasswordToggles();
 });
