@@ -10,7 +10,6 @@ return [
             'home' => 'Главная',
             'browse' => 'Каталог',
             'pricing' => 'Тарифы',
-            'components' => 'Компоненты UI',
             'account' => 'Аккаунт',
             'admin' => 'Админ',
         ],

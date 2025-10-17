@@ -50,8 +50,7 @@ class MobilePanelTest extends TestCase
         Livewire::test(MobilePanel::class)
             ->assertSee(__('ui.nav.links.home'))
             ->assertSee(__('ui.nav.links.browse'))
-            ->assertSee(__('ui.nav.links.pricing'))
-            ->assertSee(__('ui.nav.links.components'));
+            ->assertSee(__('ui.nav.links.pricing'));
     }
 
     public function test_it_displays_auth_buttons_for_guests(): void
