@@ -259,6 +259,24 @@ class SearchBarTest extends TestCase
             ->assertSet('showResults', true);
     }
 
+    public function test_it_selects_recent_search_with_quotes(): void
+    {
+        $term = 'Schindler\'s "List"';
+
+        Movie::factory()->create([
+            'title' => ['en' => $term],
+            'slug' => 'schindlers-list',
+        ]);
+
+        session()->put('search_history', [$term]);
+
+        Livewire::test(SearchBar::class)
+            ->call('selectRecentSearch', $term)
+            ->assertSet('query', $term)
+            ->assertSet('showRecent', false)
+            ->assertSet('showResults', true);
+    }
+
     public function test_it_clears_recent_searches(): void
     {
         session()->put('search_history', ['Matrix', 'Inception']);
