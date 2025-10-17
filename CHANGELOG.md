@@ -2,6 +2,25 @@
 
 ## [Unreleased] - 2025-10-17
 
+### Added - Real-Time Search with Keyboard Navigation
+
+#### Search Functionality
+- Real-time search across movies, TV shows, and people
+- Debounced input (300ms) for performance optimization
+- Full-text search with LIKE fallback for SQLite compatibility
+- Results limited to 5 per category, ordered by popularity
+- Display with poster images, titles, years, and departments
+- Fallback icons for missing images
+- Auto-clear search on result click
+- "No results" state with appropriate messaging
+
+#### Keyboard Navigation
+- Arrow Up/Down to navigate through search results
+- Enter to open the selected result
+- Visual highlight (emerald ring) for active result
+- Keyboard-only interaction support
+- Auto-reset active index on query change
+
 ### Added - Header Refactor with Livewire Components
 
 #### New Components
