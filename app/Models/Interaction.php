@@ -36,10 +36,13 @@ class Interaction extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'payload' => 'array',
-        'occurred_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'payload' => 'array',
+            'occurred_at' => 'datetime',
+        ];
+    }
 
     public function movie(): BelongsTo
     {

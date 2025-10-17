@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\ValidationException;
 
 class Rating extends Model
 {
@@ -52,12 +53,15 @@ class Rating extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'rating' => 'integer',
-        'liked' => 'boolean',
-        'disliked' => 'boolean',
-        'rated_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'rating' => 'integer',
+            'liked' => 'boolean',
+            'disliked' => 'boolean',
+            'rated_at' => 'datetime',
+        ];
+    }
 
     /**
      * Scope ratings that represent positive feedback.
@@ -73,6 +77,27 @@ class Rating extends Model
     public function scopeDisliked(Builder $query): Builder
     {
         return $query->where('disliked', true);
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Rating $rating): void {
+            if ($rating->liked && $rating->disliked) {
+                throw ValidationException::withMessages([
+                    'disliked' => 'A rating cannot be liked and disliked at the same time.',
+                ]);
+            }
+
+            if ($rating->rating === null) {
+                return;
+            }
+
+            if ($rating->rating < 1 || $rating->rating > 10) {
+                throw ValidationException::withMessages([
+                    'rating' => 'The rating must be between 1 and 10.',
+                ]);
+            }
+        });
     }
 
     public function movie(): BelongsTo

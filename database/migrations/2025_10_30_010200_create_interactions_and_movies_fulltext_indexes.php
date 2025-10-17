@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Throwable; // kept for non-sqlite drivers; handled in handleDriverException()
 
 return new class extends Migration
 {
@@ -38,7 +37,7 @@ return new class extends Migration
                 $table->index(['user_id', 'type']);
                 $table->index(['movie_id', 'type']);
             });
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->handleDriverException($exception);
         }
     }
@@ -57,7 +56,7 @@ return new class extends Migration
             Schema::table('movies', function (Blueprint $table): void {
                 $table->fullText(['title', 'overview'], 'movies_title_overview_fulltext');
             });
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->handleDriverException($exception);
         }
     }
@@ -76,7 +75,7 @@ return new class extends Migration
             Schema::table('movies', function (Blueprint $table): void {
                 $table->dropFullText('movies_title_overview_fulltext');
             });
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->handleDriverException($exception);
         }
     }
@@ -89,7 +88,7 @@ return new class extends Migration
 
         try {
             Schema::dropIfExists('interactions');
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->handleDriverException($exception);
         }
     }

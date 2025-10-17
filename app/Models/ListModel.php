@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Pivots\ListMoviePivot;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,8 +66,7 @@ class ListModel extends Model
     public function movies(): BelongsToMany
     {
         return $this->belongsToMany(Movie::class, 'list_items', 'list_id', 'movie_id')
-            ->using(ListMoviePivot::class)
-            ->withPivot(['position'])
+            ->withPivot('position')
             ->withTimestamps();
     }
 
