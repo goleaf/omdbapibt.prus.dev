@@ -1,4 +1,10 @@
-<div class="header-search relative w-full max-w-md" x-data="{ focused: false }">
+<div 
+    class="header-search relative w-full max-w-md" 
+    x-data="{ focused: false }"
+    x-on:keydown.arrow-down.prevent="$wire.highlightNext()"
+    x-on:keydown.arrow-up.prevent="$wire.highlightPrevious()"
+    x-on:keydown.enter.prevent="$wire.openActiveResult()"
+>
     <div class="relative">
         <input
             type="search"
@@ -60,7 +66,7 @@
                                 @foreach ($results['movies'] as $movie)
                                     <a href="{{ $movie['url'] }}" 
                                        wire:click="clear"
-                                       class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10">
+                                       class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10 {{ isset($movie['index']) && $movie['index'] === $activeIndex ? 'bg-emerald-500/10 ring-2 ring-emerald-400/50' : '' }}">
                                         @if ($movie['poster'])
                                             <img src="https://image.tmdb.org/t/p/w92{{ $movie['poster'] }}" 
                                                  alt="{{ $movie['title'] }}"
@@ -91,7 +97,7 @@
                                 @foreach ($results['shows'] as $show)
                                     <a href="{{ $show['url'] }}" 
                                        wire:click="clear"
-                                       class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10">
+                                       class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10 {{ isset($show['index']) && $show['index'] === $activeIndex ? 'bg-emerald-500/10 ring-2 ring-emerald-400/50' : '' }}">
                                         @if ($show['poster'])
                                             <img src="https://image.tmdb.org/t/p/w92{{ $show['poster'] }}" 
                                                  alt="{{ $show['title'] }}"
@@ -122,7 +128,7 @@
                                 @foreach ($results['people'] as $person)
                                     <a href="{{ $person['url'] }}" 
                                        wire:click="clear"
-                                       class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10">
+                                       class="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-emerald-500/10 {{ isset($person['index']) && $person['index'] === $activeIndex ? 'bg-emerald-500/10 ring-2 ring-emerald-400/50' : '' }}">
                                         @if ($person['poster'])
                                             <img src="https://image.tmdb.org/t/p/w92{{ $person['poster'] }}" 
                                                  alt="{{ $person['name'] }}"

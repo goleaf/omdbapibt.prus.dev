@@ -19,6 +19,10 @@ class SearchBar extends Component
 
     public array $results = [];
 
+    public array $flatResults = [];
+
+    public int $activeIndex = -1;
+
     public bool $showResults = false;
 
     public bool $isLoading = false;
@@ -32,31 +36,92 @@ class SearchBar extends Component
 
     public function updatedQuery(): void
     {
+        $this->activeIndex = -1;
+
         if (strlen($this->query) < self::MIN_QUERY_LENGTH) {
-            $this->reset(['results', 'showResults']);
+            $this->reset(['results', 'flatResults', 'showResults']);
 
             return;
         }
 
         $this->isLoading = true;
-        $this->results = $this->search();
+        $this->search();
         $this->showResults = true;
         $this->isLoading = false;
     }
 
-    protected function search(): array
+    protected function search(): void
     {
         $term = trim($this->query);
 
         if (Str::length($term) < self::MIN_QUERY_LENGTH) {
-            return $this->emptyResults();
+            $this->results = $this->emptyResults();
+            $this->flatResults = [];
+
+            return;
         }
 
-        return [
-            'movies' => $this->formatMovies($this->searchMovies($term)),
-            'shows' => $this->formatTvShows($this->searchTvShows($term)),
-            'people' => $this->formatPeople($this->searchPeople($term)),
+        $movies = $this->formatMovies($this->searchMovies($term));
+        $shows = $this->formatTvShows($this->searchTvShows($term));
+        $people = $this->formatPeople($this->searchPeople($term));
+
+        $this->storeResults($movies, $shows, $people);
+    }
+
+    protected function storeResults(array $movies, array $shows, array $people): void
+    {
+        $grouped = [
+            'movies' => array_values($movies),
+            'shows' => array_values($shows),
+            'people' => array_values($people),
         ];
+
+        $flat = [];
+
+        foreach ($grouped as $group => $items) {
+            foreach ($items as $index => $item) {
+                $item['index'] = count($flat);
+                $item['group'] = $group;
+                $flat[] = $item;
+                $grouped[$group][$index] = $item;
+            }
+        }
+
+        $this->results = $grouped;
+        $this->flatResults = $flat;
+    }
+
+    public function highlightNext(): void
+    {
+        if (empty($this->flatResults)) {
+            return;
+        }
+
+        $this->showResults = true;
+        $this->activeIndex = ($this->activeIndex + 1) % count($this->flatResults);
+    }
+
+    public function highlightPrevious(): void
+    {
+        if (empty($this->flatResults)) {
+            return;
+        }
+
+        $this->showResults = true;
+        $this->activeIndex = $this->activeIndex <= 0
+            ? count($this->flatResults) - 1
+            : $this->activeIndex - 1;
+    }
+
+    public function openActiveResult(): mixed
+    {
+        $active = $this->flatResults[$this->activeIndex] ?? null;
+
+        if (! $active || empty($active['url'])) {
+            return null;
+        }
+
+        return redirect()->to($active['url']);
     }
 
     protected function searchMovies(string $term): Collection
@@ -199,7 +264,7 @@ class SearchBar extends Component
 
     public function clear(): void
     {
-        $this->reset(['query', 'results', 'showResults']);
+        $this->reset(['query', 'results', 'flatResults', 'showResults', 'activeIndex']);
     }
 
     #[On('focusSearch')]
@@ -212,6 +277,7 @@ class SearchBar extends Component
     public function closeDropdowns(): void
     {
         $this->showResults = false;
+        $this->activeIndex = -1;
     }
 
     public function render()
