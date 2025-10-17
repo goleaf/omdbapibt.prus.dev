@@ -25,11 +25,11 @@ class BrowsePage extends Component
             ->layout('layouts.app', [
                 'title' => __('Browse the catalog'),
                 'header' => $this->locked
-                    ? __('Unlock the full OMDb experience')
-                    : __('Browse trending movies and shows'),
+                    ? __('Member area')
+                    : __('Browse movies and shows'),
                 'subheader' => $this->locked
-                    ? __('Sign in and upgrade to explore the complete catalog, streaming options, and personalized filters.')
-                    : __('Use filters, curated categories, and real-time streaming availability to zero in on what to watch next.'),
+                    ? __('Sign in with an active subscription to open the full library and all of the sorting tools.')
+                    : __('Use the filters on the left to narrow things down or scroll through the lists for quick ideas.'),
             ]);
     }
 }

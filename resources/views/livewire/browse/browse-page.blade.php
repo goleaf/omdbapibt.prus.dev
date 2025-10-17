@@ -1,93 +1,111 @@
-<div>
+<div class="space-y-10">
     @if ($locked)
-        <div class="mx-auto max-w-3xl space-y-8 rounded-3xl border border-slate-800/60 bg-slate-900/70 p-10 text-center">
-            <div class="space-y-3">
-                <h2 class="text-2xl font-semibold text-white">{{ __('subscriptions.errors.access_required') }}</h2>
+        <section class="mx-auto max-w-3xl space-y-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-8">
+            <div class="space-y-2 text-left">
+                <h2 class="text-2xl font-semibold text-white">{{ __('Subscription required') }}</h2>
                 <p class="text-sm text-slate-300">
-                    {{ __('Access to advanced filters, watch history sync, and cinematic recommendations is reserved for subscribers.') }}
+                    {{ __('This section is only for subscribers. Sign in or upgrade to browse every title and use the full set of tools.') }}
                 </p>
             </div>
 
-            <div class="flex flex-col justify-center gap-3 sm:flex-row">
+            <div class="flex flex-col gap-3 sm:flex-row">
                 <a href="{{ localized_route('login') }}" class="rounded-full border border-slate-700 px-6 py-2 text-sm font-semibold text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200">
-                    {{ __('Sign in to continue') }}
+                    {{ __('Sign in') }}
                 </a>
                 <a href="{{ localized_route('register') }}" class="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
-                    {{ __('Create an account') }}
+                    {{ __('Start a subscription') }}
                 </a>
-                <a href="{{ localized_route('pricing') }}" class="rounded-full border border-emerald-400/50 px-6 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300">
-                    {{ __('Compare plans') }}
+                <a href="{{ localized_route('pricing') }}" class="rounded-full border border-emerald-400/60 px-6 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300">
+                    {{ __('See plans') }}
                 </a>
             </div>
 
-            <div class="grid gap-6 rounded-2xl border border-slate-800/70 bg-slate-950/70 p-6 text-left sm:grid-cols-3">
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ __('What you get') }}</h3>
-                    <ul class="mt-3 space-y-2 text-sm text-slate-300">
-                        <li>{{ __('Unlimited HD trailers and streaming providers') }}</li>
-                        <li>{{ __('Personalized watchlist and alerts') }}</li>
-                        <li>{{ __('Early access to parser updates') }}</li>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="space-y-3 rounded-xl border border-slate-800 bg-slate-950/70 p-5 text-left">
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ __('What changes with access') }}</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>{{ __('Search the entire catalog without limits') }}</li>
+                        <li>{{ __('Save filters that fit how you watch') }}</li>
+                        <li>{{ __('Pick up where you left off on any device') }}</li>
                     </ul>
                 </div>
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ __('Stay in the loop') }}</h3>
-                    <p class="mt-3 text-sm text-slate-300">
-                        {{ __('Subscribers are the first to see new parser drops, curated events, and festival spotlights.') }}
+                <div class="space-y-3 rounded-xl border border-slate-800 bg-slate-950/70 p-5 text-left">
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ __('Already a member?') }}</h3>
+                    <p class="text-sm text-slate-300">
+                        {{ __('Head to checkout to confirm your billing details and we will unlock the page right away.') }}
                     </p>
-                </div>
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ __('Already subscribed?') }}</h3>
-                    <p class="mt-3 text-sm text-slate-300">
-                        {{ __('Visit checkout to finalize billing and unlock access immediately.') }}
-                    </p>
-                    <a href="{{ localized_route('checkout') }}" class="mt-3 inline-flex rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
+                    <a href="{{ localized_route('checkout') }}" class="inline-flex w-max rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
                         {{ __('Go to checkout') }}
                     </a>
                 </div>
             </div>
-        </div>
+        </section>
     @else
-        <div class="grid gap-10 lg:grid-cols-[320px,1fr]">
+        <div class="grid gap-8 lg:grid-cols-[280px,1fr]">
             <aside class="space-y-6">
-                <div class="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Filters</h2>
-                    @livewire('media-filters')
-                </div>
-                <div class="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Curated hubs</h3>
-                    <ul class="mt-3 space-y-2 text-sm text-slate-300">
-                        <li class="rounded-2xl border border-slate-800 bg-slate-950/80 px-4 py-2">Award winners</li>
-                        <li class="rounded-2xl border border-slate-800 bg-slate-950/80 px-4 py-2">Critics choice</li>
-                        <li class="rounded-2xl border border-slate-800 bg-slate-950/80 px-4 py-2">Coming soon</li>
+                <section class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
+                    <div class="space-y-1">
+                        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ __('Filters') }}</h2>
+                        <p class="text-sm text-slate-300">{{ __('Pick a year, genre, or streaming provider to tighten the results.') }}</p>
+                    </div>
+                    <div class="pt-1">
+                        @livewire('media-filters')
+                    </div>
+                </section>
+
+                <section class="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">{{ __('Quick groups') }}</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li class="rounded-xl border border-slate-800 bg-slate-950/80 px-4 py-2">{{ __('Now playing in theaters') }}</li>
+                        <li class="rounded-xl border border-slate-800 bg-slate-950/80 px-4 py-2">{{ __('Highly rated classics') }}</li>
+                        <li class="rounded-xl border border-slate-800 bg-slate-950/80 px-4 py-2">{{ __('Family night picks') }}</li>
                     </ul>
-                </div>
+                </section>
             </aside>
 
             <section class="space-y-8">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 class="text-2xl font-semibold text-slate-50">Trending right now</h2>
-                        <p class="text-sm text-slate-400">Updated hourly based on TMDb popularity and OMDb ratings.</p>
+                <article class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-6">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold text-slate-50">{{ __('Trending right now') }}</h2>
+                            <p class="text-sm text-slate-300">{{ __('Fresh picks updated every hour from OMDb and TMDb data.') }}</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200">
+                                {{ __('Save filters') }}
+                            </button>
+                            <button class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">
+                                {{ __('Shuffle list') }}
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex gap-3">
-                        <button class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:border-emerald-400 hover:text-emerald-200">Save filters</button>
-                        <button class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400">Randomize</button>
+
+                    <div class="space-y-6">
+                        @livewire('trending-reel')
                     </div>
-                </div>
+                </article>
 
-                @livewire('trending-reel')
-
-                <div class="space-y-6">
-                    <h3 class="text-xl font-semibold text-slate-50">More to explore</h3>
-                    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        @foreach (['Neo Noir', 'Time Travel', 'Global Cinema', 'Documentary Spotlight', 'Family Favorites', 'Hidden Gems'] as $collection)
-                            <a href="#" class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 text-sm text-slate-200 transition hover:border-emerald-400/60">
+                <article class="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-6">
+                    <div class="space-y-2">
+                        <h3 class="text-lg font-semibold text-slate-50">{{ __('Need inspiration?') }}</h3>
+                        <p class="text-sm text-slate-300">{{ __('Browse a few ready-made collections for nights when you just want something reliable.') }}</p>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach ([
+                            __('Documentaries with buzz'),
+                            __('Comfort rewatches'),
+                            __('Festival favorites'),
+                            __('Short series to finish fast'),
+                            __('Movies under two hours'),
+                            __('Kid friendly adventures'),
+                        ] as $collection)
+                            <a href="#" class="rounded-xl border border-slate-800 bg-slate-950/70 p-4 text-sm text-slate-200 transition hover:border-emerald-400/60">
                                 <span class="font-semibold text-slate-50">{{ $collection }}</span>
-                                <p class="mt-2 text-xs text-slate-400">Dive into our hand-picked {{ strtolower($collection) }} selections.</p>
+                                <p class="mt-2 text-xs text-slate-400">{{ __('Open the list to see everything inside.') }}</p>
                             </a>
                         @endforeach
                     </div>
-                </div>
+                </article>
             </section>
         </div>
     @endif

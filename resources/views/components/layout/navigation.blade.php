@@ -30,7 +30,7 @@
 
             <a href="{{ localized_route('home') }}" class="flex items-center gap-2 text-lg font-semibold tracking-wide">
                 <span class="text-emerald-400">◎</span>
-                <span>{{ __('ui.nav.brand.primary') }}<span class="text-emerald-400">{{ __('ui.nav.brand.secondary') }}</span></span>
+                <span>{{ __('ui.nav.brand.primary') }}</span>
             </a>
         </div>
 
@@ -62,8 +62,6 @@
             <x-navigation-links layout="vertical" class="md:flex md:items-center md:gap-8 md:text-sm" />
 
             <div class="flex flex-col gap-4 border-t border-[color:var(--flux-border-soft)] pt-4 text-sm md:flex-row md:items-center md:gap-3 md:border-0 md:pt-0">
-                <x-theme-toggle class="inline-flex" />
-
                 @if ($user)
                     <span class="flux-text-muted">{{ $userName }}</span>
                     <form method="POST" action="{{ localized_route('logout') }}" class="md:flex md:items-center">

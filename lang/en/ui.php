@@ -10,7 +10,6 @@ return [
             'home' => 'Home',
             'browse' => 'Browse',
             'pricing' => 'Pricing',
-            'components' => 'UI components',
             'account' => 'Account',
             'admin' => 'Admin',
         ],
@@ -19,11 +18,6 @@ return [
             'register' => 'Join now',
             'logout' => 'Logout',
         ],
-        'theme' => [
-            'light' => 'Light mode',
-            'dark' => 'Dark mode',
-        ],
-        'theme_toggle' => 'Toggle theme',
         'menu' => [
             'label' => 'Navigation',
             'open' => 'Open navigation',

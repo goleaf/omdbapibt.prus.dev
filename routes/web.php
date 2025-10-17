@@ -44,7 +44,6 @@ $registerAppRoutes = function (): void {
     Route::get('/', HomePage::class)->name('home');
     Route::get('/browse', BrowsePage::class)->name('browse');
     Route::get('/pricing', PricingPage::class)->name('pricing');
-    Route::view('/ui/components', 'pages.ui.components')->name('ui.components');
     Route::get('/terms', [StaticPageController::class, 'terms'])->name('terms');
     Route::get('/privacy', [StaticPageController::class, 'privacy'])->name('privacy');
     Route::get('/support', [StaticPageController::class, 'support'])->name('support');

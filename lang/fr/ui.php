@@ -10,7 +10,6 @@ return [
             'home' => 'Accueil',
             'browse' => 'Explorer',
             'pricing' => 'Tarifs',
-            'components' => 'Composants de l’interface utilisateur',
             'account' => 'Compte',
             'admin' => 'Administration',
         ],
@@ -19,11 +18,6 @@ return [
             'register' => 'Rejoindre',
             'logout' => 'Déconnexion',
         ],
-        'theme' => [
-            'light' => 'Mode clair',
-            'dark' => 'Mode sombre',
-        ],
-        'theme_toggle' => 'Changer de thème',
         'menu' => [
             'label' => 'Navigation',
             'open' => 'Ouvrir la navigation',

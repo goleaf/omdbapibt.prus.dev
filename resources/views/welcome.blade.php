@@ -5,15 +5,12 @@
 @section('content')
     <div class="space-y-16">
         <x-flux.card heading="Cinematic intelligence" subheading="Livewire + Flux driven movie discovery" elevated>
-            <x-slot:actions>
-                <x-theme-toggle class="md:hidden" />
-            </x-slot:actions>
 
             <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
                 <div class="space-y-6">
                     <p class="text-base flux-text-muted">
                         Power your watchlists with a design system tuned for rich imagery, live previews, and accessible motion.
-                        Tailwind cinematic utilities keep every card, badge, and tab in sync across light and dark themes.
+                        Tailwind cinematic utilities keep every card, badge, and tab easy to read without extra setup.
                     </p>
                     <div class="flex flex-col gap-3 sm:flex-row">
                         <flux:button href="{{ localized_route('browse') }}" variant="primary" color="emerald" icon-leading="play">
@@ -66,14 +63,11 @@
                     <x-flux.rating-badge :score="95" tone="warm" label="Audience" />
                 </div>
             </x-flux.card>
-            <x-flux.card heading="Theme controls" subheading="Persisted across locales, tabs, and devices">
+            <x-flux.card heading="Helpful defaults" subheading="Consistent layouts without extra toggles">
                 <p class="text-sm flux-text-muted">
-                    The theme toggle persists user intent, respects system defaults, and updates transition-friendly gradients
-                    without layout jank.
+                    The interface ships in a single, easy-to-read style so you can focus on the catalog instead of fiddling with
+                    settings.
                 </p>
-                <div class="mt-4">
-                    <x-theme-toggle />
-                </div>
             </x-flux.card>
         </section>
     </div>
