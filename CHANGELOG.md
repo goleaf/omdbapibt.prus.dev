@@ -21,11 +21,20 @@
 - Keyboard-only interaction support
 - Auto-reset active index on query change
 
+#### Search History
+- Store up to 5 recent searches in session
+- Display recent searches when input is focused (empty query)
+- Click recent search to re-run the query
+- Clear button to remove all history
+- Move repeated searches to top (no duplicates)
+- Only save searches that return results
+- Works for both guests and authenticated users
+
 #### Tests
-- **33 comprehensive tests** for header components (75 assertions)
-- SearchBarTest: 10 tests covering search, keyboard nav, localization
-- UserMenuTest: 9 tests covering dropdown, auth states, permissions
-- MobilePanelTest: 14 tests covering panel state, navigation, auth UI
+- **40 comprehensive tests** for header components (95 assertions)
+- SearchBarTest: 17 tests (search, keyboard, localization, history)
+- UserMenuTest: 9 tests (dropdown, auth states, permissions)
+- MobilePanelTest: 14 tests (panel state, navigation, auth UI)
 - All tests passing with full coverage
 
 ### Added - Header Refactor with Livewire Components
