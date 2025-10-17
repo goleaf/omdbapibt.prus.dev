@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\FilmTagPivot;
+use App\Models\Pivots\ListMoviePivot;
+use App\Models\Pivots\MoviePlatformPivot;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -151,8 +154,9 @@ class Movie extends Model
      */
     public function lists(): BelongsToMany
     {
-        return $this->belongsToMany(ListModel::class, 'list_items')
-            ->withPivot('position')
+        return $this->belongsToMany(ListModel::class, 'list_items', 'movie_id', 'list_id')
+            ->using(ListMoviePivot::class)
+            ->withPivot(['position'])
             ->withTimestamps();
     }
 
@@ -170,6 +174,25 @@ class Movie extends Model
     public function ratings(): HasMany
     {
         return $this->hasMany(Rating::class);
+    }
+
+    /**
+     * Reviews submitted for the movie.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Platforms that make the movie available.
+     */
+    public function platforms(): BelongsToMany
+    {
+        return $this->belongsToMany(Platform::class, 'movie_platform')
+            ->using(MoviePlatformPivot::class)
+            ->withPivot(['availability', 'link'])
+            ->withTimestamps();
     }
 
     public function ratingForUser(User $user): ?Rating
@@ -214,6 +237,7 @@ class Movie extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'film_tag')
+            ->using(FilmTagPivot::class)
             ->withPivot(['user_id', 'weight'])
             ->withTimestamps()
             ->orderByPivot('weight');

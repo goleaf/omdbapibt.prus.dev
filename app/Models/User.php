@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,7 +16,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use Billable;
 
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -81,11 +83,63 @@ class User extends Authenticatable
     }
 
     /**
+     * Ratings authored by the user.
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    /**
+     * Ratings where the user liked the movie.
+     */
+    public function likedRatings(): HasMany
+    {
+        return $this->ratings()->liked();
+    }
+
+    /**
+     * Ratings where the user disliked the movie.
+     */
+    public function dislikedRatings(): HasMany
+    {
+        return $this->ratings()->disliked();
+    }
+
+    /**
+     * Reviews authored by the user.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
      * Lists created by the user.
      */
     public function lists(): HasMany
     {
         return $this->hasMany(ListModel::class);
+    }
+
+    /**
+     * Users this account is following.
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(self::class, 'follows', 'follower_id', 'followed_id')
+            ->using(Follow::class)
+            ->withTimestamps();
+    }
+
+    /**
+     * Users following this account.
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(self::class, 'follows', 'followed_id', 'follower_id')
+            ->using(Follow::class)
+            ->withTimestamps();
     }
 
     /**
@@ -123,31 +177,6 @@ class User extends Authenticatable
     public function watchHistories(): HasMany
     {
         return $this->hasMany(WatchHistory::class);
-    }
-
-    public function ratings(): HasMany
-    {
-        return $this->hasMany(Rating::class);
-    }
-
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class);
-    }
-
-    public function lists(): HasMany
-    {
-        return $this->hasMany(ListModel::class);
-    }
-
-    public function following(): BelongsToMany
-    {
-        return $this->belongsToMany(self::class, 'follows', 'follower_id', 'followed_id')->withTimestamps();
-    }
-
-    public function followers(): BelongsToMany
-    {
-        return $this->belongsToMany(self::class, 'follows', 'followed_id', 'follower_id')->withTimestamps();
     }
 
     public function profile(): HasOne
