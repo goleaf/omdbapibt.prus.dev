@@ -205,34 +205,6 @@ else
     info '.env file already present.'
 fi
 
-section "Ensuring application key"
-ensure_app_key
-
-section "Ensuring SQLite database file exists"
-DB_FILE="database/database.sqlite"
-if [[ ! -f "$DB_FILE" ]]; then
-    run_cmd mkdir -p "$(dirname "$DB_FILE")"
-    run_cmd touch "$DB_FILE"
-else
-    info "SQLite database file already present at $DB_FILE."
-fi
-
-section "Clearing compiled caches"
-printf '\033[0;36m$ %s\033[0m\n' "php artisan optimize:clear"
-set +e
-OPTIMIZE_OUTPUT="$(php artisan optimize:clear 2>&1)"
-OPTIMIZE_STATUS=$?
-set -e
-printf '%s\n' "$OPTIMIZE_OUTPUT"
-
-if [[ $OPTIMIZE_STATUS -ne 0 ]]; then
-    if echo "$OPTIMIZE_OUTPUT" | grep -qi 'no such table: cache'; then
-        info 'Cache table is not yet present; continuing after migrations.'
-    else
-        exit $OPTIMIZE_STATUS
-    fi
-fi
-
 COMPOSER_UPDATE_ARGS=(update --no-interaction --prefer-dist --optimize-autoloader)
 if [[ $NEEDS_DEV_DEPENDENCIES -eq 0 ]]; then
     COMPOSER_UPDATE_ARGS+=(--no-dev)
@@ -251,6 +223,33 @@ if [[ $SKIP_COMPOSER -eq 0 ]]; then
 else
     section "Skipping Composer dependency steps"
     COMPOSER_DEV_INSTALLED=0
+fi
+
+section "Ensuring application key"
+ensure_app_key
+
+section "Ensuring SQLite database file exists"
+DB_FILE="database/database.sqlite"
+if [[ ! -f "$DB_FILE" ]]; then
+    run_cmd mkdir -p "$(dirname "$DB_FILE")"
+    run_cmd touch "$DB_FILE"
+else
+    info "SQLite database file already present at $DB_FILE."
+fi
+
+section "Clearing compiled caches"
+printf '\033[0;36m$ %s\033[0m\n' "php artisan optimize:clear"
+if ! OPTIMIZE_OUTPUT="$(php artisan optimize:clear 2>&1)"; then
+    OPTIMIZE_STATUS=$?
+    printf '%s\n' "$OPTIMIZE_OUTPUT"
+
+    if echo "$OPTIMIZE_OUTPUT" | grep -qi 'no such table: cache'; then
+        info 'Cache table is not yet present; continuing after migrations.'
+    else
+        exit $OPTIMIZE_STATUS
+    fi
+else
+    printf '%s\n' "$OPTIMIZE_OUTPUT"
 fi
 
 if [[ $SKIP_NODE -eq 0 ]]; then
