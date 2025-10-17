@@ -6,6 +6,7 @@ use App\Enums\UserManagementAction;
 use App\Enums\UserRole;
 use App\Models\ListModel;
 use App\Models\Movie;
+use App\Models\Rating;
 use App\Models\User;
 use App\Models\UserManagementLog;
 use App\Models\WatchHistory;

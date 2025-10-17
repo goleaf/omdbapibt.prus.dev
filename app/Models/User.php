@@ -117,10 +117,6 @@ class User extends Authenticatable
     /**
      * Lists created by the user.
      */
-    public function lists(): HasMany
-    {
-        return $this->hasMany(ListModel::class);
-    }
 
     /**
      * Users this account is following.
@@ -177,6 +173,38 @@ class User extends Authenticatable
     public function watchHistories(): HasMany
     {
         return $this->hasMany(WatchHistory::class);
+    }
+
+    /**
+     * Lists created by the user.
+     */
+    public function lists(): HasMany
+    {
+        return $this->hasMany(ListModel::class);
+    }
+
+    public function ratingScoreForMovie(Movie $movie): ?int
+    {
+        /** @var Rating|null $rating */
+        $rating = $this->ratings()->where('movie_id', $movie->getKey())->first();
+
+        return $rating?->rating;
+    }
+
+    public function hasLikedMovie(Movie $movie): bool
+    {
+        return (bool) $this->ratings()
+            ->where('movie_id', $movie->getKey())
+            ->where('liked', true)
+            ->exists();
+    }
+
+    public function hasDislikedMovie(Movie $movie): bool
+    {
+        return (bool) $this->ratings()
+            ->where('movie_id', $movie->getKey())
+            ->where('disliked', true)
+            ->exists();
     }
 
     public function profile(): HasOne

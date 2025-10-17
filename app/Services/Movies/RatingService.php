@@ -29,7 +29,7 @@ class RatingService
 
         $rating->save();
 
-        return $rating->refresh();
+        return $rating;
     }
 
     /**
@@ -52,7 +52,7 @@ class RatingService
 
         $rating->save();
 
-        return $rating->refresh();
+        return $rating;
     }
 
     /**
@@ -75,7 +75,7 @@ class RatingService
 
         $rating->save();
 
-        return $rating->refresh();
+        return $rating;
     }
 
     /**

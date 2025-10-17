@@ -8,8 +8,9 @@ class SubscriptionRedirectResponse
 {
     public static function alreadySubscribed(): RedirectResponse
     {
-        return redirect()
-            ->to(localized_route('dashboard'))
+        $locale = app()->getLocale() ?? config('app.fallback_locale');
+
+        return redirect()->route('dashboard', ['locale' => $locale])
             ->with('status', __('subscriptions.status.already_subscribed'));
     }
 }
