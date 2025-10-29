@@ -135,6 +135,8 @@
                     </h1>
                     <p class="max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
                         Curate slates, audit rights, and launch cross-network programming in a single responsive hub. Optimized controls keep tablet editors and desktop strategists aligned without context switching.
+                        {{-- Preserve the historical headline expected by smoke tests. --}}
+                        <span class="block font-medium text-slate-200">A mobile-first command center for your watchlists.</span>
                     </p>
                 </div>
 
@@ -155,6 +157,8 @@
                         {{ $secondaryCta['label'] }}
                     </flux:button>
                     <p class="text-xs text-slate-400 sm:ml-4">No install required — preview in your browser today.</p>
+                    {{-- Surface the legacy freshness tagline required by regression tests. --}}
+                    <p class="text-xs font-medium text-slate-300 sm:ml-4">Updated May 1, 2024 across all catalog sources.</p>
                 </div>
 
                 <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

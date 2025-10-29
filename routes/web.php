@@ -23,6 +23,7 @@ use App\Livewire\HomePage;
 use App\Livewire\PricingPage;
 use App\Livewire\TvShowDetail;
 use App\Livewire\WatchHistoryBrowser;
+use Illuminate\Foundation\Http\Middleware\CheckResponseForModifications;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\File;
@@ -126,11 +127,16 @@ Route::get('{locale}/build/{path}', function (string $locale, string $path) use 
         abort(404);
     }
 
-    return response(File::get($fullPath), 200, [
+    $response = response(File::get($fullPath), 200, [
         'Content-Type' => File::mimeType($fullPath) ?: 'application/octet-stream',
-        'Cache-Control' => 'public, max-age=31536000',
     ]);
-})->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])->where('path', '.*');
+
+    // Ensure long-lived caching for compiled assets across locales.
+    $response->setPublic()->setMaxAge(31536000)->setSharedMaxAge(31536000);
+    $response->headers->set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+
+    return $response;
+})->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class, CheckResponseForModifications::class])->where('path', '.*');
 
 Route::prefix('{locale}')
     ->middleware(['validate-locale', 'set-locale'])
