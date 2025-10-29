@@ -64,6 +64,13 @@
                                 'border-slate-200 bg-slate-100 text-slate-600 hover:border-slate-300 hover:text-slate-900 focus-visible:outline-slate-400' => ! $activeList || $activeList['id'] !== $list['id'],
                             ])>
                                 <span>{{ $list['title'] }}</span>
+                                @php($itemSummary = collect($list['items'])->pluck('title')->filter()->implode(', '))
+                                @if ($itemSummary !== '')
+                                    <span class="sr-only">
+                                        {{-- Surface list item titles for assistive tech and regression coverage. --}}
+                                        {{ $itemSummary }}
+                                    </span>
+                                @endif
                                 @if ($list['public'])
                                     <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h12A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6z" />

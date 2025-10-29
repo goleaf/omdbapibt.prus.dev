@@ -81,11 +81,20 @@ class StaticPageController extends Controller
     {
         $cta = data_get($section, 'cta');
 
-        if (! is_array($cta)) {
-            return null;
-        }
-
         $email = $supportEmail ?? $this->resolveSupportEmail();
+        $hasFallbackContext = $supportEmail !== null;
+
+        if (! is_array($cta)) {
+            if (! $hasFallbackContext) {
+                return null;
+            }
+
+            // Default to the support mailto call-to-action when the section omits overrides.
+            return [
+                'href' => 'mailto:'.$email,
+                'label' => trans('ui.pages.support.default_cta'),
+            ];
+        }
 
         return [
             'href' => $cta['href'] ?? ('mailto:'.$email),
